@@ -1,0 +1,16 @@
+.lpv-wrapper .lpv-select {
+    margin-bottom: 0.5em;
+}
+
+.lpv-wrapper .lpv-select__input {
+    width: 100%;
+    max-width: 480px;
+}
+
+.lpv-wrapper .lpv-root {
+    width: 100%;
+}
+
+.lpv-wrapper .lpv-empty {
+    font-style: italic;
+}

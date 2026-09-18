@@ -1,0 +1,71 @@
+<!-- indexer::stop -->
+<div class="{{ class }} block lpv-wrapper" {{ cssID }}{% if style %} style="{{ style }}"{% endif %}>
+    {% block headline %}
+        {% if headline %}
+            <{{ hl }}>{{ headline }}</{{ hl }}>
+        {% endif %}
+    {% endblock %}
+
+    {% block gameSelect %}
+        {#
+            Auswahlliste bei mehreren Partien in der PGN-Quelle.
+
+            "games" enthält alle gefundenen Partien in der Reihenfolge der
+            Quelle (Datei-/Textreihenfolge bzw. "ORDER BY date ASC" bei der
+            dbChess-Datenbank). Jede Partie hat "pgn" (vollständiger
+            Partie-PGN-Text) sowie "headers" (die geparsten PGN-Tag-Pairs,
+            z. B. headers.White, headers.Black, headers.Date, headers.Event,
+            headers.Round, headers.Result, headers.Eco - je nachdem, welche
+            Tags in der Partie vorhanden sind).
+
+            Anzeige UND Sortierung der Menüpunkte sind bewusst hier im
+            Template gelöst, nicht im PHP-Code:
+            - Beschriftung anpassen: siehe "label"-Berechnung weiter unten.
+            - Reihenfolge umkehren: "games" z. B. durch "games|reverse" ersetzen.
+            - Nach einem Header-Feld sortieren (falls die Twig-Version
+              Arrow-Functions im sort-Filter unterstützt, ab Twig 3.11):
+              games|sort((a, b) => (a.headers.White ?? '') <=> (b.headers.White ?? ''))
+        #}
+        {% if showGameSelect %}
+            <div class="lpv-select">
+                <label for="{{ elementId }}-select">{{ 'MSC.lpv_gameSelect_label'|trans({}, 'contao_default') }}</label>
+                <select id="{{ elementId }}-select" class="lpv-select__input" data-lpv-select>
+                    {% for game in games %}
+                        {% set h = game.headers %}
+                        {% set players = (h.White is defined and h.White and h.White != '?') and (h.Black is defined and h.Black and h.Black != '?') %}
+                        {% set label %}
+                            {%- if players -%}
+                                {{ h.White }} – {{ h.Black }}
+                                {%- if h.Result is defined and h.Result and h.Result != '*' %} ({{ h.Result }}){% endif -%}
+                                {%- if h.Date is defined and h.Date and h.Date starts with '????' == false %}, {{ h.Date }}{% endif -%}
+                                {%- if h.Event is defined and h.Event and h.Event != '?' %} – {{ h.Event }}{% endif -%}
+                            {%- else -%}
+                                {{ 'MSC.lpv_game_fallback'|trans({}, 'contao_default') }} {{ loop.index }}
+                            {%- endif -%}
+                        {% endset %}
+                        <option value="{{ loop.index0 }}" data-pgn="{{ game.pgn|e('html_attr') }}"{% if loop.first %} selected="selected"{% endif %}>{{ label|trim }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        {% endif %}
+    {% endblock %}
+
+    {% block viewer %}
+        {% if hasGames %}
+            <div
+                id="{{ elementId }}"
+                class="lpv-root{% if cssClass %} {{ cssClass }}{% endif %}"
+                data-lpv-root
+                data-lpv-options="{{ elementId }}-options"
+                {%- if not showGameSelect %} data-lpv-pgn="{{ games[0].pgn|e('html_attr') }}"{% endif -%}
+                {%- if width %} style="max-width: {{ width }};"{% endif -%}
+            ></div>
+            <script type="application/json" id="{{ elementId }}-options">{{ optionsJson|raw }}</script>
+            <link rel="stylesheet" href="{{ assetsPath }}/lichess-pgn-viewer.css">
+            <script type="module" src="{{ assetsPath }}/lichess-pgn-viewer-init.js"></script>
+        {% else %}
+            <p class="lpv-empty">{{ 'MSC.lpv_noGames'|trans({}, 'contao_default') }}</p>
+        {% endif %}
+    {% endblock %}
+</div>
+<!-- indexer::continue -->

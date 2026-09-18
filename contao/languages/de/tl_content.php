@@ -1,0 +1,74 @@
+<?php
+
+/**
+ * Sprachdatei tl_content (Content-Element "lichessPgnviewer").
+ */
+
+$GLOBALS['TL_LANG']['tl_content']['lichessPgnviewer'] = ['Schachpartie (lichess PGN-Viewer)', 'Ermöglicht das Nachspielen einer oder mehrerer Schachpartien im Frontend mit dem lichess.org PGN-Viewer.'];
+
+$GLOBALS['TL_LANG']['tl_content']['lpv_source'] = ['PGN-Quelle', 'Legen Sie fest, woher die PGN-Daten der Partie(n) stammen.'];
+$GLOBALS['TL_LANG']['tl_content']['lpv_source_option'] = [
+    'f' => 'Datei (.pgn aus der Dateiverwaltung)',
+    't' => 'Textfeld (PGN direkt eingeben)',
+    'd' => 'Interne Datenbank (dbChess)',
+];
+
+$GLOBALS['TL_LANG']['tl_content']['lpv_file'] = ['PGN-Datei', 'Wählen Sie eine .pgn-Datei aus der Dateiverwaltung. Sie darf mehrere Partien enthalten.'];
+$GLOBALS['TL_LANG']['tl_content']['lpv_text'] = ['PGN-Text', 'Geben Sie die PGN-Notation direkt ein. Mehrere Partien werden automatisch erkannt.'];
+
+$GLOBALS['TL_LANG']['tl_content']['dbChess_list_collection'] = ['Partiesammlung(en)', 'Wählen Sie eine oder mehrere Partiesammlungen aus der dbChess-Datenbank.'];
+$GLOBALS['TL_LANG']['tl_content']['lpv_dbChess_filter'] = ['Eigener Filter (optional)', 'Zusätzliche SQL-WHERE-Bedingung für tl_dbChess_games, z. B. white=\'Carlsen\'.'];
+
+$GLOBALS['TL_LANG']['tl_content']['lpv_showPlayers'] = ['Spielernamen anzeigen', 'Steuert, ob die Spielernamen über/unter dem Brett angezeigt werden.'];
+$GLOBALS['TL_LANG']['tl_content']['lpv_showPlayers_option'] = [
+    'a' => 'Automatisch (abhängig von vorhandenen PGN-Daten)',
+    '1' => 'Immer anzeigen',
+    '0' => 'Nie anzeigen',
+];
+
+$GLOBALS['TL_LANG']['tl_content']['lpv_showClocks'] = ['Bedenkzeiten anzeigen', 'Zeigt die Uhren neben den Spielernamen an, sofern in der PGN vorhanden.'];
+
+$GLOBALS['TL_LANG']['tl_content']['lpv_showMoves'] = ['Zugliste anzeigen', 'Position und Sichtbarkeit der Zugliste.'];
+$GLOBALS['TL_LANG']['tl_content']['lpv_showMoves_option'] = [
+    'a' => 'Automatisch (responsiv)',
+    'r' => 'Rechts neben dem Brett',
+    'b' => 'Unter dem Brett',
+    '0' => 'Ausblenden',
+];
+
+$GLOBALS['TL_LANG']['tl_content']['lpv_showControls'] = ['Steuerbuttons anzeigen', 'Zeigt die Buttons "Zurück/Menü/Vor" an.'];
+$GLOBALS['TL_LANG']['tl_content']['lpv_scrollToMove'] = ['Navigation per Mausrad', 'Erlaubt das Durchblättern der Züge mit dem Mausrad.'];
+$GLOBALS['TL_LANG']['tl_content']['lpv_keyboardToMove'] = ['Navigation per Tastatur', 'Erlaubt das Durchblättern der Züge mit den Pfeiltasten.'];
+
+$GLOBALS['TL_LANG']['tl_content']['lpv_orientation'] = ['Brettausrichtung', 'Von welcher Seite aus das Brett dargestellt wird.'];
+$GLOBALS['TL_LANG']['tl_content']['lpv_orientation_option'] = [
+    '' => 'Automatisch (Orientation-Tag der PGN, sonst Weiß)',
+    'white' => 'Weiß unten',
+    'black' => 'Schwarz unten',
+];
+
+$GLOBALS['TL_LANG']['tl_content']['lpv_initialPlyMode'] = ['Startposition', 'Mit welchem Halbzug der Viewer beim Laden startet.'];
+$GLOBALS['TL_LANG']['tl_content']['lpv_initialPlyMode_option'] = [
+    's' => 'Grundstellung (1. Zug)',
+    'l' => 'Letzter Zug der Partie',
+    'n' => 'Bestimmter Halbzug',
+];
+$GLOBALS['TL_LANG']['tl_content']['lpv_initialPlyNumber'] = ['Halbzug-Nummer', 'Halbzug, mit dem der Viewer startet (0 = Grundstellung).'];
+
+$GLOBALS['TL_LANG']['tl_content']['lpv_drawArrows'] = ['Pfeile/Markierungen erlauben', 'Erlaubt Besuchern, mit der Maus Pfeile auf das Brett zu zeichnen.'];
+$GLOBALS['TL_LANG']['tl_content']['lpv_coordinates'] = ['Koordinaten am Rand', 'Zeigt die Feldkoordinaten (a-h, 1-8) am Brettrand an.'];
+$GLOBALS['TL_LANG']['tl_content']['lpv_coordinatesOnSquares'] = ['Koordinaten auf jedem Feld', 'Zeigt zusätzlich auf jedem Feld dessen Koordinate an.'];
+$GLOBALS['TL_LANG']['tl_content']['lpv_highlightLastMove'] = ['Letzten Zug hervorheben', 'Markiert Start- und Zielfeld des zuletzt gezeigten Zuges.'];
+$GLOBALS['TL_LANG']['tl_content']['lpv_highlightCheck'] = ['Schach hervorheben', 'Markiert das Feld des Königs bei Schach.'];
+$GLOBALS['TL_LANG']['tl_content']['lpv_animationDuration'] = ['Animationsdauer (ms)', 'Dauer der Zug-Animation in Millisekunden. 0 deaktiviert die Animation.'];
+$GLOBALS['TL_LANG']['tl_content']['lpv_blockTouchScroll'] = ['Touch-Scrollen blockieren', 'Verhindert auf Touch-Geräten das Scrollen der Seite beim Bedienen des Bretts.'];
+
+$GLOBALS['TL_LANG']['tl_content']['lpv_menuGetPgn'] = ['Menüpunkt "PGN herunterladen"', 'Zeigt im Viewer-Menü einen Download-Link für die aktuelle Partie an.'];
+$GLOBALS['TL_LANG']['tl_content']['lpv_menuGetPgnFileName'] = ['Dateiname für PGN-Download', 'Leer lassen für einen automatisch erzeugten Dateinamen.'];
+$GLOBALS['TL_LANG']['tl_content']['lpv_menuPractice'] = ['Menüpunkt "Gegen Computer üben"', 'Verlinkt im Viewer-Menü auf lichess.org zum Üben der aktuellen Stellung gegen den Computer.'];
+$GLOBALS['TL_LANG']['tl_content']['lpv_menuAnalysisBoard'] = ['Menüpunkt "Analysebrett"', 'Verlinkt im Viewer-Menü auf das lichess.org-Analysebrett.'];
+$GLOBALS['TL_LANG']['tl_content']['lpv_lichessLink'] = ['lichess.org-Verknüpfung', 'Erkennt lichess-Partien in der PGN und verlinkt Spieler/Partie auf lichess.org.'];
+
+$GLOBALS['TL_LANG']['tl_content']['lpv_width'] = ['Breite', 'CSS-Breite des Viewers, z. B. 480px oder 100%. Leer = volle Breite.'];
+$GLOBALS['TL_LANG']['tl_content']['lpv_cssClass'] = ['CSS-Klasse(n)', 'Zusätzliche CSS-Klassen für das Wurzelelement des Viewers.'];
+$GLOBALS['TL_LANG']['tl_content']['lpv_template'] = ['Eigene Vorlage', 'Abweichende Twig-Vorlage für die Ausgabe (z. B. für eigene Sortierung/Beschriftung der Partieauswahl).'];
