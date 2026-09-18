@@ -11,6 +11,79 @@
     width: 100%;
 }
 
+/*
+ * lichess-pgn-viewer.css färbt das Brett standardmäßig über
+ * cg-board { background-color: var(--board-color); } plus einem fest
+ * einprogrammierten Schachbrettmuster, das dunkle Felder nur mit 20%
+ * Schwarz abdunkelt. Das ergibt unabhängig von der gewählten Farbe nur
+ * ein sehr geringes Kontrastverhältnis von ca. 1,5:1 zwischen hellen und
+ * dunklen Feldern. Für ein normales, gut lesbares Schachbrett wird das
+ * Muster hier daher komplett durch zwei unabhängige Farben ersetzt
+ * (klassisches lichess-Braun/Beige, identisch zu den Standardfarben in
+ * wiksoft/pgn4web-bundle und wiksoft/dbchess-bundle), Kontrastverhältnis
+ * ca. 2,3:1.
+ */
+.lpv-wrapper cg-board {
+    --lpv-square-light: #f0d9b5;
+    --lpv-square-dark: #b58863;
+    background-color: transparent;
+    background-image: conic-gradient(
+        var(--lpv-square-dark) 0deg 90deg,
+        var(--lpv-square-light) 90deg 180deg,
+        var(--lpv-square-dark) 180deg 270deg,
+        var(--lpv-square-light) 270deg 360deg
+    );
+    background-size: 25% 25%;
+}
+
 .lpv-wrapper .lpv-empty {
     font-style: italic;
+}
+
+/*
+ * Feste Brettbreite (Feld "Brettbreite", nur bei Zugliste "Rechts neben
+ * dem Brett" wirksam, siehe ce_lichessPgnviewer.html.twig): der lichess-
+ * Viewer legt für diesen Modus per CSS-Grid "grid-template-columns: auto
+ * fit-content(40%);" fest - die Brett-Spalte ("auto") füllt dabei immer
+ * den nach Abzug der Zugliste verbleibenden Platz, eine feste Brettgröße
+ * lässt sich darüber nicht direkt einstellen. Die Brett-Spalte wird daher
+ * hier auf --lpv-board-width fixiert (Fallback "auto" = unverändertes
+ * Standardverhalten, falls die Variable nicht gesetzt ist).
+ *
+ * Die Zugliste-Spalte bleibt im Standardfall "fit-content(40%)" (schmiegt
+ * sich an ihren Inhalt an, damit das Brett bei "auto" möglichst viel Platz
+ * bekommt). Ist die Brettbreite jedoch fest vorgegeben, wird über
+ * --lpv-side-width auf "1fr" umgeschaltet (siehe ce_lichessPgnviewer.html.twig):
+ * so füllt die Zugliste genau den nach Abzug des Bretts verbleibenden
+ * Platz bis zur konfigurierten Gesamtbreite aus, statt auf ihre
+ * Inhaltsbreite (bzw. das 40%-Limit) begrenzt zu bleiben.
+ */
+.lpv-wrapper .lpv--moves-right {
+    grid-template-columns: var(--lpv-board-width, auto) var(--lpv-side-width, fit-content(40%));
+}
+
+.lpv-wrapper .lpv-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25em 1.5em;
+    margin: 0 0 0.75em;
+    font-size: 0.9em;
+}
+
+.lpv-wrapper .lpv-info__row {
+    display: flex;
+    gap: 0.35em;
+    margin: 0;
+}
+
+.lpv-wrapper .lpv-info__row[hidden] {
+    display: none;
+}
+
+.lpv-wrapper .lpv-info dt {
+    font-weight: bold;
+}
+
+.lpv-wrapper .lpv-info dd {
+    margin: 0;
 }

@@ -17,10 +17,11 @@ $GLOBALS['TL_DCA']['tl_content']['palettes']['__selector__'][] = 'lpv_menuGetPgn
 $GLOBALS['TL_DCA']['tl_content']['palettes']['lichessPgnviewer'] = '
 	{type_legend},type,headline;
 	{lpv_source_legend},lpv_source;
-	{lpv_display_legend},lpv_showPlayers,lpv_showClocks,lpv_showMoves,lpv_showControls,lpv_scrollToMove,lpv_keyboardToMove;
-	{lpv_board_legend},lpv_orientation,lpv_initialPlyMode,lpv_drawArrows,lpv_coordinates,lpv_coordinatesOnSquares,lpv_highlightLastMove,lpv_highlightCheck,lpv_animationDuration,lpv_blockTouchScroll;
+	{lpv_display_legend},lpv_showPlayers,lpv_showClocks,lpv_showMoves,lpv_showControls,lpv_scrollToMove,lpv_keyboardToMove,lpv_showGameInfo;
+	{lpv_board_legend},lpv_orientation,lpv_initialPlyMode,lpv_drawArrows,lpv_coordinates,lpv_highlightLastMove,lpv_highlightCheck,lpv_animationDuration,lpv_blockTouchScroll;
+	{lpv_design_legend},lpv_squareLightColorHex,lpv_squareDarkColorHex,lpv_bgColorHex,lpv_accentColorHex,lpv_fontColorHex;
 	{lpv_menu_legend},lpv_menuGetPgn,lpv_menuPractice,lpv_menuAnalysisBoard,lpv_lichessLink;
-	{lpv_layout_legend},lpv_width,lpv_cssClass;
+	{lpv_layout_legend},lpv_width,lpv_boardWidth,lpv_cssClass;
 	{template_legend:hide},lpv_template;
 	{protected_legend:hide},protected;
 	{expert_legend:hide},guest,cssID,space;
@@ -149,6 +150,15 @@ $GLOBALS['TL_DCA']['tl_content']['fields']['lpv_keyboardToMove'] = [
     'sql' => "char(1) NOT NULL default '1'",
 ];
 
+$GLOBALS['TL_DCA']['tl_content']['fields']['lpv_showGameInfo'] = [
+    'label' => &$GLOBALS['TL_LANG']['tl_content']['lpv_showGameInfo'],
+    'default' => '1',
+    'exclude' => true,
+    'inputType' => 'checkbox',
+    'eval' => ['tl_class' => 'w50 m12'],
+    'sql' => "char(1) NOT NULL default '1'",
+];
+
 $GLOBALS['TL_DCA']['tl_content']['fields']['lpv_orientation'] = [
     'label' => &$GLOBALS['TL_LANG']['tl_content']['lpv_orientation'],
     'default' => '',
@@ -198,15 +208,6 @@ $GLOBALS['TL_DCA']['tl_content']['fields']['lpv_coordinates'] = [
     'sql' => "char(1) NOT NULL default '1'",
 ];
 
-$GLOBALS['TL_DCA']['tl_content']['fields']['lpv_coordinatesOnSquares'] = [
-    'label' => &$GLOBALS['TL_LANG']['tl_content']['lpv_coordinatesOnSquares'],
-    'default' => '',
-    'exclude' => true,
-    'inputType' => 'checkbox',
-    'eval' => ['tl_class' => 'w50 m12'],
-    'sql' => "char(1) NOT NULL default ''",
-];
-
 $GLOBALS['TL_DCA']['tl_content']['fields']['lpv_highlightLastMove'] = [
     'label' => &$GLOBALS['TL_LANG']['tl_content']['lpv_highlightLastMove'],
     'default' => '1',
@@ -241,6 +242,46 @@ $GLOBALS['TL_DCA']['tl_content']['fields']['lpv_blockTouchScroll'] = [
     'inputType' => 'checkbox',
     'eval' => ['tl_class' => 'w50 m12'],
     'sql' => "char(1) NOT NULL default ''",
+];
+
+$GLOBALS['TL_DCA']['tl_content']['fields']['lpv_squareLightColorHex'] = [
+    'label' => &$GLOBALS['TL_LANG']['tl_content']['lpv_squareLightColorHex'],
+    'exclude' => true,
+    'inputType' => 'text',
+    'eval' => ['tl_class' => 'w50', 'colorpicker' => true, 'placeholder' => 'f0d9b5'],
+    'sql' => "varchar(6) NOT NULL default ''",
+];
+
+$GLOBALS['TL_DCA']['tl_content']['fields']['lpv_squareDarkColorHex'] = [
+    'label' => &$GLOBALS['TL_LANG']['tl_content']['lpv_squareDarkColorHex'],
+    'exclude' => true,
+    'inputType' => 'text',
+    'eval' => ['tl_class' => 'w50', 'colorpicker' => true, 'placeholder' => 'b58863'],
+    'sql' => "varchar(6) NOT NULL default ''",
+];
+
+$GLOBALS['TL_DCA']['tl_content']['fields']['lpv_bgColorHex'] = [
+    'label' => &$GLOBALS['TL_LANG']['tl_content']['lpv_bgColorHex'],
+    'exclude' => true,
+    'inputType' => 'text',
+    'eval' => ['tl_class' => 'w50 clr', 'colorpicker' => true, 'placeholder' => '302e2c'],
+    'sql' => "varchar(6) NOT NULL default ''",
+];
+
+$GLOBALS['TL_DCA']['tl_content']['fields']['lpv_accentColorHex'] = [
+    'label' => &$GLOBALS['TL_LANG']['tl_content']['lpv_accentColorHex'],
+    'exclude' => true,
+    'inputType' => 'text',
+    'eval' => ['tl_class' => 'w50', 'colorpicker' => true, 'placeholder' => '629924'],
+    'sql' => "varchar(6) NOT NULL default ''",
+];
+
+$GLOBALS['TL_DCA']['tl_content']['fields']['lpv_fontColorHex'] = [
+    'label' => &$GLOBALS['TL_LANG']['tl_content']['lpv_fontColorHex'],
+    'exclude' => true,
+    'inputType' => 'text',
+    'eval' => ['tl_class' => 'w50 clr', 'colorpicker' => true, 'placeholder' => 'aaaaaa'],
+    'sql' => "varchar(6) NOT NULL default ''",
 ];
 
 $GLOBALS['TL_DCA']['tl_content']['fields']['lpv_menuGetPgn'] = [
@@ -292,6 +333,14 @@ $GLOBALS['TL_DCA']['tl_content']['fields']['lpv_width'] = [
     'exclude' => true,
     'inputType' => 'text',
     'eval' => ['tl_class' => 'w50 clr', 'placeholder' => '100%'],
+    'sql' => "varchar(32) NOT NULL default ''",
+];
+
+$GLOBALS['TL_DCA']['tl_content']['fields']['lpv_boardWidth'] = [
+    'label' => &$GLOBALS['TL_LANG']['tl_content']['lpv_boardWidth'],
+    'exclude' => true,
+    'inputType' => 'text',
+    'eval' => ['tl_class' => 'w50', 'placeholder' => '480px'],
     'sql' => "varchar(32) NOT NULL default ''",
 ];
 

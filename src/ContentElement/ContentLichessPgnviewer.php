@@ -53,10 +53,14 @@ class ContentLichessPgnviewer extends ContentElement
         $this->Template->elementId = 'lpv-ce-' . $this->id;
         $this->Template->games = $games;
         $this->Template->hasGames = \count($games) > 0;
+        $this->Template->showGameInfo = (bool) $this->lpv_showGameInfo;
         $this->Template->showGameSelect = \count($games) > 1;
         $this->Template->assetsPath = self::ASSETS_PATH;
+        $this->Template->assetsVersion = $this->getAssetsVersion();
         $this->Template->cssClass = trim((string) $this->lpv_cssClass);
         $this->Template->width = trim((string) $this->lpv_width);
+        $this->Template->boardWidth = trim((string) $this->lpv_boardWidth);
+        $this->Template->designStyle = $this->buildDesignStyle();
 
         $options = $this->buildViewerOptions();
         $this->Template->options = $options;
@@ -64,6 +68,110 @@ class ContentLichessPgnviewer extends ContentElement
             $options,
             JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP
         );
+    }
+
+    /**
+     * lichess-pgn-viewer-init.js und lichess-pgn-viewer.css werden im
+     * Twig-Template direkt als <script src>/<link href> eingebunden statt
+     * über $GLOBALS['TL_JAVASCRIPT']/TL_CSS (Contaos Combiner würde das
+     * ES-Modul lichess-pgn-viewer-init.js sonst potenziell mit anderen
+     * Skripten kombinieren und dabei "type=module" verlieren). Der
+     * öffentliche Ordner public/bundles/.../ wird von Apache/Nginx aber mit
+     * einem sehr langen Cache-Control: max-age (typischerweise 1 Jahr)
+     * ausgeliefert - ohne eine sich ändernde URL würden Browser nach einer
+     * Aktualisierung dieser Dateien (z. B. neue Funktionen im Init-Script)
+     * weiterhin die alte, gecachte Version verwenden. Ein an die Dateien
+     * gekoppelter "?v="-Parameter erzwingt bei jeder Änderung automatisch
+     * eine neue URL und damit ein erneutes Laden.
+     */
+    private function getAssetsVersion(): string
+    {
+        $projectDir = System::getContainer()->getParameter('kernel.project_dir');
+        $assetsDir = $projectDir . '/public' . self::ASSETS_PATH;
+
+        $mtimes = [];
+        foreach (['lichess-pgn-viewer-init.js', 'lichess-pgn-viewer.css'] as $file) {
+            $path = $assetsDir . '/' . $file;
+            if (is_file($path)) {
+                $mtimes[] = filemtime($path);
+            }
+        }
+
+        return $mtimes ? (string) max($mtimes) : '1';
+    }
+
+    /**
+     * Baut aus den optionalen lpv_*ColorHex-Feldern (siehe tl_content.php)
+     * einen CSS-Custom-Property-Deklarationsblock, der im Template auf dem
+     * INNEREN #{{ elementId }}-Div gesetzt wird (siehe getAssetsVersion()-
+     * Kommentar zur Trennung von TL_CSS/TL_JAVASCRIPT vs. direkt im
+     * Template eingebundenen Assets - dasselbe Div trägt bereits das
+     * bedingte "max-width"-Style für lpv_width). Das äußere .lpv-wrapper-
+     * Div mit Contaos eigenem generischem cssID-Style bleibt unberührt.
+     *
+     * Nur tatsächlich befüllte Felder werden ausgegeben; ein leeres Feld
+     * lässt den bisherigen Default unverändert (die beiden Feldfarben
+     * fallen dann auf public/lpv.css zurück, die übrigen drei auf den
+     * eingebauten Dark-Theme-Default des lichess-pgn-viewer).
+     *
+     * --c-lpv-bg-player/-controls/-movelist sind im kompilierten
+     * lichess-pgn-viewer.css eigenständige Custom Properties ohne
+     * Laufzeit-Verknüpfung zu --c-lpv-bg (nur derselbe Default zur
+     * SCSS-Build-Zeit der Bibliothek) - lpv_bgColorHex wird deshalb
+     * bewusst auf alle vier Variablen zugleich angewendet.
+     */
+    private function buildDesignStyle(): string
+    {
+        $vars = [];
+
+        if ($color = $this->sanitizeColorHex($this->lpv_squareLightColorHex)) {
+            $vars['--lpv-square-light'] = $color;
+        }
+
+        if ($color = $this->sanitizeColorHex($this->lpv_squareDarkColorHex)) {
+            $vars['--lpv-square-dark'] = $color;
+        }
+
+        if ($color = $this->sanitizeColorHex($this->lpv_bgColorHex)) {
+            $vars['--c-lpv-bg'] = $color;
+            $vars['--c-lpv-bg-player'] = $color;
+            $vars['--c-lpv-bg-controls'] = $color;
+            $vars['--c-lpv-bg-movelist'] = $color;
+        }
+
+        if ($color = $this->sanitizeColorHex($this->lpv_accentColorHex)) {
+            $vars['--c-lpv-accent'] = $color;
+        }
+
+        if ($color = $this->sanitizeColorHex($this->lpv_fontColorHex)) {
+            $vars['--c-lpv-font'] = $color;
+        }
+
+        if (!$vars) {
+            return '';
+        }
+
+        $declarations = '';
+        foreach ($vars as $property => $color) {
+            $declarations .= $property . ':#' . $color . ';';
+        }
+
+        return $declarations;
+    }
+
+    /**
+     * Contaos colorpicker-Widget speichert nur die reinen Hex-Ziffern ohne
+     * führendes '#' (Contao-Kernkonvention, siehe jedes *ColorHex-Feld in
+     * wiksoft/pgn4web-bundle). Trotzdem wird strikt gegen ein 6-stelliges
+     * Hex-Muster geprüft, damit ein manipulierter oder fehlerhafter
+     * Datensatz nicht unvalidiert in die generierte style="..."-Deklaration
+     * gelangen kann.
+     */
+    private function sanitizeColorHex(mixed $value): string
+    {
+        $value = trim((string) $value);
+
+        return preg_match('/^[0-9a-fA-F]{6}$/', $value) ? strtolower($value) : '';
     }
 
     private function collectPgnText(): string
@@ -219,7 +327,6 @@ class ContentLichessPgnviewer extends ContentElement
             'lichess' => $this->lpv_lichessLink ? 'https://lichess.org' : false,
             'chessground' => [
                 'coordinates' => (bool) $this->lpv_coordinates,
-                'coordinatesOnSquares' => (bool) $this->lpv_coordinatesOnSquares,
                 'blockTouchScroll' => (bool) $this->lpv_blockTouchScroll,
                 'highlight' => [
                     'lastMove' => (bool) $this->lpv_highlightLastMove,

@@ -1,8 +1,51 @@
 <!-- indexer::stop -->
+{#
+    Zusätzliche Partiedaten, die der lichess-pgn-viewer selbst nicht
+    anzeigt (er zeigt nur Spielernamen/Elo im eigenen Kopfbereich). "tag"
+    ist der PGN-Tag-Name (siehe game.headers), "key" der daraus abgeleitete
+    data-*-Attribut-/Übersetzungsschlüssel (MSC.lpv_info_<key>).
+#}
+{% set lpvInfoFields = [
+    {'tag': 'White', 'key': 'white'},
+    {'tag': 'Black', 'key': 'black'},
+    {'tag': 'Result', 'key': 'result'},
+    {'tag': 'Event', 'key': 'event'},
+    {'tag': 'Round', 'key': 'round'},
+    {'tag': 'Site', 'key': 'site'},
+    {'tag': 'Date', 'key': 'date'},
+    {'tag': 'ECO', 'key': 'eco'},
+    {'tag': 'WhiteElo', 'key': 'whiteelo'},
+    {'tag': 'BlackElo', 'key': 'blackelo'},
+    {'tag': 'Annotator', 'key': 'annotator'},
+    {'tag': 'Source', 'key': 'source'},
+] %}
 <div class="{{ class }} block lpv-wrapper" {{ cssID }}{% if style %} style="{{ style }}"{% endif %}>
     {% block headline %}
         {% if headline %}
             <{{ hl }}>{{ headline }}</{{ hl }}>
+        {% endif %}
+    {% endblock %}
+
+    {% block gameInfo %}
+        {#
+            Weitere Partiedaten (Veranstaltung, Ort, Runde, ECO, Elo,
+            Kommentator, Quelle), die der lichess-pgn-viewer selbst nicht
+            anzeigt (er zeigt nur Spielernamen/Elo im Kopf). Wird beim
+            Wechsel der Partie im Dropdown per JavaScript aus den
+            data-*-Attributen der ausgewählten <option> aktualisiert, siehe
+            lichess-pgn-viewer-init.js.
+        #}
+        {% if hasGames and showGameInfo %}
+            {% set h = games[0].headers %}
+            <dl class="lpv-info" id="{{ elementId }}-info">
+                {% for key in lpvInfoFields %}
+                    {% set v = h[key.tag] is defined and h[key.tag] and h[key.tag] != '?' and (key.tag != 'Date' or h[key.tag] starts with '????' == false) and (key.tag != 'Result' or h[key.tag] != '*') ? h[key.tag] : '' %}
+                    <div class="lpv-info__row" data-lpv-info="{{ key.key }}"{% if not v %} hidden{% endif %}>
+                        <dt>{{ ('MSC.lpv_info_' ~ key.key)|trans({}, 'contao_default') }}</dt>
+                        <dd>{{ v }}</dd>
+                    </div>
+                {% endfor %}
+            </dl>
         {% endif %}
     {% endblock %}
 
@@ -43,7 +86,15 @@
                                 {{ 'MSC.lpv_game_fallback'|trans({}, 'contao_default') }} {{ loop.index }}
                             {%- endif -%}
                         {% endset %}
-                        <option value="{{ loop.index0 }}" data-pgn="{{ game.pgn|e('html_attr') }}"{% if loop.first %} selected="selected"{% endif %}>{{ label|trim }}</option>
+                        <option
+                            value="{{ loop.index0 }}"
+                            data-pgn="{{ game.pgn|e('html_attr') }}"
+                            {%- for key in lpvInfoFields %}
+                                {% set v = h[key.tag] is defined and h[key.tag] and h[key.tag] != '?' and (key.tag != 'Date' or h[key.tag] starts with '????' == false) and (key.tag != 'Result' or h[key.tag] != '*') ? h[key.tag] : '' %}
+                                data-{{ key.key }}="{{ v|e('html_attr') }}"
+                            {%- endfor %}
+                            {% if loop.first %} selected="selected"{% endif %}
+                        >{{ label|trim }}</option>
                     {% endfor %}
                 </select>
             </div>
@@ -52,17 +103,54 @@
 
     {% block viewer %}
         {% if hasGames %}
+            {#
+                Feldfarben (--lpv-square-light/-dark, siehe public/lpv.css),
+                Chrome-Farben des lichess-Viewers (--c-lpv-*, siehe
+                public/lichess-pgn-viewer/lichess-pgn-viewer.css) und die
+                feste Brettbreite (--lpv-board-width, siehe public/lpv.css)
+                werden - falls im Content-Element gesetzt - hier zu einem
+                einzigen style="..."-Attribut auf dem inneren
+                #{{ elementId }}-Div zusammengeführt (nicht mit dem äußeren,
+                Contao-eigenen cssID-"style" auf .lpv-wrapper verwechseln).
+
+                Die feste Brettbreite wirkt nur, wenn die Zugliste rechts
+                vom Brett angezeigt wird (options.showMoves == 'right') -
+                nur dort konkurrieren Brett und Zugliste in derselben
+                CSS-Grid-Zeile um die Breite. --lpv-side-width schaltet die
+                Zugliste-Spalte dabei zusätzlich von "fit-content(40%)" auf
+                "1fr" um (siehe public/lpv.css), damit die Zugliste den nach
+                Abzug des Bretts verbleibenden Platz bis zur über "width"
+                konfigurierten Gesamtbreite komplett ausfüllt, statt auf
+                ihre Inhaltsbreite begrenzt zu bleiben.
+            #}
+            {% set widthStyle = width ? 'max-width: ' ~ width ~ ';' : '' %}
+            {% set boardWidthActive = boardWidth and options.showMoves == 'right' %}
+            {% set boardWidthStyle = boardWidthActive ? ('--lpv-board-width: ' ~ boardWidth ~ '; --lpv-side-width: 1fr;') : '' %}
+            {% set styleAttr = (
+                widthStyle
+                ~ (widthStyle and (designStyle or boardWidthStyle) ? ' ' : '')
+                ~ designStyle
+                ~ (designStyle and boardWidthStyle ? ' ' : '')
+                ~ boardWidthStyle
+            )|trim %}
             <div
                 id="{{ elementId }}"
                 class="lpv-root{% if cssClass %} {{ cssClass }}{% endif %}"
                 data-lpv-root
                 data-lpv-options="{{ elementId }}-options"
-                {%- if not showGameSelect %} data-lpv-pgn="{{ games[0].pgn|e('html_attr') }}"{% endif -%}
-                {%- if width %} style="max-width: {{ width }};"{% endif -%}
+                {%- if not showGameSelect %}
+                    {% set h = games[0].headers %}
+                    data-lpv-pgn="{{ games[0].pgn|e('html_attr') }}"
+                    {%- for key in lpvInfoFields %}
+                        {% set v = h[key.tag] is defined and h[key.tag] and h[key.tag] != '?' and (key.tag != 'Date' or h[key.tag] starts with '????' == false) and (key.tag != 'Result' or h[key.tag] != '*') ? h[key.tag] : '' %}
+                        data-{{ key.key }}="{{ v|e('html_attr') }}"
+                    {%- endfor %}
+                {% endif -%}
+                {%- if styleAttr %} style="{{ styleAttr }}"{% endif -%}
             ></div>
             <script type="application/json" id="{{ elementId }}-options">{{ optionsJson|raw }}</script>
-            <link rel="stylesheet" href="{{ assetsPath }}/lichess-pgn-viewer.css">
-            <script type="module" src="{{ assetsPath }}/lichess-pgn-viewer-init.js"></script>
+            <link rel="stylesheet" href="{{ assetsPath }}/lichess-pgn-viewer.css?v={{ assetsVersion }}">
+            <script type="module" src="{{ assetsPath }}/lichess-pgn-viewer-init.js?v={{ assetsVersion }}"></script>
         {% else %}
             <p class="lpv-empty">{{ 'MSC.lpv_noGames'|trans({}, 'contao_default') }}</p>
         {% endif %}

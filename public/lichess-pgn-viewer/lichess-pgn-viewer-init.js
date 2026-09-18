@@ -39,6 +39,31 @@ function initViewer(root) {
     const baseOptions = readOptions(root);
     const wrapper = root.closest('.lpv-wrapper');
     const select = wrapper ? wrapper.querySelector('[data-lpv-select]') : null;
+    const info = document.getElementById(root.id + '-info');
+
+    // Die zusätzlichen Partiedaten (Veranstaltung, Ort, Runde, ECO, Elo,
+    // Kommentator, Quelle - siehe Block "gameInfo" im Twig-Template) zeigt
+    // der lichess-pgn-viewer selbst nicht an. Sie stecken als data-*
+    // Attribute auf der ausgewählten <option> (bzw. auf "root" selbst, wenn
+    // es nur eine Partie gibt) und werden hier bei jedem Partiewechsel in
+    // die vom Template vorbereiteten .lpv-info__row-Zeilen übertragen.
+    const updateInfo = (source) => {
+        if (!info || !source) {
+            return;
+        }
+        info.querySelectorAll('[data-lpv-info]').forEach((row) => {
+            const value = source.dataset[row.dataset.lpvInfo];
+            const dd = row.querySelector('dd');
+            if (value) {
+                if (dd) {
+                    dd.textContent = value;
+                }
+                row.hidden = false;
+            } else {
+                row.hidden = true;
+            }
+        });
+    };
 
     // LichessPgnViewer() does not update the element it is given in place -
     // internally it replaces it with a freshly built element (snabbdom
@@ -61,13 +86,16 @@ function initViewer(root) {
     if (select) {
         const selectedOption = select.options[select.selectedIndex];
         render(selectedOption ? selectedOption.dataset.pgn : '');
+        updateInfo(selectedOption);
 
         select.addEventListener('change', () => {
             const option = select.options[select.selectedIndex];
             render(option ? option.dataset.pgn : '');
+            updateInfo(option);
         });
     } else if (root.dataset.lpvPgn) {
         render(root.dataset.lpvPgn);
+        updateInfo(root);
     }
 }
 
