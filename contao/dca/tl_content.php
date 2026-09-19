@@ -1,6 +1,9 @@
 <?php
 
 use Contao\Backend;
+use Contao\Database;
+use Contao\DataContainer;
+use Contao\StringUtil;
 use Wiksoft\ContaoLichessPgnviewerBundle\Pgn\DbChessAvailability;
 
 /**
@@ -29,7 +32,8 @@ $GLOBALS['TL_DCA']['tl_content']['palettes']['lichessPgnviewer'] = '
 
 $GLOBALS['TL_DCA']['tl_content']['subpalettes']['lpv_source_f'] = 'lpv_file';
 $GLOBALS['TL_DCA']['tl_content']['subpalettes']['lpv_source_t'] = 'lpv_text';
-$GLOBALS['TL_DCA']['tl_content']['subpalettes']['lpv_source_d'] = 'dbChess_list_collection,lpv_dbChess_filter';
+$GLOBALS['TL_DCA']['tl_content']['subpalettes']['lpv_source_d'] = 'dbChess_list_collection,lpv_dbChess_filter,lpv_dbChess_sortfields,lpv_dbChess_byorder,lpv_dbChess_roundNav';
+$GLOBALS['TL_DCA']['tl_content']['subpalettes']['lpv_source_e'] = 'dbChess_list_collection,lpv_dbChess_selection';
 $GLOBALS['TL_DCA']['tl_content']['subpalettes']['lpv_initialPlyMode_n'] = 'lpv_initialPlyNumber';
 $GLOBALS['TL_DCA']['tl_content']['subpalettes']['lpv_menuGetPgn'] = 'lpv_menuGetPgnFileName';
 
@@ -78,6 +82,11 @@ $GLOBALS['TL_DCA']['tl_content']['fields']['dbChess_list_collection'] = [
     'eval' => [
         'mandatory' => true,
         'includeBlankOption' => false,
+        // Nötig, damit die Partienliste von lpv_dbChess_selection (Quelle
+        // "Einzelauswahl") nach einem Sammlungswechsel sofort neu geladen
+        // wird, siehe getGameSelectionOptions() - analog zu pgn4webs
+        // dbChess_list_collection (dort seit jeher submitOnChange).
+        'submitOnChange' => true,
         'multiple' => true,
         'tl_class' => 'clr',
     ],
@@ -90,6 +99,45 @@ $GLOBALS['TL_DCA']['tl_content']['fields']['lpv_dbChess_filter'] = [
     'inputType' => 'text',
     'eval' => ['decodeEntities' => true, 'tl_class' => 'clr'],
     'sql' => "varchar(255) NOT NULL default ''",
+];
+
+$GLOBALS['TL_DCA']['tl_content']['fields']['lpv_dbChess_sortfields'] = [
+    'label' => &$GLOBALS['TL_LANG']['tl_content']['lpv_dbChess_sortfields'],
+    'exclude' => true,
+    'inputType' => 'checkboxWizard',
+    'options' => ['event', 'site', 'date', 'round', 'result', 'white', 'black', 'eco', 'whiteelo', 'blackelo', 'annotator', 'source'],
+    'reference' => &$GLOBALS['TL_LANG']['tl_content']['lpv_dbChess_sortfields_option'],
+    'eval' => ['tl_class' => 'clr', 'multiple' => true],
+    'sql' => 'blob NULL',
+];
+
+$GLOBALS['TL_DCA']['tl_content']['fields']['lpv_dbChess_byorder'] = [
+    'label' => &$GLOBALS['TL_LANG']['tl_content']['lpv_dbChess_byorder'],
+    'default' => 'a',
+    'exclude' => true,
+    'inputType' => 'radio',
+    'options' => ['a', 'd'],
+    'reference' => &$GLOBALS['TL_LANG']['tl_content']['lpv_dbChess_byorder_option'],
+    'eval' => ['tl_class' => 'w50'],
+    'sql' => "varchar(1) NOT NULL default 'a'",
+];
+
+$GLOBALS['TL_DCA']['tl_content']['fields']['lpv_dbChess_roundNav'] = [
+    'label' => &$GLOBALS['TL_LANG']['tl_content']['lpv_dbChess_roundNav'],
+    'default' => '',
+    'exclude' => true,
+    'inputType' => 'checkbox',
+    'eval' => ['tl_class' => 'w50 m12'],
+    'sql' => "char(1) NOT NULL default ''",
+];
+
+$GLOBALS['TL_DCA']['tl_content']['fields']['lpv_dbChess_selection'] = [
+    'label' => &$GLOBALS['TL_LANG']['tl_content']['lpv_dbChess_selection'],
+    'exclude' => true,
+    'inputType' => 'checkboxWizard',
+    'options_callback' => ['tl_content_lichessPgnviewer', 'getGameSelectionOptions'],
+    'eval' => ['mandatory' => true, 'multiple' => true, 'tl_class' => 'clr'],
+    'sql' => 'blob NULL',
 ];
 
 $GLOBALS['TL_DCA']['tl_content']['fields']['lpv_showPlayers'] = [
@@ -341,8 +389,8 @@ $GLOBALS['TL_DCA']['tl_content']['fields']['lpv_template'] = [
 class tl_content_lichessPgnviewer extends Backend
 {
     /**
-     * Quelle "Interne Datenbank" nur anbieten, wenn wiksoft/dbchess-bundle
-     * installiert ist (siehe DbChessAvailability).
+     * Quellen "Interne Datenbank" und "Einzelauswahl" nur anbieten, wenn
+     * wiksoft/dbchess-bundle installiert ist (siehe DbChessAvailability).
      */
     public function getSourceOptions(): array
     {
@@ -350,6 +398,7 @@ class tl_content_lichessPgnviewer extends Backend
 
         if (DbChessAvailability::isInstalled()) {
             $options[] = 'd';
+            $options[] = 'e';
         }
 
         return $options;
@@ -358,5 +407,43 @@ class tl_content_lichessPgnviewer extends Backend
     public function getTemplates(): array
     {
         return $this->getTemplateGroup('ce_lichessPgnviewer');
+    }
+
+    /**
+     * Options-Callback für lpv_dbChess_selection (Quelle "Einzelauswahl"):
+     * listet die einzelnen Partien der im Feld "dbChess_list_collection"
+     * bereits gewählten Sammlung(en) auf, analog zu pgn4webs
+     * tl_content_pgn4web::getGameList().
+     */
+    public function getGameSelectionOptions(DataContainer $dc): array
+    {
+        $collection = [];
+        $arrCollection = StringUtil::deserialize($dc->activeRecord->dbChess_list_collection ?? null, true);
+        foreach ($arrCollection as $valueCollection) {
+            $collection[] = 'pid=' . (int) $valueCollection;
+        }
+        if (!$collection) {
+            $collection[] = 'pid=0';
+        }
+        $pidCollection = implode(' OR ', $collection);
+
+        $result = Database::getInstance()
+            ->prepare('SELECT * FROM tl_dbChess_games WHERE ' . $pidCollection . ' ORDER BY date ASC, id ASC')
+            ->execute();
+
+        $options = [];
+        while ($result->next()) {
+            $row = $result->row();
+            $label = trim(
+                ($row['date'] ? $row['date'] . ' ' : '')
+                . ($row['white'] ? $row['white'] . ' ' : '')
+                . ($row['result'] ? $row['result'] . ' ' : '')
+                . ($row['black'] ? $row['black'] . ' ' : '')
+                . ($row['source'] ? '(' . $row['source'] . ')' : '')
+            );
+            $options[$row['id']] = $label ?: '#' . $row['id'];
+        }
+
+        return $options;
     }
 }

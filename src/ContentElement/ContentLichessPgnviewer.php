@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace Wiksoft\ContaoLichessPgnviewerBundle\ContentElement;
 
 use Contao\ContentElement;
+use Contao\Controller;
 use Contao\Database;
 use Contao\File;
 use Contao\FilesModel;
 use Contao\FrontendTemplate;
+use Contao\Input;
 use Contao\StringUtil;
 use Contao\System;
 use Wiksoft\ContaoLichessPgnviewerBundle\Pgn\DbChessAvailability;
@@ -25,8 +27,12 @@ use Wiksoft\ContaoLichessPgnviewerBundle\Pgn\PgnSplitter;
  * Als PGN-Quelle (lpv_source) stehen zur Verfügung:
  * - "f" Datei (.pgn-Datei aus der Dateiverwaltung)
  * - "t" Textfeld (PGN direkt im Content-Element eingegeben)
- * - "d" Interne Datenbank (wiksoft/dbchess-bundle) - nur wählbar, wenn
- *   dieses Bundle installiert ist, siehe DbChessAvailability.
+ * - "d" Interne Datenbank, Liste aus Sammlung(en) mit optionalem Filter/
+ *   Sortierung sowie optionaler Rundennavigation (wiksoft/dbchess-bundle) -
+ *   nur wählbar, wenn dieses Bundle installiert ist, siehe DbChessAvailability.
+ * - "e" Interne Datenbank, manuelle Einzelauswahl einzelner Partien aus
+ *   einer Sammlung (analog zur pgn4web-Quelle "b"/fromBase) - ebenfalls
+ *   nur wählbar, wenn wiksoft/dbchess-bundle installiert ist.
  *
  * Enthält die Quelle mehrere Partien, werden sie serverseitig aufgeteilt
  * (siehe PgnSplitter) und komplett an das Template übergeben; die Auswahl
@@ -39,6 +45,15 @@ class ContentLichessPgnviewer extends ContentElement
 {
     private const ASSETS_PATH = '/bundles/wiksoftcontaolichesspgnviewer/lichess-pgn-viewer';
 
+    /**
+     * Whitelist für lpv_dbChess_sortfields (identisch mit den 'options' des
+     * Feldes in tl_content.php) - wird zusätzlich zur DCA-Beschränkung im
+     * Backend hier erneut geprüft, bevor ein Feldname in die ORDER-BY-
+     * Klausel interpoliert wird (Defense in Depth gegen SQL-Injection über
+     * einen manipulierten Datensatz).
+     */
+    private const SORTABLE_FIELDS = ['event', 'site', 'date', 'round', 'result', 'white', 'black', 'eco', 'whiteelo', 'blackelo', 'annotator', 'source'];
+
     protected $strTemplate = 'ce_lichessPgnviewer';
 
     protected function compile(): void
@@ -46,6 +61,16 @@ class ContentLichessPgnviewer extends ContentElement
         if ($this->lpv_template) {
             $this->Template = new FrontendTemplate($this->lpv_template);
         }
+
+        // Vorbelegung für Twig (strict_variables): wird nur bei Quelle "d"
+        // mit aktivierter Rundennavigation (lpv_dbChess_roundNav) in
+        // applyRoundNavigation() überschrieben.
+        $this->Template->roundNavEnabled = false;
+        $this->Template->currentRound = '';
+        $this->Template->prevRound = null;
+        $this->Template->nextRound = null;
+        $this->Template->prevRoundHref = null;
+        $this->Template->nextRoundHref = null;
 
         $pgnText = $this->collectPgnText();
         $games = PgnSplitter::split($pgnText);
@@ -164,6 +189,9 @@ class ContentLichessPgnviewer extends ContentElement
             case 'd':
                 return $this->collectPgnFromDatabase();
 
+            case 'e':
+                return $this->collectPgnFromSelection();
+
             case 'f':
             default:
                 return $this->collectPgnFromFile();
@@ -216,9 +244,126 @@ class ContentLichessPgnviewer extends ContentElement
             $where .= ' AND (' . StringUtil::decodeEntities($filter) . ')';
         }
 
-        $result = Database::getInstance()
-            ->prepare('SELECT * FROM tl_dbChess_games WHERE ' . $where . ' ORDER BY date ASC, id ASC')
+        $database = Database::getInstance();
+        $byOrder = 'd' === $this->lpv_dbChess_byorder ? 'DESC' : 'ASC';
+        $params = [];
+
+        if ($this->lpv_dbChess_roundNav) {
+            $currentRound = $this->applyRoundNavigation($database, $where, $byOrder);
+
+            if (null !== $currentRound) {
+                $where .= ' AND round = ?';
+                $params[] = $currentRound;
+            }
+        }
+
+        $orderBy = $this->buildOrderBy($byOrder);
+
+        $result = $database
+            ->prepare('SELECT * FROM tl_dbChess_games WHERE ' . $where . ' ORDER BY ' . $orderBy)
+            ->execute(...$params);
+
+        $pgnText = '';
+        while ($result->next()) {
+            $pgnText .= $this->buildPgnFromDbRow($result->row()) . "\n\n";
+        }
+
+        return trim($pgnText);
+    }
+
+    /**
+     * Baut die ORDER-BY-Klausel aus lpv_dbChess_sortfields + lpv_dbChess_byorder.
+     * Ohne Auswahl bleibt das bisherige Verhalten (Datum, dann ID) erhalten.
+     * "round" wird - wie bei pgn4web - numerisch sortiert, damit z. B. Runde
+     * "2" vor Runde "10" einsortiert wird statt alphabetisch danach.
+     *
+     * Die als "hervorgehoben" markierte Partie (Feld gameFeatured aus
+     * wiksoft/dbchess-bundle) wird davor immer als führendes Kriterium
+     * einsortiert, damit sie unabhängig von der gewählten Sortierung stets
+     * zuerst erscheint - analog zu ContentPgn4web::compile().
+     */
+    private function buildOrderBy(string $byOrder): string
+    {
+        $arrSorting = array_intersect(
+            StringUtil::deserialize($this->lpv_dbChess_sortfields, true),
+            self::SORTABLE_FIELDS
+        );
+
+        $fields = [];
+        foreach ($arrSorting as $field) {
+            $fields[] = ('round' === $field ? 'CAST(round AS UNSIGNED)' : $field) . ' ' . $byOrder;
+        }
+
+        $orderBy = $fields ? implode(', ', $fields) : 'date ASC, id ASC';
+
+        return 'gameFeatured DESC, ' . $orderBy;
+    }
+
+    /**
+     * Ermittelt bei aktivierter Rundennavigation (lpv_dbChess_roundNav) die
+     * anzuzeigende Runde und schreibt Vor-/Zurück-Informationen ins
+     * Template. "$where" enthält an dieser Stelle ausschließlich admin-
+     * seitig konfigurierte Bedingungen (Sammlung(en) + optionaler eigener
+     * Filter), noch keine Nutzereingabe - der per Besucher steuerbare
+     * "round"-Parameter wird unten stets über einen Query-Platzhalter
+     * gebunden, nie direkt in SQL interpoliert.
+     *
+     * @return string|null die aktuell gültige Runde, oder null, wenn die
+     *                      Sammlung keine (befüllten) Runden enthält
+     */
+    private function applyRoundNavigation(Database $database, string $where, string $byOrder): ?string
+    {
+        $result = $database
+            ->prepare("SELECT DISTINCT round FROM tl_dbChess_games WHERE {$where} AND round != '' ORDER BY CAST(round AS UNSIGNED) {$byOrder}")
             ->execute();
+
+        $rounds = $result->fetchEach('round');
+
+        if (!$rounds) {
+            return null;
+        }
+
+        $currentRound = (string) Input::get('round');
+        if ('' === $currentRound || !\in_array($currentRound, $rounds, true)) {
+            $currentRound = $rounds[0];
+        }
+
+        $index = array_search($currentRound, $rounds, true);
+        $prevRound = $index > 0 ? $rounds[$index - 1] : null;
+        $nextRound = isset($rounds[$index + 1]) ? $rounds[$index + 1] : null;
+
+        $this->Template->roundNavEnabled = true;
+        $this->Template->currentRound = $currentRound;
+        $this->Template->prevRound = $prevRound;
+        $this->Template->nextRound = $nextRound;
+        $this->Template->prevRoundHref = null !== $prevRound ? Controller::addToUrl('round=' . rawurlencode($prevRound)) : null;
+        $this->Template->nextRoundHref = null !== $nextRound ? Controller::addToUrl('round=' . rawurlencode($nextRound)) : null;
+
+        return $currentRound;
+    }
+
+    /**
+     * Quelle "e" (Einzelauswahl): baut den PGN-Text ausschließlich aus den
+     * über lpv_dbChess_selection manuell gewählten Partien - ohne Filter
+     * oder Sortier-UI, analog zu pgn4webs Quelle "b"/fromBase.
+     */
+    private function collectPgnFromSelection(): string
+    {
+        if (!DbChessAvailability::isInstalled()) {
+            return '';
+        }
+
+        $arrSelection = array_map('intval', StringUtil::deserialize($this->lpv_dbChess_selection, true));
+
+        if (!$arrSelection) {
+            return '';
+        }
+
+        $placeholders = implode(',', array_fill(0, \count($arrSelection), '?'));
+
+        $result = Database::getInstance()
+            ->prepare("SELECT * FROM tl_dbChess_games WHERE id IN ({$placeholders})")
+            ->execute(...$arrSelection);
 
         $pgnText = '';
         while ($result->next()) {

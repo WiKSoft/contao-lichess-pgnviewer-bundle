@@ -26,6 +26,31 @@
         {% endif %}
     {% endblock %}
 
+    {% block roundNav %}
+        {#
+            Nur bei Quelle "Interne Datenbank" (lpv_source == 'd') mit
+            aktiviertem Feld "lpv_dbChess_roundNav" gesetzt (siehe
+            ContentLichessPgnviewer::applyRoundNavigation()). Das Dropdown
+            oben (Block "gameSelect") enthält in diesem Fall bereits nur die
+            Partien der unter "currentRound" angegebenen Runde.
+        #}
+        {% if roundNavEnabled %}
+            <nav class="lpv-round-nav mod_booknav block" aria-label="{{ 'MSC.lpv_round_label'|trans({}, 'contao_default') }}">
+                {% if prevRoundHref %}
+                    <a class="lpv-round-nav__prev prev" href="{{ prevRoundHref }}" rel="prev">
+                        {{ 'MSC.lpv_round_prev'|trans({}, 'contao_default') }} ({{ prevRound }})
+                    </a>
+                {% endif %}
+                <span class="lpv-round-nav__current current">{{ 'MSC.lpv_round_label'|trans({}, 'contao_default') }} {{ currentRound }}</span>
+                {% if nextRoundHref %}
+                    <a class="lpv-round-nav__next next" href="{{ nextRoundHref }}" rel="next">
+                        {{ 'MSC.lpv_round_next'|trans({}, 'contao_default') }} ({{ nextRound }})
+                    </a>
+                {% endif %}
+            </nav>
+        {% endif %}
+    {% endblock %}
+
     {% block gameInfo %}
         {#
             Weitere Partiedaten (Veranstaltung, Ort, Runde, ECO, Elo,

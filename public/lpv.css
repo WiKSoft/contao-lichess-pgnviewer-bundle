@@ -112,3 +112,25 @@
 .lpv-wrapper .lpv-info dd {
     margin: 0;
 }
+
+.lpv-wrapper .lpv-round-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1em;
+    margin: 0 0 0.75em;
+    font-size: 0.9em;
+}
+
+.lpv-wrapper .lpv-round-nav__current {
+    font-weight: bold;
+}
+
+.lpv-wrapper .lpv-round-nav__prev,
+.lpv-wrapper .lpv-round-nav__next {
+    white-space: nowrap;
+}
+
+.lpv-wrapper .lpv-round-nav__next {
+    margin-left: auto;
+}

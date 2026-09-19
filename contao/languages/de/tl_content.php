@@ -11,7 +11,8 @@ $GLOBALS['TL_LANG']['tl_content']['lpv_source'] = ['PGN-Quelle', 'Legen Sie fest
 $GLOBALS['TL_LANG']['tl_content']['lpv_source_option'] = [
     'f' => 'Datei (.pgn aus der Dateiverwaltung)',
     't' => 'Textfeld (PGN direkt eingeben)',
-    'd' => 'Interne Datenbank (dbChess)',
+    'd' => 'Interne Datenbank, Liste mit Filter/Sortierung (dbChess)',
+    'e' => 'Interne Datenbank, Einzelauswahl von Partien (dbChess)',
 ];
 
 $GLOBALS['TL_LANG']['tl_content']['lpv_file'] = ['PGN-Datei', 'Wählen Sie eine .pgn-Datei aus der Dateiverwaltung. Sie darf mehrere Partien enthalten.'];
@@ -19,6 +20,32 @@ $GLOBALS['TL_LANG']['tl_content']['lpv_text'] = ['PGN-Text', 'Geben Sie die PGN-
 
 $GLOBALS['TL_LANG']['tl_content']['dbChess_list_collection'] = ['Partiesammlung(en)', 'Wählen Sie eine oder mehrere Partiesammlungen aus der dbChess-Datenbank.'];
 $GLOBALS['TL_LANG']['tl_content']['lpv_dbChess_filter'] = ['Eigener Filter (optional)', 'Zusätzliche SQL-WHERE-Bedingung für tl_dbChess_games, z. B. white=\'Carlsen\'.'];
+
+$GLOBALS['TL_LANG']['tl_content']['lpv_dbChess_sortfields'] = ['Liste sortieren nach', 'Wählen Sie eines oder mehrere Felder, nach denen die gefundenen Partien sortiert werden sollen. Ohne Auswahl wird nach Datum sortiert.'];
+$GLOBALS['TL_LANG']['tl_content']['lpv_dbChess_sortfields_option'] = [
+    'event' => 'Veranstaltung',
+    'site' => 'Ort',
+    'date' => 'Datum',
+    'round' => 'Runde',
+    'result' => 'Ergebnis',
+    'white' => 'Weiß',
+    'black' => 'Schwarz',
+    'eco' => 'ECO',
+    'whiteelo' => 'Elo Weiß',
+    'blackelo' => 'Elo Schwarz',
+    'annotator' => 'Kommentator',
+    'source' => 'Quelle',
+];
+
+$GLOBALS['TL_LANG']['tl_content']['lpv_dbChess_byorder'] = ['Sortierreihenfolge', 'Wählen Sie die Sortierreihenfolge der oben gewählten Felder.'];
+$GLOBALS['TL_LANG']['tl_content']['lpv_dbChess_byorder_option'] = [
+    'a' => 'aufsteigend',
+    'd' => 'absteigend',
+];
+
+$GLOBALS['TL_LANG']['tl_content']['lpv_dbChess_roundNav'] = ['Nach Runde filtern + Rundennavigation', 'Zeigt im Dropdown nur die Partien der aktuell gewählten Runde an und blendet im Frontend eine Vor-/Zurück-Navigation zwischen den Runden ein (z. B. für Turnierberichte mit mehreren Brettern pro Runde).'];
+
+$GLOBALS['TL_LANG']['tl_content']['lpv_dbChess_selection'] = ['Partien auswählen', 'Wählen Sie die anzuzeigenden Partien einzeln aus der/den oben gewählten Sammlung(en) aus.'];
 
 $GLOBALS['TL_LANG']['tl_content']['lpv_display_legend'] = 'Anzeige-Einstellungen';
 $GLOBALS['TL_LANG']['tl_content']['lpv_showPlayers'] = ['Spielernamen anzeigen', 'Steuert, ob die Spielernamen über/unter dem Brett angezeigt werden.'];

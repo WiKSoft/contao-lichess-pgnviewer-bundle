@@ -19,3 +19,7 @@ $GLOBALS['TL_LANG']['MSC']['lpv_info_whiteelo'] = 'Elo Weiß';
 $GLOBALS['TL_LANG']['MSC']['lpv_info_blackelo'] = 'Elo Schwarz';
 $GLOBALS['TL_LANG']['MSC']['lpv_info_annotator'] = 'Kommentator';
 $GLOBALS['TL_LANG']['MSC']['lpv_info_source'] = 'Quelle';
+
+$GLOBALS['TL_LANG']['MSC']['lpv_round_label'] = 'Runde';
+$GLOBALS['TL_LANG']['MSC']['lpv_round_prev'] = 'Vorherige Runde';
+$GLOBALS['TL_LANG']['MSC']['lpv_round_next'] = 'Nächste Runde';
