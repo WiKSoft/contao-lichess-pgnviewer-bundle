@@ -114,12 +114,18 @@
 }
 
 .lpv-wrapper .lpv-round-nav {
+    margin: 0 0 0.75em;
+    font-size: 1em;
+}
+
+.lpv-wrapper .lpv-round-nav ul {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 1em;
-    margin: 0 0 0.75em;
-    font-size: 0.9em;
+    margin: 0;
+    padding: 0;
+    list-style: none;
 }
 
 .lpv-wrapper .lpv-round-nav__current {

@@ -11,6 +11,7 @@ use Contao\File;
 use Contao\FilesModel;
 use Contao\FrontendTemplate;
 use Contao\Input;
+use Contao\PageModel;
 use Contao\StringUtil;
 use Contao\System;
 use Wiksoft\ContaoLichessPgnviewerBundle\Pgn\DbChessAvailability;
@@ -71,6 +72,22 @@ class ContentLichessPgnviewer extends ContentElement
         $this->Template->nextRound = null;
         $this->Template->prevRoundHref = null;
         $this->Template->nextRoundHref = null;
+
+        // Link zur übergeordneten Seite, für benutzerdefinierte Templates
+        // (z. B. ce_lichessPgnviewer_turnier), die neben der Rundennavigation
+        // zusätzlich einen "nach oben"-Link zeigen wollen - analog zu
+        // ContentPgn4web::generateBoardTemplate(). Quellenunabhängig gesetzt,
+        // da es sich um reine Seitenhierarchie handelt, nicht um dbChess-Daten.
+        $this->Template->upHref = null;
+        $this->Template->upTitle = null;
+
+        $currentPage = $GLOBALS['objPage'] ?? null;
+        $upPage = $currentPage ? PageModel::findByPk($currentPage->pid) : null;
+
+        if ($upPage && 'forward' !== $upPage->type) {
+            $this->Template->upHref = $upPage->getFrontendUrl();
+            $this->Template->upTitle = StringUtil::specialchars($upPage->title, true);
+        }
 
         $pgnText = $this->collectPgnText();
         $games = PgnSplitter::split($pgnText);

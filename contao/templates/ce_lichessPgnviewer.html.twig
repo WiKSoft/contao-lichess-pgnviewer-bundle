@@ -36,17 +36,23 @@
         #}
         {% if roundNavEnabled %}
             <nav class="lpv-round-nav" aria-label="{{ 'MSC.lpv_round_label'|trans({}, 'contao_default') }}">
-                {% if prevRoundHref %}
-                    <a class="lpv-round-nav__prev prev" href="{{ prevRoundHref }}" rel="prev">
-                        {{ 'MSC.lpv_round_prev'|trans({}, 'contao_default') }} ({{ prevRound }})
-                    </a>
-                {% endif %}
-                <span class="lpv-round-nav__current current">{{ 'MSC.lpv_round_label'|trans({}, 'contao_default') }} {{ currentRound }}</span>
-                {% if nextRoundHref %}
-                    <a class="lpv-round-nav__next next" href="{{ nextRoundHref }}" rel="next">
-                        {{ 'MSC.lpv_round_next'|trans({}, 'contao_default') }} ({{ nextRound }})
-                    </a>
-                {% endif %}
+                <ul>
+                    {% if prevRoundHref %}
+                        <li class="lpv-round-nav__prev prev">
+                            <a href="{{ prevRoundHref }}" rel="prev">
+                                {{ 'MSC.lpv_round_prev'|trans({}, 'contao_default') }} ({{ prevRound }})
+                            </a>
+                        </li>
+                    {% endif %}
+                    <li class="lpv-round-nav__current current">{{ 'MSC.lpv_round_label'|trans({}, 'contao_default') }} {{ currentRound }}</li>
+                    {% if nextRoundHref %}
+                        <li class="lpv-round-nav__next next">
+                            <a href="{{ nextRoundHref }}" rel="next">
+                                {{ 'MSC.lpv_round_next'|trans({}, 'contao_default') }} ({{ nextRound }})
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
             </nav>
         {% endif %}
     {% endblock %}
