@@ -35,7 +35,7 @@
             Partien der unter "currentRound" angegebenen Runde.
         #}
         {% if roundNavEnabled %}
-            <nav class="lpv-round-nav mod_booknav block" aria-label="{{ 'MSC.lpv_round_label'|trans({}, 'contao_default') }}">
+            <nav class="lpv-round-nav" aria-label="{{ 'MSC.lpv_round_label'|trans({}, 'contao_default') }}">
                 {% if prevRoundHref %}
                     <a class="lpv-round-nav__prev prev" href="{{ prevRoundHref }}" rel="prev">
                         {{ 'MSC.lpv_round_prev'|trans({}, 'contao_default') }} ({{ prevRound }})
