@@ -62,6 +62,31 @@
     grid-template-columns: var(--lpv-board-width, auto) var(--lpv-side-width, fit-content(40%));
 }
 
+/*
+ * Responsive Fallback für den Modus "Zugliste rechts" (showMoves: 'right'):
+ * lichess-pgn-viewer.css bringt die @media(max-width: 450px)-Umschaltung
+ * auf gestapeltes Layout (Zugliste unter das Brett) nur für den Modus
+ * "auto" mit - ".lpv--moves-right" bleibt dort unabhängig von der
+ * Fensterbreite immer starr nebeneinander stehen. Damit Nutzer der festen
+ * Brettbreite (--lpv-board-width, siehe oben) auf schmalen Bildschirmen
+ * nicht auf ein nicht-responsives Layout festgelegt sind, wird hier exakt
+ * die gestapelte Grid-Definition aus lichess-pgn-viewer.css für
+ * ".lpv--moves-auto" unterhalb von 450px übernommen.
+ */
+@media (max-width: 450px) {
+    .lpv-wrapper .lpv--moves-right {
+        grid-template-areas: "board" "controls" "side";
+        grid-template-columns: minmax(200px, calc(100vh - var(--controls-height) - 6em));
+        grid-template-rows: auto var(--controls-height) 6em;
+    }
+
+    .lpv-wrapper .lpv--players.lpv--moves-right {
+        grid-template-areas: "player-top" "board" "player-bot" "controls" "side";
+        grid-template-columns: minmax(200px, calc(100vh - 2 * 2em - var(--controls-height) - 6em));
+        grid-template-rows: 2em auto 2em var(--controls-height) 6em;
+    }
+}
+
 .lpv-wrapper .lpv-info {
     display: flex;
     flex-wrap: wrap;

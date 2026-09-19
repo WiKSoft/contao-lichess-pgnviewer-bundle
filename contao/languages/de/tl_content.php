@@ -69,9 +69,6 @@ $GLOBALS['TL_LANG']['tl_content']['lpv_blockTouchScroll'] = ['Touch-Scrollen blo
 $GLOBALS['TL_LANG']['tl_content']['lpv_design_legend'] = 'Design-Einstellungen';
 $GLOBALS['TL_LANG']['tl_content']['lpv_squareLightColorHex'] = ['Farbe helle Felder', 'Hex-Farbcode ohne #, z. B. f0d9b5. Leer = Standardfarbe (f0d9b5).'];
 $GLOBALS['TL_LANG']['tl_content']['lpv_squareDarkColorHex'] = ['Farbe dunkle Felder', 'Hex-Farbcode ohne #, z. B. b58863. Leer = Standardfarbe (b58863).'];
-$GLOBALS['TL_LANG']['tl_content']['lpv_bgColorHex'] = ['Hintergrundfarbe', 'Hex-Farbcode ohne #. Gilt für Spielerzeile, Steuerleiste und Zugliste gemeinsam. Leer = eingebaute Standardfarbe des lichess-Viewers (dunkelgrau).'];
-$GLOBALS['TL_LANG']['tl_content']['lpv_accentColorHex'] = ['Akzentfarbe', 'Hex-Farbcode ohne #. Hervorhebung aktiver Elemente, z. B. aktiver Zugbutton oder laufende Uhr. Leer = eingebaute Standardfarbe des lichess-Viewers (lichess-Grün).'];
-$GLOBALS['TL_LANG']['tl_content']['lpv_fontColorHex'] = ['Textfarbe', 'Hex-Farbcode ohne #, z. B. aaaaaa. Leer = eingebaute Standardfarbe des lichess-Viewers.'];
 
 $GLOBALS['TL_LANG']['tl_content']['lpv_menu_legend'] = 'Brettmenü-Einstellungen';
 $GLOBALS['TL_LANG']['tl_content']['lpv_menuGetPgn'] = ['Menüpunkt "PGN herunterladen"', 'Zeigt im Viewer-Menü einen Download-Link für die aktuelle Partie an.'];

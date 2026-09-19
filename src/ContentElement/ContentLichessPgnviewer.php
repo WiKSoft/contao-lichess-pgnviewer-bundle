@@ -101,24 +101,20 @@ class ContentLichessPgnviewer extends ContentElement
     }
 
     /**
-     * Baut aus den optionalen lpv_*ColorHex-Feldern (siehe tl_content.php)
-     * einen CSS-Custom-Property-Deklarationsblock, der im Template auf dem
-     * INNEREN #{{ elementId }}-Div gesetzt wird (siehe getAssetsVersion()-
-     * Kommentar zur Trennung von TL_CSS/TL_JAVASCRIPT vs. direkt im
-     * Template eingebundenen Assets - dasselbe Div trägt bereits das
-     * bedingte "max-width"-Style für lpv_width). Das äußere .lpv-wrapper-
+     * Baut aus den optionalen lpv_square{Light,Dark}ColorHex-Feldern (siehe
+     * tl_content.php) einen CSS-Custom-Property-Deklarationsblock, der im
+     * Template auf dem INNEREN #{{ elementId }}-Div gesetzt wird (siehe
+     * getAssetsVersion()-Kommentar zur Trennung von TL_CSS/TL_JAVASCRIPT vs.
+     * direkt im Template eingebundenen Assets - dasselbe Div trägt bereits
+     * das bedingte "max-width"-Style für lpv_width). Das äußere .lpv-wrapper-
      * Div mit Contaos eigenem generischem cssID-Style bleibt unberührt.
      *
      * Nur tatsächlich befüllte Felder werden ausgegeben; ein leeres Feld
-     * lässt den bisherigen Default unverändert (die beiden Feldfarben
-     * fallen dann auf public/lpv.css zurück, die übrigen drei auf den
-     * eingebauten Dark-Theme-Default des lichess-pgn-viewer).
-     *
-     * --c-lpv-bg-player/-controls/-movelist sind im kompilierten
-     * lichess-pgn-viewer.css eigenständige Custom Properties ohne
-     * Laufzeit-Verknüpfung zu --c-lpv-bg (nur derselbe Default zur
-     * SCSS-Build-Zeit der Bibliothek) - lpv_bgColorHex wird deshalb
-     * bewusst auf alle vier Variablen zugleich angewendet.
+     * lässt den bisherigen Default unverändert (Rückfall auf
+     * public/lpv.css). Hintergrund-, Akzent- und Textfarbe gibt es hier
+     * bewusst nicht mehr als eigene Content-Element-Felder - sie werden
+     * zentral für alle Viewer-Instanzen über die projektweite
+     * files/css/pgnviewer.scss gesteuert.
      */
     private function buildDesignStyle(): string
     {
@@ -130,21 +126,6 @@ class ContentLichessPgnviewer extends ContentElement
 
         if ($color = $this->sanitizeColorHex($this->lpv_squareDarkColorHex)) {
             $vars['--lpv-square-dark'] = $color;
-        }
-
-        if ($color = $this->sanitizeColorHex($this->lpv_bgColorHex)) {
-            $vars['--c-lpv-bg'] = $color;
-            $vars['--c-lpv-bg-player'] = $color;
-            $vars['--c-lpv-bg-controls'] = $color;
-            $vars['--c-lpv-bg-movelist'] = $color;
-        }
-
-        if ($color = $this->sanitizeColorHex($this->lpv_accentColorHex)) {
-            $vars['--c-lpv-accent'] = $color;
-        }
-
-        if ($color = $this->sanitizeColorHex($this->lpv_fontColorHex)) {
-            $vars['--c-lpv-font'] = $color;
         }
 
         if (!$vars) {

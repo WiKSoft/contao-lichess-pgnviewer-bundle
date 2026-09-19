@@ -19,7 +19,7 @@ $GLOBALS['TL_DCA']['tl_content']['palettes']['lichessPgnviewer'] = '
 	{lpv_source_legend},lpv_source;
 	{lpv_display_legend},lpv_showPlayers,lpv_showClocks,lpv_showMoves,lpv_showControls,lpv_scrollToMove,lpv_keyboardToMove,lpv_showGameInfo;
 	{lpv_board_legend},lpv_orientation,lpv_initialPlyMode,lpv_drawArrows,lpv_coordinates,lpv_highlightLastMove,lpv_highlightCheck,lpv_animationDuration,lpv_blockTouchScroll;
-	{lpv_design_legend},lpv_squareLightColorHex,lpv_squareDarkColorHex,lpv_bgColorHex,lpv_accentColorHex,lpv_fontColorHex;
+	{lpv_design_legend},lpv_squareLightColorHex,lpv_squareDarkColorHex;
 	{lpv_menu_legend},lpv_menuGetPgn,lpv_menuPractice,lpv_menuAnalysisBoard,lpv_lichessLink;
 	{lpv_layout_legend},lpv_width,lpv_boardWidth,lpv_cssClass;
 	{template_legend:hide},lpv_template;
@@ -257,30 +257,6 @@ $GLOBALS['TL_DCA']['tl_content']['fields']['lpv_squareDarkColorHex'] = [
     'exclude' => true,
     'inputType' => 'text',
     'eval' => ['tl_class' => 'w50', 'colorpicker' => true, 'placeholder' => 'b58863'],
-    'sql' => "varchar(6) NOT NULL default ''",
-];
-
-$GLOBALS['TL_DCA']['tl_content']['fields']['lpv_bgColorHex'] = [
-    'label' => &$GLOBALS['TL_LANG']['tl_content']['lpv_bgColorHex'],
-    'exclude' => true,
-    'inputType' => 'text',
-    'eval' => ['tl_class' => 'w50 clr', 'colorpicker' => true, 'placeholder' => '302e2c'],
-    'sql' => "varchar(6) NOT NULL default ''",
-];
-
-$GLOBALS['TL_DCA']['tl_content']['fields']['lpv_accentColorHex'] = [
-    'label' => &$GLOBALS['TL_LANG']['tl_content']['lpv_accentColorHex'],
-    'exclude' => true,
-    'inputType' => 'text',
-    'eval' => ['tl_class' => 'w50', 'colorpicker' => true, 'placeholder' => '629924'],
-    'sql' => "varchar(6) NOT NULL default ''",
-];
-
-$GLOBALS['TL_DCA']['tl_content']['fields']['lpv_fontColorHex'] = [
-    'label' => &$GLOBALS['TL_LANG']['tl_content']['lpv_fontColorHex'],
-    'exclude' => true,
-    'inputType' => 'text',
-    'eval' => ['tl_class' => 'w50 clr', 'colorpicker' => true, 'placeholder' => 'aaaaaa'],
     'sql' => "varchar(6) NOT NULL default ''",
 ];
 
