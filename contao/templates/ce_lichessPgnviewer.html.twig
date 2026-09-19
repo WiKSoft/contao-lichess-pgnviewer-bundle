@@ -19,7 +19,7 @@
     {'tag': 'Annotator', 'key': 'annotator'},
     {'tag': 'Source', 'key': 'source'},
 ] %}
-<div class="{{ class }} block lpv-wrapper" {{ cssID }}{% if style %} style="{{ style }}"{% endif %}>
+<div class="{{ class }} block lpv-wrapper{% block wrapperExtraClass %}{% endblock %}" {{ cssID }}{% if style %} style="{{ style }}"{% endif %}>
     {% block headline %}
         {% if headline %}
             <{{ hl }}>{{ headline }}</{{ hl }}>
