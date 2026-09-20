@@ -89,8 +89,15 @@ class ContentLichessPgnviewer extends ContentElement
             $this->Template->upTitle = StringUtil::specialchars($upPage->title, true);
         }
 
-        $pgnText = $this->collectPgnText();
-        $games = PgnSplitter::split($pgnText);
+        $games = $this->collectGames();
+
+        // Nur bei den dbChess-Quellen ("d"/"e") befüllt, siehe buildGamesFromDbRow().
+        // Bezieht sich bewusst nur auf die erste/initial geladene Partie (games[0]) -
+        // bei mehreren Partien wechselt der Remark-Block beim Umschalten im
+        // gameSelect-Dropdown NICHT mit (anders als z. B. die Felder in
+        // "gameInfo"), da das dafür nötige clientseitige Nachbilden von Contaos
+        // HTML-Sanitizing/Insert-Tag-Ersetzung ein unnötiges Sicherheitsrisiko wäre.
+        $this->Template->remark = $games[0]['remark'] ?? '';
 
         $this->Template->elementId = 'lpv-ce-' . $this->id;
         $this->Template->games = $games;
@@ -197,21 +204,24 @@ class ContentLichessPgnviewer extends ContentElement
         return preg_match('/^[0-9a-fA-F]{6}$/', $value) ? strtolower($value) : '';
     }
 
-    private function collectPgnText(): string
+    /**
+     * @return list<array{pgn: string, headers: array<string, string>, remark?: string}>
+     */
+    private function collectGames(): array
     {
         switch ($this->lpv_source) {
-            case 't':
-                return (string) $this->lpv_text;
-
             case 'd':
-                return $this->collectPgnFromDatabase();
+                return $this->collectGamesFromDatabase();
 
             case 'e':
-                return $this->collectPgnFromSelection();
+                return $this->collectGamesFromSelection();
+
+            case 't':
+                return PgnSplitter::split((string) $this->lpv_text);
 
             case 'f':
             default:
-                return $this->collectPgnFromFile();
+                return PgnSplitter::split($this->collectPgnFromFile());
         }
     }
 
@@ -238,16 +248,19 @@ class ContentLichessPgnviewer extends ContentElement
         return $file->getContent();
     }
 
-    private function collectPgnFromDatabase(): string
+    /**
+     * @return list<array{pgn: string, headers: array<string, string>, remark: string}>
+     */
+    private function collectGamesFromDatabase(): array
     {
         if (!DbChessAvailability::isInstalled()) {
-            return '';
+            return [];
         }
 
         $arrCollection = StringUtil::deserialize($this->dbChess_list_collection, true);
 
         if (!$arrCollection) {
-            return '';
+            return [];
         }
 
         $collection = [];
@@ -280,12 +293,12 @@ class ContentLichessPgnviewer extends ContentElement
             ->prepare('SELECT * FROM tl_dbChess_games WHERE ' . $where . ' ORDER BY ' . $orderBy)
             ->execute(...$params);
 
-        $pgnText = '';
+        $games = [];
         while ($result->next()) {
-            $pgnText .= $this->buildPgnFromDbRow($result->row()) . "\n\n";
+            array_push($games, ...$this->buildGamesFromDbRow($result->row()));
         }
 
-        return trim($pgnText);
+        return $games;
     }
 
     /**
@@ -360,20 +373,22 @@ class ContentLichessPgnviewer extends ContentElement
     }
 
     /**
-     * Quelle "e" (Einzelauswahl): baut den PGN-Text ausschließlich aus den
+     * Quelle "e" (Einzelauswahl): baut die Partien ausschließlich aus den
      * über lpv_dbChess_selection manuell gewählten Partien - ohne Filter
      * oder Sortier-UI, analog zu pgn4webs Quelle "b"/fromBase.
+     *
+     * @return list<array{pgn: string, headers: array<string, string>, remark: string}>
      */
-    private function collectPgnFromSelection(): string
+    private function collectGamesFromSelection(): array
     {
         if (!DbChessAvailability::isInstalled()) {
-            return '';
+            return [];
         }
 
         $arrSelection = array_map('intval', StringUtil::deserialize($this->lpv_dbChess_selection, true));
 
         if (!$arrSelection) {
-            return '';
+            return [];
         }
 
         $placeholders = implode(',', array_fill(0, \count($arrSelection), '?'));
@@ -382,12 +397,39 @@ class ContentLichessPgnviewer extends ContentElement
             ->prepare("SELECT * FROM tl_dbChess_games WHERE id IN ({$placeholders})")
             ->execute(...$arrSelection);
 
-        $pgnText = '';
+        $games = [];
         while ($result->next()) {
-            $pgnText .= $this->buildPgnFromDbRow($result->row()) . "\n\n";
+            array_push($games, ...$this->buildGamesFromDbRow($result->row()));
         }
 
-        return trim($pgnText);
+        return $games;
+    }
+
+    /**
+     * Baut aus einer Zeile der Tabelle tl_dbChess_games die (normalerweise
+     * genau eine) daraus resultierende(n) Partie(n) inkl. "remark" - getrennt
+     * von buildPgnFromDbRow()/PgnSplitter aufgerufen (statt wie bisher alle
+     * Zeilen zu einem PGN-Text zu verketten und diesen als Ganzes zu
+     * splitten), damit "remark" zuverlässig der richtigen Partie zugeordnet
+     * werden kann, auch wenn eine Partie z. B. mangels "Event"-Tag von
+     * PgnSplitter nicht zuverlässig von der nächsten hätte abgegrenzt werden
+     * können.
+     *
+     * @param array<string, mixed> $row
+     *
+     * @return list<array{pgn: string, headers: array<string, string>, remark: string}>
+     */
+    private function buildGamesFromDbRow(array $row): array
+    {
+        $games = PgnSplitter::split($this->buildPgnFromDbRow($row));
+        $remark = trim((string) ($row['remark'] ?? ''));
+
+        foreach ($games as &$game) {
+            $game['remark'] = $remark;
+        }
+        unset($game);
+
+        return $games;
     }
 
     /**

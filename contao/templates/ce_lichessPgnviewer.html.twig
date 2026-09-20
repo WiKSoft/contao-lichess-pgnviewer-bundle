@@ -186,5 +186,22 @@
             <p class="lpv-empty">{{ 'MSC.lpv_noGames'|trans({}, 'contao_default') }}</p>
         {% endif %}
     {% endblock %}
+
+    {% block remark %}
+        {#
+            Freitext-Anmerkung zur Partie (Feld "remark" aus
+            wiksoft/dbchess-bundle, tl_dbChess_games) - nur bei den
+            dbChess-Quellen ("d"/"e") befüllt, siehe
+            ContentLichessPgnviewer::buildGamesFromDbRow(). Bezieht sich
+            bewusst nur auf die erste/initial geladene Partie: bei mehreren
+            Partien in der Auswahlliste (Block "gameSelect") wechselt dieser
+            Block beim Umschalten NICHT automatisch mit.
+        #}
+        {% if remark %}
+            <div class="lpv-remark rte content-text">
+                {{ remark|sanitize_html('contao')|csp_inline_styles|encode_email|insert_tag_raw }}
+            </div>
+        {% endif %}
+    {% endblock %}
 </div>
 <!-- indexer::continue -->

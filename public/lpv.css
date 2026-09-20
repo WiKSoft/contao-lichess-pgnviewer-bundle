@@ -118,6 +118,10 @@
     font-size: 1em;
 }
 
+.lpv-wrapper .lpv-remark {
+    margin: 0.75em 0 0;
+}
+
 .lpv-wrapper .lpv-round-nav ul {
     display: flex;
     align-items: center;
