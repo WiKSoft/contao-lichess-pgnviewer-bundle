@@ -39,25 +39,29 @@ function initViewer(root) {
     const baseOptions = readOptions(root);
     const wrapper = root.closest('.lpv-wrapper');
     const select = wrapper ? wrapper.querySelector('[data-lpv-select]') : null;
-    const info = document.getElementById(root.id + '-info');
 
     // Die zusätzlichen Partiedaten (Veranstaltung, Ort, Runde, ECO, Elo,
-    // Kommentator, Quelle - siehe Block "gameInfo" im Twig-Template) zeigt
-    // der lichess-pgn-viewer selbst nicht an. Sie stecken als data-*
-    // Attribute auf der ausgewählten <option> (bzw. auf "root" selbst, wenn
-    // es nur eine Partie gibt) und werden hier bei jedem Partiewechsel in
-    // die vom Template vorbereiteten .lpv-info__row-Zeilen übertragen.
+    // Kommentator, Quelle - siehe Block "gameInfo" im Twig-Template, bzw.
+    // bei Custom-Templates wie ce_lichessPgnviewer_turnier auch außerhalb
+    // davon, z. B. die Quellenangabe unterhalb des Bretts) zeigt der
+    // lichess-pgn-viewer selbst nicht an. Sie stecken als data-* Attribute
+    // auf der ausgewählten <option> (bzw. auf "root" selbst, wenn es nur
+    // eine Partie gibt) und werden hier bei jedem Partiewechsel in JEDES
+    // [data-lpv-info]-Element im gesamten .lpv-wrapper übertragen - bewusst
+    // nicht nur innerhalb des "-info"-<dl>, damit Custom-Templates solche
+    // Felder auch außerhalb der regulären Partiedaten-Liste platzieren
+    // können. Ziel ist das <dd> der Zeile, falls vorhanden (reguläre
+    // .lpv-info__row-Zeilen), sonst die Zeile selbst (z. B. ein einzelnes
+    // <p data-lpv-info="...">).
     const updateInfo = (source) => {
-        if (!info || !source) {
+        if (!wrapper || !source) {
             return;
         }
-        info.querySelectorAll('[data-lpv-info]').forEach((row) => {
+        wrapper.querySelectorAll('[data-lpv-info]').forEach((row) => {
             const value = source.dataset[row.dataset.lpvInfo];
-            const dd = row.querySelector('dd');
+            const target = row.querySelector('dd') || row;
             if (value) {
-                if (dd) {
-                    dd.textContent = value;
-                }
+                target.textContent = value;
                 row.hidden = false;
             } else {
                 row.hidden = true;
