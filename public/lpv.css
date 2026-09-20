@@ -73,7 +73,7 @@
  * die gestapelte Grid-Definition aus lichess-pgn-viewer.css für
  * ".lpv--moves-auto" unterhalb von 450px übernommen.
  */
-@media (max-width: 450px) {
+@media (max-width: 520px) {
     .lpv-wrapper .lpv--moves-right {
         grid-template-areas: "board" "controls" "side";
         grid-template-columns: minmax(200px, calc(100vh - var(--controls-height) - 6em));

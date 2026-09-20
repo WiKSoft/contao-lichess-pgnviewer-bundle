@@ -70,7 +70,19 @@
             {% set h = games[0].headers %}
             <dl class="lpv-info" id="{{ elementId }}-info">
                 {% for key in lpvInfoFields %}
-                    {% set v = h[key.tag] is defined and h[key.tag] and h[key.tag] != '?' and (key.tag != 'Date' or h[key.tag] starts with '????' == false) and (key.tag != 'Result' or h[key.tag] != '*') ? h[key.tag] : '' %}
+                    {% if key.tag == 'Date' %}
+                        {#
+                            Datum im Systemformat (d.m.Y, siehe
+                            system/config/localconfig.php) statt PGN-Rohformat
+                            (JJJJ.MM.TT); unbekannte Teile ("?"/"??") werden
+                            weggelassen, bekannte Teile bleiben zusammen (z. B.
+                            "1905.08.??" -> "08.1905", "1905.??.??" -> "1905").
+                        #}
+                        {% set dp = h.Date is defined and h.Date ? h.Date|split('.')|map(p => p matches '/^[0-9]+$/' ? p : '') : ['', '', ''] %}
+                        {% set v = dp[0] and dp[1] and dp[2] ? '%02d.%02d.%04d'|format(dp[2], dp[1], dp[0]) : (dp[0] and dp[1] ? '%02d.%04d'|format(dp[1], dp[0]) : dp[0]) %}
+                    {% else %}
+                        {% set v = h[key.tag] is defined and h[key.tag] and h[key.tag] != '?' and (key.tag != 'Result' or h[key.tag] != '*') ? h[key.tag] : '' %}
+                    {% endif %}
                     <div class="lpv-info__row" data-lpv-info="{{ key.key }}"{% if not v %} hidden{% endif %}>
                         <dt>{{ ('MSC.lpv_info_' ~ key.key)|trans({}, 'contao_default') }}</dt>
                         <dd>{{ v }}</dd>
@@ -106,22 +118,46 @@
                 <select id="{{ elementId }}-select" class="lpv-select__input" data-lpv-select>
                     {% for game in games %}
                         {% set h = game.headers %}
-                        {% set players = (h.White is defined and h.White and h.White != '?') and (h.Black is defined and h.Black and h.Black != '?') %}
+                        {#
+                            Datum im Systemformat statt PGN-Rohformat für die
+                            Dropdown-Beschriftung - dieselbe Logik wie im
+                            gameInfo-Block oben, siehe dort für Details.
+                        #}
+                        {% set dp = h.Date is defined and h.Date ? h.Date|split('.')|map(p => p matches '/^[0-9]+$/' ? p : '') : ['', '', ''] %}
+                        {% set dv = dp[0] and dp[1] and dp[2] ? '%02d.%02d.%04d'|format(dp[2], dp[1], dp[0]) : (dp[0] and dp[1] ? '%02d.%04d'|format(dp[1], dp[0]) : dp[0]) %}
+                        {#
+                            Beschriftung: die Auswahlliste wird ausschließlich
+                            für Partie-Varianten mit unterschiedlichen
+                            Kommentatoren/Quellen genutzt (siehe
+                            ContentLichessPgnviewer::collectSidVariants()) -
+                            deshalb hier Kommentator und Quelle statt der
+                            Spielpaarung, getrennt durch "/". Fehlt eine der
+                            beiden Angaben, wird nur die andere gezeigt; fehlen
+                            beide, erscheint der Platzhalter
+                            "lpv_annotator_variant_none".
+                        #}
+                        {% set annotator = h.Annotator is defined and h.Annotator and h.Annotator != '?' ? h.Annotator : '' %}
+                        {% set source = h.Source is defined and h.Source and h.Source != '?' ? h.Source : '' %}
                         {% set label %}
-                            {%- if players -%}
-                                {{ h.White }} – {{ h.Black }}
-                                {%- if h.Result is defined and h.Result and h.Result != '*' %} ({{ h.Result }}){% endif -%}
-                                {%- if h.Date is defined and h.Date and h.Date starts with '????' == false %}, {{ h.Date }}{% endif -%}
-                                {%- if h.Event is defined and h.Event and h.Event != '?' %} – {{ h.Event }}{% endif -%}
+                            {%- if annotator and source -%}
+                                {{ annotator }} / {{ source }}
+                            {%- elseif annotator -%}
+                                {{ annotator }}
+                            {%- elseif source -%}
+                                {{ source }}
                             {%- else -%}
-                                {{ 'MSC.lpv_game_fallback'|trans({}, 'contao_default') }} {{ loop.index }}
+                                {{ 'MSC.lpv_annotator_variant_none'|trans({}, 'contao_default') }}
                             {%- endif -%}
                         {% endset %}
                         <option
                             value="{{ loop.index0 }}"
                             data-pgn="{{ game.pgn|e('html_attr') }}"
                             {%- for key in lpvInfoFields %}
-                                {% set v = h[key.tag] is defined and h[key.tag] and h[key.tag] != '?' and (key.tag != 'Date' or h[key.tag] starts with '????' == false) and (key.tag != 'Result' or h[key.tag] != '*') ? h[key.tag] : '' %}
+                                {% if key.tag == 'Date' %}
+                                    {% set v = dv %}
+                                {% else %}
+                                    {% set v = h[key.tag] is defined and h[key.tag] and h[key.tag] != '?' and (key.tag != 'Result' or h[key.tag] != '*') ? h[key.tag] : '' %}
+                                {% endif %}
                                 data-{{ key.key }}="{{ v|e('html_attr') }}"
                             {%- endfor %}
                             {% if loop.first %} selected="selected"{% endif %}
@@ -173,7 +209,17 @@
                     {% set h = games[0].headers %}
                     data-lpv-pgn="{{ games[0].pgn|e('html_attr') }}"
                     {%- for key in lpvInfoFields %}
-                        {% set v = h[key.tag] is defined and h[key.tag] and h[key.tag] != '?' and (key.tag != 'Date' or h[key.tag] starts with '????' == false) and (key.tag != 'Result' or h[key.tag] != '*') ? h[key.tag] : '' %}
+                        {% if key.tag == 'Date' %}
+                            {#
+                                Datum im Systemformat statt PGN-Rohformat -
+                                dieselbe Logik wie im gameInfo-Block oben,
+                                siehe dort für Details.
+                            #}
+                            {% set dp = h.Date is defined and h.Date ? h.Date|split('.')|map(p => p matches '/^[0-9]+$/' ? p : '') : ['', '', ''] %}
+                            {% set v = dp[0] and dp[1] and dp[2] ? '%02d.%02d.%04d'|format(dp[2], dp[1], dp[0]) : (dp[0] and dp[1] ? '%02d.%04d'|format(dp[1], dp[0]) : dp[0]) %}
+                        {% else %}
+                            {% set v = h[key.tag] is defined and h[key.tag] and h[key.tag] != '?' and (key.tag != 'Result' or h[key.tag] != '*') ? h[key.tag] : '' %}
+                        {% endif %}
                         data-{{ key.key }}="{{ v|e('html_attr') }}"
                     {%- endfor %}
                 {% endif -%}

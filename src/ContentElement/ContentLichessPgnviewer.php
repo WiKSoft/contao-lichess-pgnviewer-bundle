@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Wiksoft\ContaoLichessPgnviewerBundle\ContentElement;
 
+use Contao\Config;
 use Contao\ContentElement;
-use Contao\Controller;
 use Contao\Database;
 use Contao\File;
 use Contao\FilesModel;
@@ -72,6 +72,20 @@ class ContentLichessPgnviewer extends ContentElement
         $this->Template->nextRound = null;
         $this->Template->prevRoundHref = null;
         $this->Template->nextRoundHref = null;
+
+        // Vorbelegung für Twig (strict_variables): wird nur bei Quelle "d" in
+        // applyGameNavigation() überschrieben. Anders als roundNav (Navigation
+        // über die Runden-Spalte) verlinkt dies stets zur vorherigen/nächsten
+        // Partie in der sortierten Ergebnisliste - unabhängig davon, ob
+        // lpv_dbChess_roundNav aktiviert ist. Gedacht für Quellen ohne
+        // sinnvolle Rundenangabe (z. B. Simultanpartien), siehe
+        // ce_lichessPgnviewer_simultan.
+        $this->Template->prevGameHref = null;
+        $this->Template->prevGameWhite = '';
+        $this->Template->prevGameBlack = '';
+        $this->Template->nextGameHref = null;
+        $this->Template->nextGameWhite = '';
+        $this->Template->nextGameBlack = '';
 
         // Link zur übergeordneten Seite, für benutzerdefinierte Templates
         // (z. B. ce_lichessPgnviewer_turnier), die neben der Rundennavigation
@@ -249,7 +263,7 @@ class ContentLichessPgnviewer extends ContentElement
     }
 
     /**
-     * @return list<array{pgn: string, headers: array<string, string>, remark: string}>
+     * @return list<array{pgn: string, headers: array<string, string>, remark: string, alias: string}>
      */
     private function collectGamesFromDatabase(): array
     {
@@ -276,29 +290,116 @@ class ContentLichessPgnviewer extends ContentElement
 
         $database = Database::getInstance();
         $byOrder = 'd' === $this->lpv_dbChess_byorder ? 'DESC' : 'ASC';
-        $params = [];
-
-        if ($this->lpv_dbChess_roundNav) {
-            $currentRound = $this->applyRoundNavigation($database, $where, $byOrder);
-
-            if (null !== $currentRound) {
-                $where .= ' AND round = ?';
-                $params[] = $currentRound;
-            }
-        }
-
         $orderBy = $this->buildOrderBy($byOrder);
 
         $result = $database
             ->prepare('SELECT * FROM tl_dbChess_games WHERE ' . $where . ' ORDER BY ' . $orderBy)
-            ->execute(...$params);
+            ->execute();
+
+        $rows = [];
+        while ($result->next()) {
+            $rows[] = $result->row();
+        }
+
+        if (!$rows) {
+            return [];
+        }
+
+        $aliasRow = $this->findRowByAlias($rows, $this->getRequestedGameAlias());
+
+        $currentRow = $this->lpv_dbChess_roundNav
+            ? $this->applyRoundNavigation($database, $where, $byOrder, $rows, $aliasRow)
+            : ($aliasRow ?? $rows[0]);
+
+        $this->applyGameNavigation($rows, $currentRow);
 
         $games = [];
-        while ($result->next()) {
-            array_push($games, ...$this->buildGamesFromDbRow($result->row()));
+        foreach ($this->collectSidVariants($database, $currentRow) as $row) {
+            array_push($games, ...$this->buildGamesFromDbRow($row));
         }
 
         return $games;
+    }
+
+    /**
+     * Schreibt Links zur vorherigen/nächsten Partie in der sortierten
+     * Ergebnisliste ins Template (siehe Vorbelegung in compile()) - anders
+     * als applyRoundNavigation() unabhängig von der Spalte "round" und
+     * unabhängig davon, ob lpv_dbChess_roundNav aktiviert ist. Gedacht für
+     * Templates wie ce_lichessPgnviewer_simultan, deren Partien keine
+     * sinnvolle Rundenangabe haben und stattdessen von Partie zu Partie
+     * blättern.
+     *
+     * @param list<array<string, mixed>> $rows
+     * @param array<string, mixed>       $currentRow
+     */
+    private function applyGameNavigation(array $rows, array $currentRow): void
+    {
+        $index = null;
+        $currentId = (int) $currentRow['id'];
+
+        foreach ($rows as $key => $row) {
+            if ((int) $row['id'] === $currentId) {
+                $index = $key;
+                break;
+            }
+        }
+
+        if (null === $index) {
+            return;
+        }
+
+        $prevRow = $index > 0 ? $rows[$index - 1] : null;
+        $nextRow = isset($rows[$index + 1]) ? $rows[$index + 1] : null;
+
+        $this->Template->prevGameHref = $this->buildGameUrl($prevRow);
+        $this->Template->prevGameWhite = (string) ($prevRow['white'] ?? '');
+        $this->Template->prevGameBlack = (string) ($prevRow['black'] ?? '');
+        $this->Template->nextGameHref = $this->buildGameUrl($nextRow);
+        $this->Template->nextGameWhite = (string) ($nextRow['white'] ?? '');
+        $this->Template->nextGameBlack = (string) ($nextRow['black'] ?? '');
+    }
+
+    /**
+     * Liest den von Contao über auto_item bzw. den Query-Parameter "items"
+     * bereitgestellten URL-Fragment-Wert - analog zu
+     * ContentPgn4web::compile() und ModulePgn4webReader::generate() im
+     * pgn4web-Bundle. Ein Link aus ContentDbChessList (Feld
+     * "dbChess_list_jumpTo", siehe dbChess_list_default.html.twig) zeigt auf
+     * genau diesen Parameter, befüllt mit dem Alias der angeklickten Partie.
+     */
+    private function getRequestedGameAlias(): string
+    {
+        if (!isset($_GET['items']) && Config::get('useAutoItem') && isset($_GET['auto_item'])) {
+            Input::setGet('items', Input::get('auto_item'));
+        }
+
+        return (string) Input::get('items');
+    }
+
+    /**
+     * Sucht in $rows die Partie mit passendem Alias (siehe
+     * getRequestedGameAlias()). Ohne Alias oder ohne Treffer wird null
+     * zurückgegeben - die Aufrufer fallen dann auf ihren jeweiligen Default
+     * zurück (erste Partie bzw. erste Partie der Default-Runde).
+     *
+     * @param list<array<string, mixed>> $rows
+     *
+     * @return array<string, mixed>|null
+     */
+    private function findRowByAlias(array $rows, string $alias): ?array
+    {
+        if ('' === $alias) {
+            return null;
+        }
+
+        foreach ($rows as $row) {
+            if (($row['alias'] ?? '') === $alias) {
+                return $row;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -334,14 +435,24 @@ class ContentLichessPgnviewer extends ContentElement
      * anzuzeigende Runde und schreibt Vor-/Zurück-Informationen ins
      * Template. "$where" enthält an dieser Stelle ausschließlich admin-
      * seitig konfigurierte Bedingungen (Sammlung(en) + optionaler eigener
-     * Filter), noch keine Nutzereingabe - der per Besucher steuerbare
-     * "round"-Parameter wird unten stets über einen Query-Platzhalter
-     * gebunden, nie direkt in SQL interpoliert.
+     * Filter).
      *
-     * @return string|null die aktuell gültige Runde, oder null, wenn die
-     *                      Sammlung keine (befüllten) Runden enthält
+     * Die anzuzeigende Runde wird ausschließlich aus der per "items"
+     * angeforderten Partie abgeleitet (siehe $aliasRow), nicht mehr über
+     * einen eigenen "round"-URL-Parameter - der Partie-Alias identifiziert
+     * die Partie bereits eindeutig. Ohne Treffer (kein Alias in der URL
+     * bzw. kein Alias, der zu einer Partie mit Rundenangabe passt) wird die
+     * erste verfügbare Runde angezeigt. Die Vor-/Zurück-Links verlinken auf
+     * die Partie-Alias-URL der jeweiligen Nachbarrunde (siehe
+     * buildGameUrl()), damit ein Wechsel der Runde stets automatisch auch
+     * das "items"-Fragment für die dortige Partie mitführt.
+     *
+     * @param list<array<string, mixed>> $rows
+     * @param array<string, mixed>|null  $aliasRow
+     *
+     * @return array<string, mixed>
      */
-    private function applyRoundNavigation(Database $database, string $where, string $byOrder): ?string
+    private function applyRoundNavigation(Database $database, string $where, string $byOrder, array $rows, ?array $aliasRow): array
     {
         $result = $database
             ->prepare("SELECT DISTINCT round FROM tl_dbChess_games WHERE {$where} AND round != '' ORDER BY CAST(round AS UNSIGNED) {$byOrder}")
@@ -350,13 +461,12 @@ class ContentLichessPgnviewer extends ContentElement
         $rounds = $result->fetchEach('round');
 
         if (!$rounds) {
-            return null;
+            return $aliasRow ?? $rows[0];
         }
 
-        $currentRound = (string) Input::get('round');
-        if ('' === $currentRound || !\in_array($currentRound, $rounds, true)) {
-            $currentRound = $rounds[0];
-        }
+        $currentRound = (null !== $aliasRow && \in_array((string) $aliasRow['round'], $rounds, true))
+            ? (string) $aliasRow['round']
+            : $rounds[0];
 
         $index = array_search($currentRound, $rounds, true);
         $prevRound = $index > 0 ? $rounds[$index - 1] : null;
@@ -366,10 +476,115 @@ class ContentLichessPgnviewer extends ContentElement
         $this->Template->currentRound = $currentRound;
         $this->Template->prevRound = $prevRound;
         $this->Template->nextRound = $nextRound;
-        $this->Template->prevRoundHref = null !== $prevRound ? Controller::addToUrl('round=' . rawurlencode($prevRound)) : null;
-        $this->Template->nextRoundHref = null !== $nextRound ? Controller::addToUrl('round=' . rawurlencode($nextRound)) : null;
+        $this->Template->prevRoundHref = $this->buildGameUrl($this->findRowForRound($rows, $prevRound));
+        $this->Template->nextRoundHref = $this->buildGameUrl($this->findRowForRound($rows, $nextRound));
 
-        return $currentRound;
+        if (null !== $aliasRow && (string) $aliasRow['round'] === $currentRound) {
+            return $aliasRow;
+        }
+
+        foreach ($rows as $row) {
+            if ((string) $row['round'] === $currentRound) {
+                return $row;
+            }
+        }
+
+        return $aliasRow ?? $rows[0];
+    }
+
+    /**
+     * Sucht in $rows die erste Partie einer bestimmten Runde - genutzt von
+     * applyRoundNavigation(), um für die Vor-/Zurück-Links der Nachbarrunde
+     * eine konkrete Partie (und damit deren Alias) zu ermitteln.
+     *
+     * @param list<array<string, mixed>> $rows
+     *
+     * @return array<string, mixed>|null
+     */
+    private function findRowForRound(array $rows, ?string $round): ?array
+    {
+        if (null === $round) {
+            return null;
+        }
+
+        foreach ($rows as $row) {
+            if ((string) $row['round'] === $round) {
+                return $row;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Baut die Frontend-URL der aktuellen Seite mit dem Alias der
+     * übergebenen Partie als "items"-Fragment - analog zu
+     * ContentPgn4web::generatePrevNextLinks() bzw.
+     * ContentDbChessList::compile() (siehe dort "getFrontendUrl('/' .
+     * $alias)"), inklusive derselben Berücksichtigung von
+     * Config::get('useAutoItem')/'disableAlias' für den "/items/"-Fallback.
+     */
+    private function buildGameUrl(?array $row): ?string
+    {
+        $alias = trim((string) ($row['alias'] ?? ''));
+
+        if ('' === $alias) {
+            return null;
+        }
+
+        $currentPage = $GLOBALS['objPage'] ?? null;
+
+        if (!$currentPage) {
+            return null;
+        }
+
+        $prefix = (Config::get('useAutoItem') && !Config::get('disableAlias')) ? '/' : '/items/';
+
+        return $currentPage->getFrontendUrl($prefix . $alias);
+    }
+
+    /**
+     * Ermittelt zur aktuell anzuzeigenden Partie alle über das Feld "sid"
+     * (wiksoft/dbchess-bundle) verknüpften Varianten - typischerweise
+     * dieselbe Partie, erfasst von unterschiedlichen Kommentatoren/Quellen.
+     * Siehe auch ContentPgn4web::compile(), das dieselbe Verknüpfung nutzt,
+     * dort allerdings umgekehrt: um Duplikate aus der Liste zu ENTFERNEN,
+     * statt sie - wie hier gewünscht - im Auswahl-Dropdown als Varianten
+     * anzubieten. Ohne "sid"-Verknüpfung wird nur die Partie selbst
+     * zurückgegeben. Die aktuelle Partie steht dabei stets an erster Stelle,
+     * die übrigen Varianten in der von der Datenbank gelieferten Reihenfolge.
+     *
+     * @param array<string, mixed> $currentRow
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function collectSidVariants(Database $database, array $currentRow): array
+    {
+        $sidIds = array_values(array_unique(array_filter(
+            array_map('intval', StringUtil::deserialize($currentRow['sid'] ?? null, true))
+        )));
+
+        if (!\in_array((int) $currentRow['id'], $sidIds, true)) {
+            return [$currentRow];
+        }
+
+        $placeholders = implode(',', array_fill(0, \count($sidIds), '?'));
+        $result = $database
+            ->prepare("SELECT * FROM tl_dbChess_games WHERE id IN ({$placeholders})")
+            ->execute(...$sidIds);
+
+        $currentId = (int) $currentRow['id'];
+        $variants = [$currentRow];
+
+        while ($result->next()) {
+            $row = $result->row();
+
+            if ((int) $row['id'] !== $currentId) {
+                $variants[] = $row;
+            }
+        }
+
+        return $variants;
     }
 
     /**
@@ -377,7 +592,7 @@ class ContentLichessPgnviewer extends ContentElement
      * über lpv_dbChess_selection manuell gewählten Partien - ohne Filter
      * oder Sortier-UI, analog zu pgn4webs Quelle "b"/fromBase.
      *
-     * @return list<array{pgn: string, headers: array<string, string>, remark: string}>
+     * @return list<array{pgn: string, headers: array<string, string>, remark: string, alias: string}>
      */
     private function collectGamesFromSelection(): array
     {
@@ -417,15 +632,17 @@ class ContentLichessPgnviewer extends ContentElement
      *
      * @param array<string, mixed> $row
      *
-     * @return list<array{pgn: string, headers: array<string, string>, remark: string}>
+     * @return list<array{pgn: string, headers: array<string, string>, remark: string, alias: string}>
      */
     private function buildGamesFromDbRow(array $row): array
     {
         $games = PgnSplitter::split($this->buildPgnFromDbRow($row));
         $remark = trim((string) ($row['remark'] ?? ''));
+        $alias = (string) ($row['alias'] ?? '');
 
         foreach ($games as &$game) {
             $game['remark'] = $remark;
+            $game['alias'] = $alias;
         }
         unset($game);
 
