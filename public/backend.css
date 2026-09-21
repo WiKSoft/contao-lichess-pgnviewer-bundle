@@ -1,0 +1,13 @@
+/*
+ * Backend-Styles für das Content-Element "lichessPgnviewer".
+ *
+ * Begrenzt das Auswahl-Widget für "Partien auswählen" (Quelle "Interne
+ * Datenbank, Einzelauswahl", Feld lpv_dbChess_selection, siehe
+ * contao/dca/tl_content.php) auf eine feste Höhe mit eigenem Scrollbalken.
+ * Ohne diese Regel wird die Liste bei großen Partiesammlungen sehr lang, und man muss weit scrollen, um an die
+ * darunterliegenden Formularfelder zu gelangen.
+ */
+.lpv-selection-scroll {
+    max-height: 60vh;
+    overflow-y: auto;
+}

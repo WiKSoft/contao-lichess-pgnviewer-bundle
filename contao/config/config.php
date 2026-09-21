@@ -1,6 +1,7 @@
 <?php
 
 use Wiksoft\ContaoLichessPgnviewerBundle\ContentElement\ContentLichessPgnviewer;
+use Wiksoft\ContaoLichessPgnviewerBundle\EventListener\LoadDataContainerListener;
 
 /**
  * -------------------------------------------------------------------------
@@ -17,3 +18,13 @@ $GLOBALS['TL_CTE']['schach']['lichessPgnviewer'] = ContentLichessPgnviewer::clas
  * -------------------------------------------------------------------------
  */
 $GLOBALS['TL_CSS'][] = 'bundles/wiksoftcontaolichesspgnviewer/lpv.css';
+
+/**
+ * -------------------------------------------------------------------------
+ * BACKEND-STYLES: backend.css wird NICHT hier direkt eingebunden (die
+ * TL_MODE-Konstante, mit der man das früher aufs Backend beschränkt hätte,
+ * existiert in dieser Contao-Version nicht mehr), sondern nur beim Laden
+ * der tl_content-DCA, siehe LoadDataContainerListener.
+ * -------------------------------------------------------------------------
+ */
+$GLOBALS['TL_HOOKS']['loadDataContainer'][] = [LoadDataContainerListener::class, 'onLoadDataContainer'];

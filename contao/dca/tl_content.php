@@ -136,7 +136,12 @@ $GLOBALS['TL_DCA']['tl_content']['fields']['lpv_dbChess_selection'] = [
     'exclude' => true,
     'inputType' => 'checkboxWizard',
     'options_callback' => ['tl_content_lichessPgnviewer', 'getGameSelectionOptions'],
-    'eval' => ['mandatory' => true, 'multiple' => true, 'tl_class' => 'clr'],
+    // "lpv-selection-scroll" gibt dem Backend-CSS (contao/config/config.php,
+    // public/backend.css) einen eindeutigen Anker, um NUR dieses Feld auf
+    // eine feste Höhe mit Scrollbalken zu begrenzen - bei Partiesammlungen
+    // mit sehr vielen Partien (z. B. "Nimzowitsch") wird die Liste sonst
+    // extrem lang und die restlichen Formularfelder rutschen weit nach unten.
+    'eval' => ['mandatory' => true, 'multiple' => true, 'tl_class' => 'clr lpv-selection-scroll'],
     'sql' => 'blob NULL',
 ];
 
