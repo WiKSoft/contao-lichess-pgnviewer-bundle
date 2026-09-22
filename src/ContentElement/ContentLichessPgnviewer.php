@@ -263,6 +263,51 @@ class ContentLichessPgnviewer extends ContentElement
     }
 
     /**
+     * Entfernt aus der für Alias-Suche, Rundennavigation und Vor-/Zurück-
+     * Navigation verwendeten Liste alle über "sid" (wiksoft/dbchess-bundle)
+     * verknüpften Partien bis auf die zuerst gelistete - analog zu
+     * ContentPgn4web::compile() ("Verknüpfte Partien entfernen, bis auf die
+     * zuerst gelistete"). Ohne diese Deduplizierung würde z. B. eine als
+     * "hervorgehoben" markierte Partie zusammen mit ihrer verknüpften
+     * Variante zweimal in der Navigation auftauchen. Die entfernten Partien
+     * bleiben über collectSidVariants() weiterhin als Dropdown-Varianten der
+     * verbleibenden Partie erreichbar.
+     *
+     * @param list<array<string, mixed>> $rows
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function dedupeBySid(array $rows): array
+    {
+        $remaining = $rows;
+
+        foreach ($rows as $key => $row) {
+            if (!isset($remaining[$key])) {
+                continue;
+            }
+
+            $sid = StringUtil::deserialize($row['sid'] ?? null, true);
+            if (!$sid) {
+                continue;
+            }
+
+            foreach ($sid as $sidId) {
+                if ((int) $sidId === (int) $row['id']) {
+                    continue;
+                }
+
+                foreach ($remaining as $otherKey => $otherRow) {
+                    if ((int) $otherRow['id'] === (int) $sidId) {
+                        unset($remaining[$otherKey]);
+                    }
+                }
+            }
+        }
+
+        return array_values($remaining);
+    }
+
+    /**
      * @return list<array{pgn: string, headers: array<string, string>, remark: string, alias: string}>
      */
     private function collectGamesFromDatabase(): array
@@ -304,6 +349,8 @@ class ContentLichessPgnviewer extends ContentElement
         if (!$rows) {
             return [];
         }
+
+        $rows = $this->dedupeBySid($rows);
 
         $aliasRow = $this->findRowByAlias($rows, $this->getRequestedGameAlias());
 
@@ -409,9 +456,10 @@ class ContentLichessPgnviewer extends ContentElement
      * "2" vor Runde "10" einsortiert wird statt alphabetisch danach.
      *
      * Die als "hervorgehoben" markierte Partie (Feld gameFeatured aus
-     * wiksoft/dbchess-bundle) wird davor immer als führendes Kriterium
-     * einsortiert, damit sie unabhängig von der gewählten Sortierung stets
-     * zuerst erscheint - analog zu ContentPgn4web::compile().
+     * wiksoft/dbchess-bundle) wird als nachgestelltes Kriterium (Tie-Breaker)
+     * angehängt - analog zu ContentPgn4web::compile(). Sie hat damit nur bei
+     * ansonsten gleichen Sortierwerten Vorrang und überstimmt nicht die
+     * eigentliche Sortierung (z. B. nach Datum).
      */
     private function buildOrderBy(string $byOrder): string
     {
@@ -427,7 +475,7 @@ class ContentLichessPgnviewer extends ContentElement
 
         $orderBy = $fields ? implode(', ', $fields) : 'date ASC, id ASC';
 
-        return 'gameFeatured DESC, ' . $orderBy;
+        return $orderBy . ', gameFeatured DESC';
     }
 
     /**
@@ -547,12 +595,12 @@ class ContentLichessPgnviewer extends ContentElement
      * Ermittelt zur aktuell anzuzeigenden Partie alle über das Feld "sid"
      * (wiksoft/dbchess-bundle) verknüpften Varianten - typischerweise
      * dieselbe Partie, erfasst von unterschiedlichen Kommentatoren/Quellen.
-     * Siehe auch ContentPgn4web::compile(), das dieselbe Verknüpfung nutzt,
-     * dort allerdings umgekehrt: um Duplikate aus der Liste zu ENTFERNEN,
-     * statt sie - wie hier gewünscht - im Auswahl-Dropdown als Varianten
-     * anzubieten. Ohne "sid"-Verknüpfung wird nur die Partie selbst
-     * zurückgegeben. Die aktuelle Partie steht dabei stets an erster Stelle,
-     * die übrigen Varianten in der von der Datenbank gelieferten Reihenfolge.
+     * Diese Varianten wurden zuvor per dedupeBySid() aus der Navigationsliste
+     * entfernt (siehe dort, analog zu ContentPgn4web::compile()) und werden
+     * hier stattdessen im Auswahl-Dropdown angeboten. Ohne "sid"-Verknüpfung
+     * wird nur die Partie selbst zurückgegeben. Die aktuelle Partie steht
+     * dabei stets an erster Stelle, die übrigen Varianten in der von der
+     * Datenbank gelieferten Reihenfolge.
      *
      * @param array<string, mixed> $currentRow
      *
