@@ -27,15 +27,16 @@
     {% endblock %}
 
     {#
-        Keine Rundennavigation im Basis-Template: sie ist fest an
-        ce_lichessPgnviewer_turnier gebunden (siehe dort sowie
+        Keine Rundennavigation im Basis-Template und bewusst KEIN eigener
+        "roundNav"-Block (mehr): sie ist fest an ce_lichessPgnviewer_turnier
+        gebunden (siehe dort sowie
         ContentLichessPgnviewer::TEMPLATE_TURNIER/applyRoundNavigation()) und
-        wird dort per eigenem "roundNav"-Override gezeigt. Bewusst leer
-        überschrieben (statt gar nicht überschrieben) wie bei
-        ce_lichessPgnviewer_system, damit keine der Vorbelegungen
-        (currentRound etc. aus compile()) referenziert werden muss.
+        wird dort direkt im "gameInfo"-Override mit ausgegeben statt in
+        einem separaten Block - ebenso bei ce_lichessPgnviewer_simultan mit
+        der Partie-für-Partie-Navigation (prevGameHref/nextGameHref statt
+        Runden). Ein eigener "roundNav"-Erweiterungspunkt im Basis-Template
+        würde daher aktuell von keinem Template mehr genutzt.
     #}
-    {% block roundNav %}{% endblock %}
 
     {% block gameInfo %}
         {#
