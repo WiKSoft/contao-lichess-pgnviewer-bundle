@@ -18,12 +18,14 @@ use Wiksoft\ContaoLichessPgnviewerBundle\Pgn\DbChessAvailability;
 use Wiksoft\ContaoLichessPgnviewerBundle\Pgn\PgnSplitter;
 
 /**
- * Content-Element "contao-lichess-pgnviewer": stellt eine oder mehrere
+ * Content-Element "lichessPgnviewer" (registriert in contao/config/config.php
+ * unter $GLOBALS['TL_CTE']['schach']['lichessPgnviewer'], Bundle
+ * wiksoft/contao-lichess-pgnviewer-bundle): stellt eine oder mehrere
  * Schachpartien (PGN) im Frontend nachspielbar dar, gerendert mit dem
  * lichess.org PGN-Viewer (https://github.com/lichess-org/pgn-viewer). Der
  * Viewer selbst läuft vollständig im Browser (ES-Modul, siehe
- * contao/public/lichess-pgn-viewer.min.js); dieses Element liefert ihm nur
- * die PGN-Daten sowie die Konfigurationsoptionen.
+ * public/lichess-pgn-viewer/lichess-pgn-viewer.min.js); dieses Element
+ * liefert ihm nur die PGN-Daten sowie die Konfigurationsoptionen.
  *
  * Als PGN-Quelle (lpv_source) stehen zur Verfügung:
  * - "f" Datei (.pgn-Datei aus der Dateiverwaltung)
@@ -47,6 +49,19 @@ class ContentLichessPgnviewer extends ContentElement
     private const ASSETS_PATH = '/bundles/wiksoftcontaolichesspgnviewer/lichess-pgn-viewer';
 
     /**
+     * Wert von "lpv_template" (siehe tl_content.php, options_callback
+     * getTemplates()) für die Turnier-Variante. Die Rundennavigation (siehe
+     * applyRoundNavigation()) ist bewusst fest an dieses Template gebunden,
+     * statt - wie früher über das inzwischen entfernte Feld
+     * "lpv_dbChess_roundNav" - für jede Instanz mit Quelle "d" einzeln
+     * konfigurierbar zu sein: eine Turnier-Partie hat praktisch immer eine
+     * sinnvolle Rundenangabe, andere Verwendungen (Basis-Template, Simultan,
+     * System) dagegen nicht bzw. nutzen dafür ihre eigene Navigation (siehe
+     * applyGameNavigation() für Simultanpartien).
+     */
+    private const TEMPLATE_TURNIER = 'ce_lichessPgnviewer_turnier';
+
+    /**
      * Whitelist für lpv_dbChess_sortfields (identisch mit den 'options' des
      * Feldes in tl_content.php) - wird zusätzlich zur DCA-Beschränkung im
      * Backend hier erneut geprüft, bevor ein Feldname in die ORDER-BY-
@@ -64,9 +79,11 @@ class ContentLichessPgnviewer extends ContentElement
         }
 
         // Vorbelegung für Twig (strict_variables): wird nur bei Quelle "d"
-        // mit aktivierter Rundennavigation (lpv_dbChess_roundNav) in
-        // applyRoundNavigation() überschrieben.
-        $this->Template->roundNavEnabled = false;
+        // und nur für ce_lichessPgnviewer_turnier (siehe TEMPLATE_TURNIER)
+        // in applyRoundNavigation() überschrieben - die Rundennavigation ist
+        // fest an dieses Template gebunden. Dessen "roundNav"-Block setzt
+        // deshalb bewusst voraus, dass immer eine Runde vorhanden ist (kein
+        // "roundNavEnabled"-Flag/Check mehr nötig).
         $this->Template->currentRound = '';
         $this->Template->prevRound = null;
         $this->Template->nextRound = null;
@@ -75,9 +92,9 @@ class ContentLichessPgnviewer extends ContentElement
 
         // Vorbelegung für Twig (strict_variables): wird nur bei Quelle "d" in
         // applyGameNavigation() überschrieben. Anders als roundNav (Navigation
-        // über die Runden-Spalte) verlinkt dies stets zur vorherigen/nächsten
-        // Partie in der sortierten Ergebnisliste - unabhängig davon, ob
-        // lpv_dbChess_roundNav aktiviert ist. Gedacht für Quellen ohne
+        // über die Runden-Spalte, siehe TEMPLATE_TURNIER) verlinkt dies stets
+        // zur vorherigen/nächsten Partie in der sortierten Ergebnisliste -
+        // unabhängig vom aktiven Template. Gedacht für Quellen ohne
         // sinnvolle Rundenangabe (z. B. Simultanpartien), siehe
         // ce_lichessPgnviewer_simultan.
         $this->Template->prevGameHref = null;
@@ -86,6 +103,24 @@ class ContentLichessPgnviewer extends ContentElement
         $this->Template->nextGameHref = null;
         $this->Template->nextGameWhite = '';
         $this->Template->nextGameBlack = '';
+
+        // Vorbelegung für Twig (strict_variables): wird nur bei Quelle "d" in
+        // collectGamesFromDatabase() befüllt - Liste ALLER zur Sammlung/zum
+        // Filter passenden Partien (die bereits um sid-Varianten bereinigte
+        // Liste "$rows", siehe dedupeBySid()), fürs "Alle Partien"-Dropdown
+        // im Basis-Template (Block "gameSelect"). Anders als "games"/
+        // collectSidVariants() nicht auf Varianten der aktuell angezeigten
+        // Partie beschränkt und ohne eingebettete PGN-Daten, da die Auswahl
+        // dort per Seiten-Link statt clientseitig erfolgt (siehe
+        // buildMatchingGamesList()).
+        $this->Template->matchingGames = [];
+
+        // Vorbelegung für Twig (strict_variables): "lpv_source" ist zwar
+        // eine reguläre tl_content-Spalte, wird von Contaos FrontendTemplate
+        // aber nicht automatisch in den Twig-Kontext übernommen (anders als
+        // in klassischen .html5-Templates) - daher hier explizit gesetzt,
+        // damit "gameSelect" im Basis-Template danach verzweigen kann.
+        $this->Template->lpv_source = (string) $this->lpv_source;
 
         // Link zur übergeordneten Seite, für benutzerdefinierte Templates
         // (z. B. ce_lichessPgnviewer_turnier), die neben der Rundennavigation
@@ -350,15 +385,41 @@ class ContentLichessPgnviewer extends ContentElement
             return [];
         }
 
-        $rows = $this->dedupeBySid($rows);
-
+        // Alias-Suche bewusst gegen die VOLLE (noch nicht um sid-Varianten
+        // bereinigte) Liste: das "Alle Partien"-Dropdown im Basis-Template
+        // (siehe buildMatchingGamesList() weiter unten) verlinkt gezielt auch
+        // auf sid-Varianten-Aliase - würde hier nur in der deduplizierten
+        // Liste gesucht, liefe ein Klick auf eine solche Variante ins Leere
+        // (Alias nicht gefunden, Rückfall auf die erste Partie statt der
+        // angeklickten Variante).
         $aliasRow = $this->findRowByAlias($rows, $this->getRequestedGameAlias());
 
-        $currentRow = $this->lpv_dbChess_roundNav
-            ? $this->applyRoundNavigation($database, $where, $byOrder, $rows, $aliasRow)
-            : ($aliasRow ?? $rows[0]);
+        // Für Rundennavigation und Vor-/Zurück-Navigation (Turnier/Simultan)
+        // dagegen weiterhin die deduplizierte Liste, damit sid-Varianten dort
+        // nicht wie ursprünglich gemeldet als eigener, verwirrender Zusatz-
+        // Eintrag auftauchen (siehe dedupeBySid()).
+        $dedupedRows = $this->dedupeBySid($rows);
 
-        $this->applyGameNavigation($rows, $currentRow);
+        // Rundennavigation ist fest an ce_lichessPgnviewer_turnier gebunden
+        // (siehe TEMPLATE_TURNIER) - keine per Checkbox konfigurierbare
+        // Option mehr (die frühere "Nach Runde filtern + Rundennavigation"-
+        // Option "lpv_dbChess_roundNav" wurde entfernt). Für alle anderen
+        // Templates (Basis, Simultan, System) bleibt es beim einfachen
+        // Alias-oder-erste-Partie-Fallback.
+        $currentRow = self::TEMPLATE_TURNIER === $this->lpv_template
+            ? $this->applyRoundNavigation($database, $where, $byOrder, $dedupedRows, $aliasRow)
+            : ($aliasRow ?? $dedupedRows[0]);
+
+        $this->applyGameNavigation($dedupedRows, $currentRow);
+
+        // Bewusst die VOLLE Liste (nicht $dedupedRows): im Basis-Template
+        // soll das "Alle Partien"-Dropdown jede Partie einzeln auflisten,
+        // auch sid-Varianten - die Primärpartie erscheint dabei durch die
+        // Sortierung (siehe buildOrderBy()) automatisch vor ihrer Variante.
+        // Turnier/Simultan nutzen für sid-Varianten stattdessen weiterhin den
+        // separaten Kommentator/Quelle-Dropdown (gameSelectAnnotatorVariants)
+        // und binden dieses "Alle Partien"-Dropdown gar nicht erst ein.
+        $this->Template->matchingGames = $this->buildMatchingGamesList($rows, $currentRow);
 
         $games = [];
         foreach ($this->collectSidVariants($database, $currentRow) as $row) {
@@ -369,13 +430,57 @@ class ContentLichessPgnviewer extends ContentElement
     }
 
     /**
+     * Baut die Liste ALLER zur Sammlung/zum Filter passenden Partien fürs
+     * "Alle Partien"-Dropdown im Basis-Template (Block "gameSelect") -
+     * bewusst aus der VOLLEN, noch nicht um sid-Varianten bereinigten Liste
+     * (anders als $dedupedRows in collectGamesFromDatabase()): das
+     * Basis-Template soll jede Partie einzeln auflisten, auch sid-Varianten
+     * (die Primärpartie steht dabei durch die Sortierung, siehe
+     * buildOrderBy(), automatisch vor ihrer Variante). Turnier/Simultan
+     * verwenden für sid-Varianten stattdessen den separaten Kommentator/
+     * Quelle-Dropdown (gameSelectAnnotatorVariants) und binden dieses
+     * "Alle Partien"-Dropdown gar nicht ein - siehe dortige Templates.
+     *
+     * Anders als "games"/collectSidVariants() nicht auf Varianten der
+     * aktuell angezeigten Partie beschränkt, sondern die komplette sortierte
+     * Liste - und bewusst OHNE PGN-Daten, da ein Dropdown-Wechsel hier per
+     * Seiten-Link (buildGameUrl()) erfolgt statt clientseitig, damit auch
+     * große Sammlungen nicht komplett als PGN ins HTML eingebettet werden
+     * müssen.
+     *
+     * @param list<array<string, mixed>> $rows
+     * @param array<string, mixed>       $currentRow
+     *
+     * @return list<array{href: string|null, white: string, black: string, result: string, date: string, round: string, annotator: string, isCurrent: bool}>
+     */
+    private function buildMatchingGamesList(array $rows, array $currentRow): array
+    {
+        $currentId = (int) $currentRow['id'];
+
+        $games = [];
+        foreach ($rows as $row) {
+            $games[] = [
+                'href' => $this->buildGameUrl($row),
+                'white' => (string) ($row['white'] ?? ''),
+                'black' => (string) ($row['black'] ?? ''),
+                'result' => (string) ($row['result'] ?? ''),
+                'date' => (string) ($row['date'] ?? ''),
+                'round' => (string) ($row['round'] ?? ''),
+                'annotator' => (string) ($row['annotator'] ?? ''),
+                'isCurrent' => (int) $row['id'] === $currentId,
+            ];
+        }
+
+        return $games;
+    }
+
+    /**
      * Schreibt Links zur vorherigen/nächsten Partie in der sortierten
      * Ergebnisliste ins Template (siehe Vorbelegung in compile()) - anders
      * als applyRoundNavigation() unabhängig von der Spalte "round" und
-     * unabhängig davon, ob lpv_dbChess_roundNav aktiviert ist. Gedacht für
-     * Templates wie ce_lichessPgnviewer_simultan, deren Partien keine
-     * sinnvolle Rundenangabe haben und stattdessen von Partie zu Partie
-     * blättern.
+     * unabhängig vom aktiven Template. Gedacht für Templates wie
+     * ce_lichessPgnviewer_simultan, deren Partien keine sinnvolle
+     * Rundenangabe haben und stattdessen von Partie zu Partie blättern.
      *
      * @param list<array<string, mixed>> $rows
      * @param array<string, mixed>       $currentRow
@@ -412,7 +517,8 @@ class ContentLichessPgnviewer extends ContentElement
      * bereitgestellten URL-Fragment-Wert - analog zu
      * ContentPgn4web::compile() und ModulePgn4webReader::generate() im
      * pgn4web-Bundle. Ein Link aus ContentDbChessList (Feld
-     * "dbChess_list_jumpTo", siehe dbChess_list_default.html.twig) zeigt auf
+     * "dbChess_list_jumpTo", siehe ContentDbChessList sowie
+     * ce_dbChess_list_table.html.twig im wiksoft/dbchess-bundle) zeigt auf
      * genau diesen Parameter, befüllt mit dem Alias der angeklickten Partie.
      */
     private function getRequestedGameAlias(): string
@@ -479,11 +585,11 @@ class ContentLichessPgnviewer extends ContentElement
     }
 
     /**
-     * Ermittelt bei aktivierter Rundennavigation (lpv_dbChess_roundNav) die
-     * anzuzeigende Runde und schreibt Vor-/Zurück-Informationen ins
-     * Template. "$where" enthält an dieser Stelle ausschließlich admin-
-     * seitig konfigurierte Bedingungen (Sammlung(en) + optionaler eigener
-     * Filter).
+     * Ermittelt (nur für ce_lichessPgnviewer_turnier, siehe
+     * TEMPLATE_TURNIER) die anzuzeigende Runde und schreibt Vor-/Zurück-
+     * Informationen ins Template. "$where" enthält an dieser Stelle
+     * ausschließlich admin-seitig konfigurierte Bedingungen (Sammlung(en) +
+     * optionaler eigener Filter).
      *
      * Die anzuzeigende Runde wird ausschließlich aus der per "items"
      * angeforderten Partie abgeleitet (siehe $aliasRow), nicht mehr über
@@ -520,7 +626,6 @@ class ContentLichessPgnviewer extends ContentElement
         $prevRound = $index > 0 ? $rounds[$index - 1] : null;
         $nextRound = isset($rounds[$index + 1]) ? $rounds[$index + 1] : null;
 
-        $this->Template->roundNavEnabled = true;
         $this->Template->currentRound = $currentRound;
         $this->Template->prevRound = $prevRound;
         $this->Template->nextRound = $nextRound;
@@ -660,9 +765,25 @@ class ContentLichessPgnviewer extends ContentElement
             ->prepare("SELECT * FROM tl_dbChess_games WHERE id IN ({$placeholders})")
             ->execute(...$arrSelection);
 
-        $games = [];
+        // "WHERE id IN (...)" liefert KEINE zu $arrSelection passende
+        // Reihenfolge (typischerweise Primärschlüssel-/Indexreihenfolge der
+        // Datenbank) - die per Drag & Drop im checkboxWizard-Feld
+        // "lpv_dbChess_selection" (siehe tl_content.php) vom Redakteur
+        // festgelegte Reihenfolge steckt stattdessen in der Reihenfolge von
+        // $arrSelection selbst. Die Zeilen werden daher hier anhand dieser
+        // Reihenfolge neu sortiert, damit die Anzeige im Frontend exakt der
+        // Backend-Sortierung entspricht.
+        $rowsById = [];
         while ($result->next()) {
-            array_push($games, ...$this->buildGamesFromDbRow($result->row()));
+            $row = $result->row();
+            $rowsById[(int) $row['id']] = $row;
+        }
+
+        $games = [];
+        foreach ($arrSelection as $id) {
+            if (isset($rowsById[$id])) {
+                array_push($games, ...$this->buildGamesFromDbRow($rowsById[$id]));
+            }
         }
 
         return $games;

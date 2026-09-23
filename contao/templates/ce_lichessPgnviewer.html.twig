@@ -26,36 +26,16 @@
         {% endif %}
     {% endblock %}
 
-    {% block roundNav %}
-        {#
-            Nur bei Quelle "Interne Datenbank" (lpv_source == 'd') mit
-            aktiviertem Feld "lpv_dbChess_roundNav" gesetzt (siehe
-            ContentLichessPgnviewer::applyRoundNavigation()). Das Dropdown
-            oben (Block "gameSelect") enthält in diesem Fall bereits nur die
-            Partien der unter "currentRound" angegebenen Runde.
-        #}
-        {% if roundNavEnabled %}
-            <nav class="lpv-round-nav" aria-label="{{ 'MSC.lpv_round_label'|trans({}, 'contao_default') }}">
-                <ul>
-                    {% if prevRoundHref %}
-                        <li class="lpv-round-nav__prev prev">
-                            <a href="{{ prevRoundHref }}" rel="prev">
-                                {{ 'MSC.lpv_round_prev'|trans({}, 'contao_default') }} ({{ prevRound }})
-                            </a>
-                        </li>
-                    {% endif %}
-                    <li class="lpv-round-nav__current current">{{ 'MSC.lpv_round_label'|trans({}, 'contao_default') }} {{ currentRound }}</li>
-                    {% if nextRoundHref %}
-                        <li class="lpv-round-nav__next next">
-                            <a href="{{ nextRoundHref }}" rel="next">
-                                {{ 'MSC.lpv_round_next'|trans({}, 'contao_default') }} ({{ nextRound }})
-                            </a>
-                        </li>
-                    {% endif %}
-                </ul>
-            </nav>
-        {% endif %}
-    {% endblock %}
+    {#
+        Keine Rundennavigation im Basis-Template: sie ist fest an
+        ce_lichessPgnviewer_turnier gebunden (siehe dort sowie
+        ContentLichessPgnviewer::TEMPLATE_TURNIER/applyRoundNavigation()) und
+        wird dort per eigenem "roundNav"-Override gezeigt. Bewusst leer
+        überschrieben (statt gar nicht überschrieben) wie bei
+        ce_lichessPgnviewer_system, damit keine der Vorbelegungen
+        (currentRound etc. aus compile()) referenziert werden muss.
+    #}
+    {% block roundNav %}{% endblock %}
 
     {% block gameInfo %}
         {#
@@ -94,77 +74,162 @@
 
     {% block gameSelect %}
         {#
-            Auswahlliste bei mehreren Partien in der PGN-Quelle.
+            Auswahlliste bei mehreren Partien in der PGN-Quelle - hier stets
+            mit der Spielpaarung (Weiß - Schwarz, ggf. mit Datum) als
+            Beschriftung, weil "games"/"matchingGames" an dieser Stelle in
+            der Regel tatsächlich UNTERSCHIEDLICHE Partien enthalten (andere
+            Sammlungseinträge bei Quelle "d", andere manuell gewählte
+            Partien bei Quelle "e", andere Partien einer Mehr-Partien-Datei/
+            eines Mehr-Partien-Texts bei "f"/"t").
 
-            "games" enthält alle gefundenen Partien in der Reihenfolge der
-            Quelle (Datei-/Textreihenfolge bzw. "ORDER BY date ASC" bei der
-            dbChess-Datenbank). Jede Partie hat "pgn" (vollständiger
-            Partie-PGN-Text) sowie "headers" (die geparsten PGN-Tag-Pairs,
-            z. B. headers.White, headers.Black, headers.Date, headers.Event,
-            headers.Round, headers.Result, headers.Eco - je nachdem, welche
-            Tags in der Partie vorhanden sind).
+            Bei Quelle "Interne Datenbank" (lpv_source == "d") werden ALLE
+            zur Sammlung/zum Filter passenden Partien aufgelistet (siehe
+            "matchingGames", von
+            ContentLichessPgnviewer::buildMatchingGamesList() befüllt -
+            bewusst die VOLLE, nicht um sid-Varianten bereinigte Liste, damit
+            auch sid-Varianten hier als eigener, einzeln anwählbarer Eintrag
+            auftauchen; die Primärpartie steht dabei durch die Sortierung vor
+            ihrer Variante). Ein Wechsel navigiert dabei per vollständigem
+            Seitenaufruf zur jeweiligen Partie-URL statt clientseitig
+            zwischen eingebetteten Partien zu wechseln - nötig, weil eine
+            Sammlung sehr viele Partien enthalten kann und diese sonst
+            komplett (inkl. PGN-Zugfolge) ins HTML eingebettet werden
+            müssten.
 
-            Anzeige UND Sortierung der Menüpunkte sind bewusst hier im
-            Template gelöst, nicht im PHP-Code:
-            - Beschriftung anpassen: siehe "label"-Berechnung weiter unten.
-            - Reihenfolge umkehren: "games" z. B. durch "games|reverse" ersetzen.
-            - Nach einem Header-Feld sortieren (falls die Twig-Version
-              Arrow-Functions im sort-Filter unterstützt, ab Twig 3.11):
-              games|sort((a, b) => (a.headers.White ?? '') <=> (b.headers.White ?? ''))
+            Für die anderen Quellen ("e"/"f"/"t") bleibt es beim bisherigen
+            clientseitigen Wechsel zwischen den in "games" enthaltenen
+            Partien, siehe Block "gameSelectEmbedded" weiter unten.
+
+            Für über "sid" verknüpfte Kommentar-Varianten DERSELBEN Partie
+            (gleiche Spielpaarung, unterschiedliche Kommentatoren/Quellen) mit
+            eigener, dedizierter Auswahlliste (Kommentator/Quelle statt
+            Spielpaarung als Beschriftung) siehe stattdessen das Partial
+            templates/_lichessPgnviewer_gameSelectAnnotatorVariants.html.twig,
+            das ce_lichessPgnviewer_turnier.html.twig und
+            ce_lichessPgnviewer_simultan.html.twig anstelle dieses Blocks
+            einbinden - bewusst NICHT Teil dieses Basis-Templates, da es hier
+            selbst nie genutzt wird (siehe dort für Details).
         #}
-        {% if showGameSelect %}
-            <div class="lpv-select">
-                <label for="{{ elementId }}-select">{{ 'MSC.lpv_gameSelect_label'|trans({}, 'contao_default') }}</label>
-                <select id="{{ elementId }}-select" class="lpv-select__input" data-lpv-select>
-                    {% for game in games %}
-                        {% set h = game.headers %}
-                        {#
-                            Datum im Systemformat statt PGN-Rohformat für die
-                            Dropdown-Beschriftung - dieselbe Logik wie im
-                            gameInfo-Block oben, siehe dort für Details.
-                        #}
-                        {% set dp = h.Date is defined and h.Date ? h.Date|split('.')|map(p => p matches '/^[0-9]+$/' ? p : '') : ['', '', ''] %}
-                        {% set dv = dp[0] and dp[1] and dp[2] ? '%02d.%02d.%04d'|format(dp[2], dp[1], dp[0]) : (dp[0] and dp[1] ? '%02d.%04d'|format(dp[1], dp[0]) : dp[0]) %}
-                        {#
-                            Beschriftung: die Auswahlliste wird ausschließlich
-                            für Partie-Varianten mit unterschiedlichen
-                            Kommentatoren/Quellen genutzt (siehe
-                            ContentLichessPgnviewer::collectSidVariants()) -
-                            deshalb hier Kommentator und Quelle statt der
-                            Spielpaarung, getrennt durch "/". Fehlt eine der
-                            beiden Angaben, wird nur die andere gezeigt; fehlen
-                            beide, erscheint der Platzhalter
-                            "lpv_annotator_variant_none".
-                        #}
-                        {% set annotator = h.Annotator is defined and h.Annotator and h.Annotator != '?' ? h.Annotator : '' %}
-                        {% set source = h.Source is defined and h.Source and h.Source != '?' ? h.Source : '' %}
-                        {% set label %}
-                            {%- if annotator and source -%}
-                                {{ annotator }} / {{ source }}
-                            {%- elseif annotator -%}
-                                {{ annotator }}
-                            {%- elseif source -%}
-                                {{ source }}
-                            {%- else -%}
-                                {{ 'MSC.lpv_annotator_variant_none'|trans({}, 'contao_default') }}
-                            {%- endif -%}
-                        {% endset %}
-                        <option
-                            value="{{ loop.index0 }}"
-                            data-pgn="{{ game.pgn|e('html_attr') }}"
-                            {%- for key in lpvInfoFields %}
-                                {% if key.tag == 'Date' %}
-                                    {% set v = dv %}
-                                {% else %}
-                                    {% set v = h[key.tag] is defined and h[key.tag] and h[key.tag] != '?' and (key.tag != 'Result' or h[key.tag] != '*') ? h[key.tag] : '' %}
-                                {% endif %}
-                                data-{{ key.key }}="{{ v|e('html_attr') }}"
-                            {%- endfor %}
-                            {% if loop.first %} selected="selected"{% endif %}
-                        >{{ label|trim }}</option>
-                    {% endfor %}
-                </select>
-            </div>
+        {% if lpv_source == 'd' %}
+            {% if matchingGames|length > 1 %}
+                <div class="lpv-select">
+                    <label for="{{ elementId }}-select">{{ 'MSC.lpv_gameSelect_label'|trans({}, 'contao_default') }}</label>
+                    <select id="{{ elementId }}-select" class="lpv-select__input" onchange="if (this.value) { window.location.href = this.value; }">
+                        {% for game in matchingGames %}
+                            {% if game.href %}
+                                {#
+                                    Datum im Systemformat statt PGN-Rohformat
+                                    für die Dropdown-Beschriftung - dieselbe
+                                    Logik wie im gameInfo-Block oben, siehe
+                                    dort für Details.
+                                #}
+                                {% set dp = game.date ? game.date|split('.')|map(p => p matches '/^[0-9]+$/' ? p : '') : ['', '', ''] %}
+                                {% set dv = dp[0] and dp[1] and dp[2] ? '%02d.%02d.%04d'|format(dp[2], dp[1], dp[0]) : (dp[0] and dp[1] ? '%02d.%04d'|format(dp[1], dp[0]) : dp[0]) %}
+                                {#
+                                    Reihenfolge der Beschriftung bewusst
+                                    Paarung, dann Ergebnis, dann Datum, dann
+                                    Kommentator in eckigen Klammern (falls
+                                    vorhanden) - "*" (PGN-Platzhalter für
+                                    "noch offen") wird wie beim Ergebnis-Feld
+                                    in "gameInfo" oben nicht angezeigt.
+                                #}
+                                {% set result = game.result and game.result != '*' ? game.result : '' %}
+                                {% set annotator = game.annotator and game.annotator != '?' ? game.annotator : '' %}
+                                {% set label = game.white ~ (game.white and game.black ? ' - ' : '') ~ game.black ~ (result ? ' ' ~ result : '') ~ (dv ? ' ' ~ dv : '') ~ (annotator ? ' [' ~ annotator ~ ']' : '') %}
+                                <option value="{{ game.href }}"{% if game.isCurrent %} selected="selected"{% endif %}>{{ label|trim }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+            {% endif %}
+        {% else %}
+            {#
+                "gameSelectEmbedded" ist als verschachtelter Block bewusst
+                HIER (im "else"-Zweig) deklariert statt als eigenständiger
+                Block auf oberster Ebene: ein Twig-"block"-Tag rendert seinen
+                Default-Inhalt immer automatisch an seiner Position im
+                Template, sobald die Ausführung dort ankommt - auf oberster
+                Ebene stünde er also IMMER zusätzlich zum "if"-Zweig oben im
+                HTML (sichtbarer Duplikat-Bug: zwei Dropdowns mit identischer
+                ID). Verschachtelt hier wird er nur gerendert, wenn dieser
+                "else"-Zweig tatsächlich erreicht wird (Quelle ungleich "d").
+                Der Blockname bleibt trotzdem von überall in der
+                Vererbungskette per {{ block('gameSelectEmbedded') }}
+                aufrufbar.
+            #}
+            {% block gameSelectEmbedded %}
+                {#
+                    Clientseitige Auswahlliste (Spielpaarung als
+                    Beschriftung) für die Quellen "e"/"f"/"t", bei denen
+                    "games" bereits alle Partien vollständig eingebettet
+                    enthält (siehe collectGamesFromSelection() bzw.
+                    PgnSplitter::split()).
+
+                    "games" enthält alle gefundenen Partien in der
+                    Reihenfolge der Quelle (Datei-/Textreihenfolge). Jede
+                    Partie hat "pgn" (vollständiger Partie-PGN-Text) sowie
+                    "headers" (die geparsten PGN-Tag-Pairs, z. B.
+                    headers.White, headers.Black, headers.Date,
+                    headers.Event, headers.Round, headers.Result,
+                    headers.Eco - je nachdem, welche Tags in der Partie
+                    vorhanden sind).
+
+                    Anzeige UND Sortierung der Menüpunkte sind bewusst hier
+                    im Template gelöst, nicht im PHP-Code:
+                    - Beschriftung anpassen: siehe "label"-Berechnung weiter
+                      unten.
+                    - Reihenfolge umkehren: "games" z. B. durch
+                      "games|reverse" ersetzen.
+                    - Nach einem Header-Feld sortieren (falls die
+                      Twig-Version Arrow-Functions im sort-Filter
+                      unterstützt, ab Twig 3.11):
+                      games|sort((a, b) => (a.headers.White ?? '') <=> (b.headers.White ?? ''))
+                #}
+                {% if showGameSelect %}
+                    <div class="lpv-select">
+                        <label for="{{ elementId }}-select">{{ 'MSC.lpv_gameSelect_label'|trans({}, 'contao_default') }}</label>
+                        <select id="{{ elementId }}-select" class="lpv-select__input" data-lpv-select>
+                            {% for game in games %}
+                                {% set h = game.headers %}
+                                {#
+                                    Datum im Systemformat statt PGN-Rohformat
+                                    für die Dropdown-Beschriftung - dieselbe
+                                    Logik wie im gameInfo-Block oben, siehe
+                                    dort für Details.
+                                #}
+                                {% set dp = h.Date is defined and h.Date ? h.Date|split('.')|map(p => p matches '/^[0-9]+$/' ? p : '') : ['', '', ''] %}
+                                {% set dv = dp[0] and dp[1] and dp[2] ? '%02d.%02d.%04d'|format(dp[2], dp[1], dp[0]) : (dp[0] and dp[1] ? '%02d.%04d'|format(dp[1], dp[0]) : dp[0]) %}
+                                {#
+                                    Reihenfolge der Beschriftung bewusst
+                                    Paarung, dann Ergebnis, dann Datum, dann
+                                    Kommentator in eckigen Klammern (falls
+                                    vorhanden) - "?"/"*" (PGN-Platzhalter für
+                                    "unbekannt"/"noch offen") werden wie in
+                                    "gameInfo" oben nicht angezeigt.
+                                #}
+                                {% set white = h.White is defined and h.White and h.White != '?' ? h.White : '' %}
+                                {% set black = h.Black is defined and h.Black and h.Black != '?' ? h.Black : '' %}
+                                {% set result = h.Result is defined and h.Result and h.Result != '?' and h.Result != '*' ? h.Result : '' %}
+                                {% set annotator = h.Annotator is defined and h.Annotator and h.Annotator != '?' ? h.Annotator : '' %}
+                                {% set label = white ~ (white and black ? ' - ' : '') ~ black ~ (result ? ' ' ~ result : '') ~ (dv ? ' ' ~ dv : '') ~ (annotator ? ' [' ~ annotator ~ ']' : '') %}
+                                <option
+                                    value="{{ loop.index0 }}"
+                                    data-pgn="{{ game.pgn|e('html_attr') }}"
+                                    {%- for key in lpvInfoFields %}
+                                        {% if key.tag == 'Date' %}
+                                            {% set v = dv %}
+                                        {% else %}
+                                            {% set v = h[key.tag] is defined and h[key.tag] and h[key.tag] != '?' and (key.tag != 'Result' or h[key.tag] != '*') ? h[key.tag] : '' %}
+                                        {% endif %}
+                                        data-{{ key.key }}="{{ v|e('html_attr') }}"
+                                    {%- endfor %}
+                                    {% if loop.first %} selected="selected"{% endif %}
+                                >{{ label|trim != '' ? label|trim : ('MSC.lpv_game_fallback'|trans({}, 'contao_default')) }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                {% endif %}
+            {% endblock %}
         {% endif %}
     {% endblock %}
 
@@ -205,24 +270,43 @@
                 class="lpv-root{% if cssClass %} {{ cssClass }}{% endif %}"
                 data-lpv-root
                 data-lpv-options="{{ elementId }}-options"
-                {%- if not showGameSelect %}
-                    {% set h = games[0].headers %}
-                    data-lpv-pgn="{{ games[0].pgn|e('html_attr') }}"
-                    {%- for key in lpvInfoFields %}
-                        {% if key.tag == 'Date' %}
-                            {#
-                                Datum im Systemformat statt PGN-Rohformat -
-                                dieselbe Logik wie im gameInfo-Block oben,
-                                siehe dort für Details.
-                            #}
-                            {% set dp = h.Date is defined and h.Date ? h.Date|split('.')|map(p => p matches '/^[0-9]+$/' ? p : '') : ['', '', ''] %}
-                            {% set v = dp[0] and dp[1] and dp[2] ? '%02d.%02d.%04d'|format(dp[2], dp[1], dp[0]) : (dp[0] and dp[1] ? '%02d.%04d'|format(dp[1], dp[0]) : dp[0]) %}
-                        {% else %}
-                            {% set v = h[key.tag] is defined and h[key.tag] and h[key.tag] != '?' and (key.tag != 'Result' or h[key.tag] != '*') ? h[key.tag] : '' %}
-                        {% endif %}
-                        data-{{ key.key }}="{{ v|e('html_attr') }}"
-                    {%- endfor %}
-                {% endif -%}
+                {#
+                    "data-lpv-pgn" (Partie games[0], die aktuell angezeigte -
+                    siehe collectSidVariants()/buildMatchingGamesList(),
+                    beide stellen sie stets voran) wird bewusst UNBEDINGT
+                    eingebettet, nicht nur wenn "not showGameSelect": das
+                    "Alle Partien"-Dropdown im Basis-Template (Quelle "d",
+                    siehe Block "gameSelect") trägt anders als
+                    "gameSelectEmbedded"/"gameSelectAnnotatorVariants" bewusst
+                    KEIN "data-lpv-select"-Attribut (Partiewechsel dort läuft
+                    ja per Seiten-Link, nicht clientseitig) - ohne dieses
+                    Attribut findet lichess-pgn-viewer-init.js dort keinen
+                    Select und bräuchte "data-lpv-pgn" als Fallback, auch wenn
+                    "showGameSelect" (gezählt über die - hiervon unabhängige -
+                    sid-Varianten-Liste "games") zufällig true ist (z. B. weil
+                    die angezeigte Partie sid-Varianten hat). Ist dagegen
+                    tatsächlich ein "data-lpv-select"-Dropdown vorhanden,
+                    bevorzugt das Init-Script dieses ohnehin und ignoriert
+                    "data-lpv-pgn" auf dem Root-Element (siehe dort: "if
+                    (select) { ... } else if (root.dataset.lpvPgn) { ... }") -
+                    die unbedingte Einbettung ist also in jedem Fall sicher.
+                #}
+                {% set h = games[0].headers %}
+                data-lpv-pgn="{{ games[0].pgn|e('html_attr') }}"
+                {%- for key in lpvInfoFields %}
+                    {% if key.tag == 'Date' %}
+                        {#
+                            Datum im Systemformat statt PGN-Rohformat -
+                            dieselbe Logik wie im gameInfo-Block oben,
+                            siehe dort für Details.
+                        #}
+                        {% set dp = h.Date is defined and h.Date ? h.Date|split('.')|map(p => p matches '/^[0-9]+$/' ? p : '') : ['', '', ''] %}
+                        {% set v = dp[0] and dp[1] and dp[2] ? '%02d.%02d.%04d'|format(dp[2], dp[1], dp[0]) : (dp[0] and dp[1] ? '%02d.%04d'|format(dp[1], dp[0]) : dp[0]) %}
+                    {% else %}
+                        {% set v = h[key.tag] is defined and h[key.tag] and h[key.tag] != '?' and (key.tag != 'Result' or h[key.tag] != '*') ? h[key.tag] : '' %}
+                    {% endif %}
+                    data-{{ key.key }}="{{ v|e('html_attr') }}"
+                {%- endfor %}
                 {%- if styleAttr %} style="{{ styleAttr }}"{% endif -%}
             ></div>
             <script type="application/json" id="{{ elementId }}-options">{{ optionsJson|raw }}</script>

@@ -43,8 +43,6 @@ $GLOBALS['TL_LANG']['tl_content']['lpv_dbChess_byorder_option'] = [
     'd' => 'absteigend',
 ];
 
-$GLOBALS['TL_LANG']['tl_content']['lpv_dbChess_roundNav'] = ['Nach Runde filtern + Rundennavigation', 'Zeigt im Dropdown nur die Partien der aktuell gewählten Runde an und blendet im Frontend eine Vor-/Zurück-Navigation zwischen den Runden ein (z. B. für Turnierberichte mit mehreren Brettern pro Runde).'];
-
 $GLOBALS['TL_LANG']['tl_content']['lpv_dbChess_selection'] = ['Partien auswählen', 'Wählen Sie die anzuzeigenden Partien einzeln aus der/den oben gewählten Sammlung(en) aus.'];
 
 $GLOBALS['TL_LANG']['tl_content']['lpv_display_legend'] = 'Anzeige-Einstellungen';

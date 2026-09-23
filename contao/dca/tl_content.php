@@ -32,7 +32,7 @@ $GLOBALS['TL_DCA']['tl_content']['palettes']['lichessPgnviewer'] = '
 
 $GLOBALS['TL_DCA']['tl_content']['subpalettes']['lpv_source_f'] = 'lpv_file';
 $GLOBALS['TL_DCA']['tl_content']['subpalettes']['lpv_source_t'] = 'lpv_text';
-$GLOBALS['TL_DCA']['tl_content']['subpalettes']['lpv_source_d'] = 'dbChess_list_collection,lpv_dbChess_filter,lpv_dbChess_sortfields,lpv_dbChess_byorder,lpv_dbChess_roundNav';
+$GLOBALS['TL_DCA']['tl_content']['subpalettes']['lpv_source_d'] = 'dbChess_list_collection,lpv_dbChess_filter,lpv_dbChess_sortfields,lpv_dbChess_byorder';
 $GLOBALS['TL_DCA']['tl_content']['subpalettes']['lpv_source_e'] = 'dbChess_list_collection,lpv_dbChess_selection';
 $GLOBALS['TL_DCA']['tl_content']['subpalettes']['lpv_initialPlyMode_n'] = 'lpv_initialPlyNumber';
 $GLOBALS['TL_DCA']['tl_content']['subpalettes']['lpv_menuGetPgn'] = 'lpv_menuGetPgnFileName';
@@ -120,15 +120,6 @@ $GLOBALS['TL_DCA']['tl_content']['fields']['lpv_dbChess_byorder'] = [
     'reference' => &$GLOBALS['TL_LANG']['tl_content']['lpv_dbChess_byorder_option'],
     'eval' => ['tl_class' => 'w50'],
     'sql' => "varchar(1) NOT NULL default 'a'",
-];
-
-$GLOBALS['TL_DCA']['tl_content']['fields']['lpv_dbChess_roundNav'] = [
-    'label' => &$GLOBALS['TL_LANG']['tl_content']['lpv_dbChess_roundNav'],
-    'default' => '',
-    'exclude' => true,
-    'inputType' => 'checkbox',
-    'eval' => ['tl_class' => 'w50 m12'],
-    'sql' => "char(1) NOT NULL default ''",
 ];
 
 $GLOBALS['TL_DCA']['tl_content']['fields']['lpv_dbChess_selection'] = [
