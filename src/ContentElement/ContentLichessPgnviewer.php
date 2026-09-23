@@ -158,6 +158,7 @@ class ContentLichessPgnviewer extends ContentElement
         $this->Template->cssClass = trim((string) $this->lpv_cssClass);
         $this->Template->width = trim((string) $this->lpv_width);
         $this->Template->boardWidth = trim((string) $this->lpv_boardWidth);
+        $this->Template->movesLeft = 'l' === (string) $this->lpv_showMoves;
         $this->Template->designStyle = $this->buildDesignStyle();
 
         $options = $this->buildViewerOptions();
@@ -869,7 +870,7 @@ class ContentLichessPgnviewer extends ContentElement
         };
 
         $showMoves = match ((string) $this->lpv_showMoves) {
-            'r' => 'right',
+            'r', 'l' => 'right',
             'b' => 'bottom',
             '0' => false,
             default => 'auto',

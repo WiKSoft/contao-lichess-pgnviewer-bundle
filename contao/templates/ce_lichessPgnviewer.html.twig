@@ -7,19 +7,19 @@
 #}
 {% set lpvInfoFields = [
     {'tag': 'White', 'key': 'white'},
+    {'tag': 'WhiteElo', 'key': 'whiteelo'},
     {'tag': 'Black', 'key': 'black'},
+    {'tag': 'BlackElo', 'key': 'blackelo'},
     {'tag': 'Result', 'key': 'result'},
     {'tag': 'Event', 'key': 'event'},
     {'tag': 'Round', 'key': 'round'},
     {'tag': 'Site', 'key': 'site'},
     {'tag': 'Date', 'key': 'date'},
-    {'tag': 'ECO', 'key': 'eco'},
-    {'tag': 'WhiteElo', 'key': 'whiteelo'},
-    {'tag': 'BlackElo', 'key': 'blackelo'},
+    {'tag': 'ECO', 'key': 'eco'},     
     {'tag': 'Annotator', 'key': 'annotator'},
     {'tag': 'Source', 'key': 'source'},
 ] %}
-<div class="{{ class }} block lpv-wrapper{% block wrapperExtraClass %}{% endblock %}" {{ cssID }}{% if style %} style="{{ style }}"{% endif %}>
+<div class="{{ class }} block lpv-wrapper{% if movesLeft %} lpv-wrapper--moves-left{% endif %}{% block wrapperExtraClass %}{% endblock %}" {{ cssID }}{% if style %} style="{{ style }}"{% endif %}>
     {% block headline %}
         {% if headline %}
             <{{ hl }}>{{ headline }}</{{ hl }}>
@@ -247,7 +247,8 @@
                 Contao-eigenen cssID-"style" auf .lpv-wrapper verwechseln).
 
                 Die feste Brettbreite wirkt nur, wenn die Zugliste rechts
-                vom Brett angezeigt wird (options.showMoves == 'right') -
+                oder links vom Brett angezeigt wird (options.showMoves ==
+                'right', "links" läuft intern ebenfalls als 'right') -
                 nur dort konkurrieren Brett und Zugliste in derselben
                 CSS-Grid-Zeile um die Breite. --lpv-side-width schaltet die
                 Zugliste-Spalte dabei zusätzlich von "fit-content(40%)" auf

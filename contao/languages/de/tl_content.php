@@ -59,6 +59,7 @@ $GLOBALS['TL_LANG']['tl_content']['lpv_showMoves'] = ['Zugliste anzeigen', 'Posi
 $GLOBALS['TL_LANG']['tl_content']['lpv_showMoves_option'] = [
     'a' => 'Automatisch (responsiv)',
     'r' => 'Rechts neben dem Brett',
+    'l' => 'Links neben dem Brett',
     'b' => 'Unter dem Brett',
     '0' => 'Ausblenden',
 ];

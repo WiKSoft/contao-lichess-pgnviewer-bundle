@@ -161,7 +161,7 @@ $GLOBALS['TL_DCA']['tl_content']['fields']['lpv_showMoves'] = [
     'default' => 'a',
     'exclude' => true,
     'inputType' => 'select',
-    'options' => ['a', 'r', 'b', '0'],
+    'options' => ['a', 'r', 'l', 'b', '0'],
     'reference' => &$GLOBALS['TL_LANG']['tl_content']['lpv_showMoves_option'],
     'eval' => ['tl_class' => 'w50'],
     'sql' => "varchar(1) NOT NULL default 'a'",

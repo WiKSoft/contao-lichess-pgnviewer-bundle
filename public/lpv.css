@@ -63,6 +63,23 @@
 }
 
 /*
+ * Zugliste "Links neben dem Brett" (lpv_showMoves = 'l'): der lichess-
+ * Viewer kennt diesen Modus nicht - der Controller übergibt ihm daher
+ * 'right', und der Wrapper-Modifier ".lpv-wrapper--moves-left" (siehe
+ * ce_lichessPgnviewer.html.twig) spiegelt hier nur die Grid-Spalten.
+ * Brettbreite/Zuglistenbreite (--lpv-board-width/--lpv-side-width)
+ * wirken genauso wie bei "rechts", nur in umgekehrter Spaltenreihenfolge.
+ */
+.lpv-wrapper.lpv-wrapper--moves-left .lpv--moves-right {
+    grid-template-areas: "side board" "side controls";
+    grid-template-columns: var(--lpv-side-width, fit-content(40%)) var(--lpv-board-width, auto);
+}
+
+.lpv-wrapper.lpv-wrapper--moves-left .lpv--players.lpv--moves-right {
+    grid-template-areas: "side player-top" "side board" "side player-bot" "side controls";
+}
+
+/*
  * Responsive Fallback für den Modus "Zugliste rechts" (showMoves: 'right'):
  * lichess-pgn-viewer.css bringt die @media(max-width: 450px)-Umschaltung
  * auf gestapeltes Layout (Zugliste unter das Brett) nur für den Modus
@@ -74,13 +91,15 @@
  * ".lpv--moves-auto" unterhalb von 450px übernommen.
  */
 @media (max-width: 520px) {
-    .lpv-wrapper .lpv--moves-right {
+    .lpv-wrapper .lpv--moves-right,
+    .lpv-wrapper.lpv-wrapper--moves-left .lpv--moves-right {
         grid-template-areas: "board" "controls" "side";
         grid-template-columns: minmax(200px, calc(100vh - var(--controls-height) - 6em));
         grid-template-rows: auto var(--controls-height) 6em;
     }
 
-    .lpv-wrapper .lpv--players.lpv--moves-right {
+    .lpv-wrapper .lpv--players.lpv--moves-right,
+    .lpv-wrapper.lpv-wrapper--moves-left .lpv--players.lpv--moves-right {
         grid-template-areas: "player-top" "board" "player-bot" "controls" "side";
         grid-template-columns: minmax(200px, calc(100vh - 2 * 2em - var(--controls-height) - 6em));
         grid-template-rows: 2em auto 2em var(--controls-height) 6em;
