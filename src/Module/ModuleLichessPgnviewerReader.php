@@ -22,7 +22,7 @@ use Wiksoft\ContaoLichessPgnviewerBundle\Pgn\PgnSplitter;
  * Frontend-Modul "lichessPgnviewerReader" (registriert in
  * contao/config/config.php unter $GLOBALS['FE_MOD']['schach']
  * ['lichessPgnviewerReader']): zeigt - analog zu Contaos Newsreader - genau
- * EINE Partie aus tl_dbChess_games (wiksoft/dbchess-bundle) mit dem
+ * EINE Partie aus tl_dbChess_games (wiksoft/contao-dbchess-bundle) mit dem
  * lichess.org PGN-Viewer an. Welche Partie das ist, bestimmt ausschließlich
  * der an die URL angehängte Partie-Alias (auto_item bzw. "items"), z. B.
  * aus einem Link von ContentDbChessList ("dbChess_list_jumpTo").

@@ -386,7 +386,7 @@ class tl_content_lichessPgnviewer extends Backend
 {
     /**
      * Quellen "Interne Datenbank" und "Einzelauswahl" nur anbieten, wenn
-     * wiksoft/dbchess-bundle installiert ist (siehe DbChessAvailability).
+     * wiksoft/contao-dbchess-bundle installiert ist (siehe DbChessAvailability).
      */
     public function getSourceOptions(): array
     {

@@ -20,7 +20,7 @@
         "contao/manager-plugin": "^2.0"
     },
     "suggest": {
-        "wiksoft/dbchess-bundle": "Erlaubt es, Partien aus der dbChess-Datenbank als PGN-Quelle auszuwählen."
+        "wiksoft/contao-dbchess-bundle": "Erlaubt es, Partien aus der dbChess-Datenbank als PGN-Quelle auszuwählen."
     },
     "conflict": {
         "contao/manager-plugin": "<2.0 || >=3.0"

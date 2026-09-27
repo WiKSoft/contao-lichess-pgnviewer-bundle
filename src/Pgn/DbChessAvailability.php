@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Wiksoft\ContaoLichessPgnviewerBundle\Pgn;
 
 /**
- * wiksoft/dbchess-bundle ist für dieses Bundle nur ein optionaler "suggest"
+ * wiksoft/contao-dbchess-bundle ist für dieses Bundle nur ein optionaler "suggest"
  * (siehe composer.json), keine feste Abhängigkeit. Die Quelle "Interne
  * Datenbank" darf im Content-Element (tl_content.lpv_source) und beim
  * Rendern nur verwendet werden, wenn das Bundle tatsächlich installiert ist.

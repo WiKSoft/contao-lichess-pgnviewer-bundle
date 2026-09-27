@@ -14,7 +14,7 @@ class Plugin implements BundlePluginInterface
 {
     public function getBundles(ParserInterface $parser): array
     {
-        // wiksoft/dbchess-bundle ist nur ein optionaler "suggest" (siehe
+        // wiksoft/contao-dbchess-bundle ist nur ein optionaler "suggest" (siehe
         // composer.json), nicht als require verankert - die Datenbank als
         // PGN-Quelle ist im Content-Element nur wählbar, wenn dieses Bundle
         // tatsächlich installiert ist (siehe DbChessAvailability). Damit die

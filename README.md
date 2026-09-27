@@ -14,11 +14,11 @@ Konfigurationsoptionen.
 - **Drei wählbare PGN-Quellen** im Content-Element:
   - **Datei** – eine `.pgn`-Datei aus der Contao-Dateiverwaltung
   - **Textfeld** – PGN-Text direkt im Content-Element eingegeben
-  - **Interne Datenbank** – Partien aus `wiksoft/dbchess-bundle`, entweder
+  - **Interne Datenbank** – Partien aus `wiksoft/contao-dbchess-bundle`, entweder
     als Liste einer/mehrerer Sammlungen (mit optionalem eigenen SQL-Filter,
     Sortierung und Rundennavigation) oder als manuelle Einzelauswahl
     bestimmter Partien. Diese Quelle erscheint im Backend **nur**, wenn
-    `wiksoft/dbchess-bundle` installiert ist (geprüft über
+    `wiksoft/contao-dbchess-bundle` installiert ist (geprüft über
     `DbChessAvailability::isInstalled()`); das Bundle ist nur ein
     Composer-`suggest`, keine feste Abhängigkeit.
 - **Mehrere Partien pro Element**: Enthält die Quelle mehrere Partien,
@@ -56,7 +56,7 @@ Figurensatz (cburnett) vendored ist.
 |---|---|
 | `src/ContentElement/ContentLichessPgnviewer.php` | Content-Element-Klasse, sammelt PGN-Text je nach Quelle und baut die Viewer-Optionen |
 | `src/Pgn/PgnSplitter.php` | Zerlegt einen PGN-Text mit mehreren Partien in einzelne Partien inkl. geparster Header |
-| `src/Pgn/DbChessAvailability.php` | Prüft per `class_exists()`, ob `wiksoft/dbchess-bundle` installiert ist |
+| `src/Pgn/DbChessAvailability.php` | Prüft per `class_exists()`, ob `wiksoft/contao-dbchess-bundle` installiert ist |
 | `src/ContaoManager/Plugin.php` | Contao-Manager-Plugin für die Bundle-Registrierung |
 | `contao/dca/tl_content.php` | DCA-Erweiterung: Palette, Felder und Options-Callbacks für `tl_content` |
 | `contao/templates/ce_lichessPgnviewer.html.twig` | Twig-Template inkl. Partieauswahl-Dropdown |
@@ -78,7 +78,7 @@ nach Rücksprache erfolgen.
 
 - PHP ^8.1
 - Contao ^5.3
-- optional: `wiksoft/dbchess-bundle` (für die Quelle "Interne Datenbank")
+- optional: `wiksoft/contao-dbchess-bundle` (für die Quelle "Interne Datenbank")
 
 ## Installation
 

@@ -31,11 +31,11 @@ use Wiksoft\ContaoLichessPgnviewerBundle\Pgn\PgnSplitter;
  * - "f" Datei (.pgn-Datei aus der Dateiverwaltung)
  * - "t" Textfeld (PGN direkt im Content-Element eingegeben)
  * - "d" Interne Datenbank, Liste aus Sammlung(en) mit optionalem Filter/
- *   Sortierung sowie optionaler Rundennavigation (wiksoft/dbchess-bundle) -
+ *   Sortierung sowie optionaler Rundennavigation (wiksoft/contao-dbchess-bundle) -
  *   nur wählbar, wenn dieses Bundle installiert ist, siehe DbChessAvailability.
  * - "e" Interne Datenbank, manuelle Einzelauswahl einzelner Partien aus
  *   einer Sammlung (analog zur pgn4web-Quelle "b"/fromBase) - ebenfalls
- *   nur wählbar, wenn wiksoft/dbchess-bundle installiert ist.
+ *   nur wählbar, wenn wiksoft/contao-dbchess-bundle installiert ist.
  *
  * Enthält die Quelle mehrere Partien, werden sie serverseitig aufgeteilt
  * (siehe PgnSplitter) und komplett an das Template übergeben; die Auswahl
@@ -300,7 +300,7 @@ class ContentLichessPgnviewer extends ContentElement
 
     /**
      * Entfernt aus der für Alias-Suche, Rundennavigation und Vor-/Zurück-
-     * Navigation verwendeten Liste alle über "sid" (wiksoft/dbchess-bundle)
+     * Navigation verwendeten Liste alle über "sid" (wiksoft/contao-dbchess-bundle)
      * verknüpften Partien bis auf die zuerst gelistete - analog zu
      * ContentPgn4web::compile() ("Verknüpfte Partien entfernen, bis auf die
      * zuerst gelistete"). Ohne diese Deduplizierung würde z. B. eine als
@@ -519,7 +519,7 @@ class ContentLichessPgnviewer extends ContentElement
      * ContentPgn4web::compile() und ModulePgn4webReader::generate() im
      * pgn4web-Bundle. Ein Link aus ContentDbChessList (Feld
      * "dbChess_list_jumpTo", siehe ContentDbChessList sowie
-     * ce_dbChess_list_table.html.twig im wiksoft/dbchess-bundle) zeigt auf
+     * ce_dbChess_list_table.html.twig im wiksoft/contao-dbchess-bundle) zeigt auf
      * genau diesen Parameter, befüllt mit dem Alias der angeklickten Partie.
      */
     private function getRequestedGameAlias(): string
@@ -563,7 +563,7 @@ class ContentLichessPgnviewer extends ContentElement
      * "2" vor Runde "10" einsortiert wird statt alphabetisch danach.
      *
      * Die als "hervorgehoben" markierte Partie (Feld gameFeatured aus
-     * wiksoft/dbchess-bundle) wird als nachgestelltes Kriterium (Tie-Breaker)
+     * wiksoft/contao-dbchess-bundle) wird als nachgestelltes Kriterium (Tie-Breaker)
      * angehängt - analog zu ContentPgn4web::compile(). Sie hat damit nur bei
      * ansonsten gleichen Sortierwerten Vorrang und überstimmt nicht die
      * eigentliche Sortierung (z. B. nach Datum).
@@ -699,7 +699,7 @@ class ContentLichessPgnviewer extends ContentElement
 
     /**
      * Ermittelt zur aktuell anzuzeigenden Partie alle über das Feld "sid"
-     * (wiksoft/dbchess-bundle) verknüpften Varianten - typischerweise
+     * (wiksoft/contao-dbchess-bundle) verknüpften Varianten - typischerweise
      * dieselbe Partie, erfasst von unterschiedlichen Kommentatoren/Quellen.
      * Diese Varianten wurden zuvor per dedupeBySid() aus der Navigationsliste
      * entfernt (siehe dort, analog zu ContentPgn4web::compile()) und werden
@@ -820,7 +820,7 @@ class ContentLichessPgnviewer extends ContentElement
     }
 
     /**
-     * Baut aus einer Zeile der Tabelle tl_dbChess_games (wiksoft/dbchess-bundle)
+     * Baut aus einer Zeile der Tabelle tl_dbChess_games (wiksoft/contao-dbchess-bundle)
      * einen vollständigen Partie-PGN-Text (Tag-Pairs + Zugfolge).
      *
      * @param array<string, mixed> $row

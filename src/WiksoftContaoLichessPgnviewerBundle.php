@@ -14,7 +14,7 @@ class WiksoftContaoLichessPgnviewerBundle extends Bundle
      * Ohne diesen Override würde Symfony den Bundle-Pfad aus dem Verzeichnis
      * der Bundle-Klassendatei ableiten (also "src/") und der contao/-Ordner
      * würde nie gefunden werden (siehe wiksoft/pgn4web-bundle und
-     * wiksoft/dbchess-bundle, die denselben Aufbau verwenden).
+     * wiksoft/contao-dbchess-bundle, die denselben Aufbau verwenden).
      */
     public function getPath(): string
     {

@@ -20,7 +20,7 @@
  * dunklen Feldern. Für ein normales, gut lesbares Schachbrett wird das
  * Muster hier daher komplett durch zwei unabhängige Farben ersetzt
  * (klassisches lichess-Braun/Beige, identisch zu den Standardfarben in
- * wiksoft/pgn4web-bundle und wiksoft/dbchess-bundle), Kontrastverhältnis
+ * wiksoft/pgn4web-bundle und wiksoft/contao-dbchess-bundle), Kontrastverhältnis
  * ca. 2,3:1.
  */
 .lpv-wrapper cg-board {
