@@ -49,19 +49,6 @@ class ContentLichessPgnviewer extends ContentElement
     private const ASSETS_PATH = '/bundles/wiksoftcontaolichesspgnviewer/lichess-pgn-viewer';
 
     /**
-     * Wert von "lpv_template" (siehe tl_content.php, options_callback
-     * getTemplates()) für die Turnier-Variante. Die Rundennavigation (siehe
-     * applyRoundNavigation()) ist bewusst fest an dieses Template gebunden,
-     * statt - wie früher über das inzwischen entfernte Feld
-     * "lpv_dbChess_roundNav" - für jede Instanz mit Quelle "d" einzeln
-     * konfigurierbar zu sein: eine Turnier-Partie hat praktisch immer eine
-     * sinnvolle Rundenangabe, andere Verwendungen (Basis-Template, Simultan,
-     * System) dagegen nicht bzw. nutzen dafür ihre eigene Navigation (siehe
-     * applyGameNavigation() für Simultanpartien).
-     */
-    private const TEMPLATE_TURNIER = 'ce_lichessPgnviewer_turnier';
-
-    /**
      * Whitelist für lpv_dbChess_sortfields (identisch mit den 'options' des
      * Feldes in tl_content.php) - wird zusätzlich zur DCA-Beschränkung im
      * Backend hier erneut geprüft, bevor ein Feldname in die ORDER-BY-
@@ -79,11 +66,9 @@ class ContentLichessPgnviewer extends ContentElement
         }
 
         // Vorbelegung für Twig (strict_variables): wird nur bei Quelle "d"
-        // und nur für ce_lichessPgnviewer_turnier (siehe TEMPLATE_TURNIER)
-        // in applyRoundNavigation() überschrieben - die Rundennavigation ist
-        // fest an dieses Template gebunden. Dessen "roundNav"-Block setzt
-        // deshalb bewusst voraus, dass immer eine Runde vorhanden ist (kein
-        // "roundNavEnabled"-Flag/Check mehr nötig).
+        // in applyRoundNavigation() überschrieben, wenn die angezeigte Partie
+        // eine Rundenangabe hat. Die Standard-Vorlage nutzt diese Werte
+        // nicht, sie stehen eigenen Vorlagen zur Verfügung.
         $this->Template->currentRound = '';
         $this->Template->prevRound = null;
         $this->Template->nextRound = null;
@@ -91,12 +76,10 @@ class ContentLichessPgnviewer extends ContentElement
         $this->Template->nextRoundHref = null;
 
         // Vorbelegung für Twig (strict_variables): wird nur bei Quelle "d" in
-        // applyGameNavigation() überschrieben. Anders als roundNav (Navigation
-        // über die Runden-Spalte, siehe TEMPLATE_TURNIER) verlinkt dies stets
-        // zur vorherigen/nächsten Partie in der sortierten Ergebnisliste -
-        // unabhängig vom aktiven Template. Gedacht für Quellen ohne
-        // sinnvolle Rundenangabe (z. B. Simultanpartien), siehe
-        // ce_lichessPgnviewer_simultan.
+        // applyGameNavigation() überschrieben. Anders als die
+        // Rundennavigation verlinkt dies stets zur vorherigen/nächsten Partie
+        // in der sortierten Ergebnisliste. Gedacht für eigene Vorlagen zu
+        // Partien ohne sinnvolle Rundenangabe (z. B. Simultanpartien).
         $this->Template->prevGameHref = null;
         $this->Template->prevGameWhite = '';
         $this->Template->prevGameBlack = '';
@@ -122,9 +105,8 @@ class ContentLichessPgnviewer extends ContentElement
         // damit "gameSelect" im Basis-Template danach verzweigen kann.
         $this->Template->lpv_source = (string) $this->lpv_source;
 
-        // Link zur übergeordneten Seite, für benutzerdefinierte Templates
-        // (z. B. ce_lichessPgnviewer_turnier), die neben der Rundennavigation
-        // zusätzlich einen "nach oben"-Link zeigen wollen - analog zu
+        // Link zur übergeordneten Seite, für eigene Vorlagen, die einen
+        // "nach oben"-Link zeigen wollen - analog zu
         // ContentPgn4web::generateBoardTemplate(). Quellenunabhängig gesetzt,
         // da es sich um reine Seitenhierarchie handelt, nicht um dbChess-Daten.
         $this->Template->upHref = null;
@@ -395,31 +377,21 @@ class ContentLichessPgnviewer extends ContentElement
         // angeklickten Variante).
         $aliasRow = $this->findRowByAlias($rows, $this->getRequestedGameAlias());
 
-        // Für Rundennavigation und Vor-/Zurück-Navigation (Turnier/Simultan)
+        // Für Rundennavigation und Vor-/Zurück-Navigation
         // dagegen weiterhin die deduplizierte Liste, damit sid-Varianten dort
         // nicht wie ursprünglich gemeldet als eigener, verwirrender Zusatz-
         // Eintrag auftauchen (siehe dedupeBySid()).
         $dedupedRows = $this->dedupeBySid($rows);
 
-        // Rundennavigation ist fest an ce_lichessPgnviewer_turnier gebunden
-        // (siehe TEMPLATE_TURNIER) - keine per Checkbox konfigurierbare
-        // Option mehr (die frühere "Nach Runde filtern + Rundennavigation"-
-        // Option "lpv_dbChess_roundNav" wurde entfernt). Für alle anderen
-        // Templates (Basis, Simultan, System) bleibt es beim einfachen
-        // Alias-oder-erste-Partie-Fallback.
-        $currentRow = self::TEMPLATE_TURNIER === $this->lpv_template
-            ? $this->applyRoundNavigation($database, $where, $byOrder, $dedupedRows, $aliasRow)
-            : ($aliasRow ?? $dedupedRows[0]);
+        $currentRow = $aliasRow ?? $dedupedRows[0];
 
+        $this->applyRoundNavigation($dedupedRows, $currentRow, $byOrder);
         $this->applyGameNavigation($dedupedRows, $currentRow);
 
         // Bewusst die VOLLE Liste (nicht $dedupedRows): im Basis-Template
         // soll das "Alle Partien"-Dropdown jede Partie einzeln auflisten,
         // auch sid-Varianten - die Primärpartie erscheint dabei durch die
         // Sortierung (siehe buildOrderBy()) automatisch vor ihrer Variante.
-        // Turnier/Simultan nutzen für sid-Varianten stattdessen weiterhin den
-        // separaten Kommentator/Quelle-Dropdown (gameSelectAnnotatorVariants)
-        // und binden dieses "Alle Partien"-Dropdown gar nicht erst ein.
         $this->Template->matchingGames = $this->buildMatchingGamesList($rows, $currentRow);
 
         $games = [];
@@ -437,10 +409,7 @@ class ContentLichessPgnviewer extends ContentElement
      * (anders als $dedupedRows in collectGamesFromDatabase()): das
      * Basis-Template soll jede Partie einzeln auflisten, auch sid-Varianten
      * (die Primärpartie steht dabei durch die Sortierung, siehe
-     * buildOrderBy(), automatisch vor ihrer Variante). Turnier/Simultan
-     * verwenden für sid-Varianten stattdessen den separaten Kommentator/
-     * Quelle-Dropdown (gameSelectAnnotatorVariants) und binden dieses
-     * "Alle Partien"-Dropdown gar nicht ein - siehe dortige Templates.
+     * buildOrderBy(), automatisch vor ihrer Variante).
      *
      * Anders als "games"/collectSidVariants() nicht auf Varianten der
      * aktuell angezeigten Partie beschränkt, sondern die komplette sortierte
@@ -479,9 +448,9 @@ class ContentLichessPgnviewer extends ContentElement
      * Schreibt Links zur vorherigen/nächsten Partie in der sortierten
      * Ergebnisliste ins Template (siehe Vorbelegung in compile()) - anders
      * als applyRoundNavigation() unabhängig von der Spalte "round" und
-     * unabhängig vom aktiven Template. Gedacht für Templates wie
-     * ce_lichessPgnviewer_simultan, deren Partien keine sinnvolle
-     * Rundenangabe haben und stattdessen von Partie zu Partie blättern.
+     * unabhängig vom aktiven Template. Gedacht für eigene Vorlagen zu
+     * Partien ohne sinnvolle Rundenangabe, die stattdessen von Partie zu
+     * Partie blättern.
      *
      * @param list<array<string, mixed>> $rows
      * @param array<string, mixed>       $currentRow
@@ -586,64 +555,59 @@ class ContentLichessPgnviewer extends ContentElement
     }
 
     /**
-     * Ermittelt (nur für ce_lichessPgnviewer_turnier, siehe
-     * TEMPLATE_TURNIER) die anzuzeigende Runde und schreibt Vor-/Zurück-
-     * Informationen ins Template. "$where" enthält an dieser Stelle
-     * ausschließlich admin-seitig konfigurierte Bedingungen (Sammlung(en) +
-     * optionaler eigener Filter).
+     * Schreibt die Rundennavigation ins Template (siehe Vorbelegung in
+     * compile()) - unabhängig vom aktiven Template, damit jede eigene
+     * Vorlage sie nutzen kann. Die aktuelle Runde ist die Runde der
+     * angezeigten Partie ($currentRow); hat diese keine Rundenangabe, bleibt
+     * die Vorbelegung (keine Rundennavigation) bestehen.
      *
-     * Die anzuzeigende Runde wird ausschließlich aus der per "items"
-     * angeforderten Partie abgeleitet (siehe $aliasRow), nicht mehr über
-     * einen eigenen "round"-URL-Parameter - der Partie-Alias identifiziert
-     * die Partie bereits eindeutig. Ohne Treffer (kein Alias in der URL
-     * bzw. kein Alias, der zu einer Partie mit Rundenangabe passt) wird die
-     * erste verfügbare Runde angezeigt. Die Vor-/Zurück-Links verlinken auf
-     * die Partie-Alias-URL der jeweiligen Nachbarrunde (siehe
-     * buildGameUrl()), damit ein Wechsel der Runde stets automatisch auch
-     * das "items"-Fragment für die dortige Partie mitführt.
+     * Die Runden werden aus $rows ermittelt statt per eigener Abfrage und
+     * - wie in buildOrderBy() - numerisch sortiert, damit z. B. Runde "2"
+     * vor Runde "10" steht. Die Vor-/Zurück-Links verlinken auf die
+     * Partie-Alias-URL der ersten Partie der jeweiligen Nachbarrunde (siehe
+     * buildGameUrl()).
      *
      * @param list<array<string, mixed>> $rows
-     * @param array<string, mixed>|null  $aliasRow
-     *
-     * @return array<string, mixed>
+     * @param array<string, mixed>       $currentRow
      */
-    private function applyRoundNavigation(Database $database, string $where, string $byOrder, array $rows, ?array $aliasRow): array
+    private function applyRoundNavigation(array $rows, array $currentRow, string $byOrder): void
     {
-        $result = $database
-            ->prepare("SELECT DISTINCT round FROM tl_dbChess_games WHERE {$where} AND round != '' ORDER BY CAST(round AS UNSIGNED) {$byOrder}")
-            ->execute();
+        $currentRound = (string) ($currentRow['round'] ?? '');
 
-        $rounds = $result->fetchEach('round');
-
-        if (!$rounds) {
-            return $aliasRow ?? $rows[0];
+        if ('' === $currentRound) {
+            return;
         }
 
-        $currentRound = (null !== $aliasRow && \in_array((string) $aliasRow['round'], $rounds, true))
-            ? (string) $aliasRow['round']
-            : $rounds[0];
+        $rounds = [];
+        foreach ($rows as $row) {
+            $round = (string) ($row['round'] ?? '');
+
+            if ('' !== $round) {
+                $rounds[$round] = true;
+            }
+        }
+
+        $rounds = array_map('strval', array_keys($rounds));
+        usort($rounds, static fn (string $a, string $b): int => ((int) $a <=> (int) $b) ?: strnatcmp($a, $b));
+
+        if ('DESC' === $byOrder) {
+            $rounds = array_reverse($rounds);
+        }
 
         $index = array_search($currentRound, $rounds, true);
+
+        if (false === $index) {
+            return;
+        }
+
         $prevRound = $index > 0 ? $rounds[$index - 1] : null;
-        $nextRound = isset($rounds[$index + 1]) ? $rounds[$index + 1] : null;
+        $nextRound = $rounds[$index + 1] ?? null;
 
         $this->Template->currentRound = $currentRound;
         $this->Template->prevRound = $prevRound;
         $this->Template->nextRound = $nextRound;
         $this->Template->prevRoundHref = $this->buildGameUrl($this->findRowForRound($rows, $prevRound));
         $this->Template->nextRoundHref = $this->buildGameUrl($this->findRowForRound($rows, $nextRound));
-
-        if (null !== $aliasRow && (string) $aliasRow['round'] === $currentRound) {
-            return $aliasRow;
-        }
-
-        foreach ($rows as $row) {
-            if ((string) $row['round'] === $currentRound) {
-                return $row;
-            }
-        }
-
-        return $aliasRow ?? $rows[0];
     }
 
     /**

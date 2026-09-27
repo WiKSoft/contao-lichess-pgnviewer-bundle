@@ -3,7 +3,7 @@
     "type": "contao-bundle",
     "description": "Schachpartien (PGN) im Contao-Frontend nachspielbar machen, mit dem lichess.org PGN-Viewer.",
     "keywords": ["contao", "chess", "schach", "pgn", "lichess"],
-    "license": "LGPL-3.0-or-later",
+    "license": "GPL-3.0-or-later",
     "authors": [
         {
             "name": "Wilfried Krebbers"
