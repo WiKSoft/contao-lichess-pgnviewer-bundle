@@ -21,13 +21,14 @@ namespace Wiksoft\ContaoLichessPgnviewerBundle\EventListener;
  * immer im Frontend-Zweig, nie im vermeintlichen Backend-Zweig). Der
  * loadDataContainer-Hook feuert dagegen zuverlässig nur dann, wenn die
  * tl_content-DCA tatsächlich geladen wird (Backend-Bearbeitung), und ist
- * damit der korrekte Ersatz.
+ * damit der korrekte Ersatz. Für das Frontend-Modul lichessPgnviewerReader
+ * gilt dasselbe mit der tl_module-DCA.
  */
 class LoadDataContainerListener
 {
     public function onLoadDataContainer(string $table): void
     {
-        if ('tl_content' !== $table) {
+        if (!\in_array($table, ['tl_content', 'tl_module'], true)) {
             return;
         }
 

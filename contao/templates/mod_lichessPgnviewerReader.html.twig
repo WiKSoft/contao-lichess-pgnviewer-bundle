@@ -1,0 +1,168 @@
+{% set lpvInfoFields = [
+    {'tag': 'White', 'key': 'white'},
+    {'tag': 'WhiteElo', 'key': 'whiteelo'},
+    {'tag': 'Black', 'key': 'black'},
+    {'tag': 'BlackElo', 'key': 'blackelo'},
+    {'tag': 'Result', 'key': 'result'},
+    {'tag': 'Event', 'key': 'event'},
+    {'tag': 'Round', 'key': 'round'},
+    {'tag': 'Site', 'key': 'site'},
+    {'tag': 'Date', 'key': 'date'},
+    {'tag': 'ECO', 'key': 'eco'},
+    {'tag': 'Annotator', 'key': 'annotator'},
+    {'tag': 'Source', 'key': 'source'},
+] %}
+<div class="{{ class }} block lpv-wrapper{% if movesLeft %} lpv-wrapper--moves-left{% endif %}{% block wrapperExtraClass %}{% endblock %}" {{ cssID }}{% if style %} style="{{ style }}"{% endif %}>
+    {% block headline %}
+        {% if headline %}
+            <{{ hl }}>{{ headline }}</{{ hl }}>
+        {% endif %}
+    {% endblock %}
+
+    {% block gameInfo %}
+        {#
+            Weitere Partiedaten (Veranstaltung, Ort, Runde, ECO, Elo,
+            Kommentator, Quelle). Wird beim Wechsel der Variante im Dropdown
+            per JavaScript aus den data-*-Attributen der ausgewählten
+            <option> aktualisiert, siehe lichess-pgn-viewer-init.js.
+        #}
+        {% if hasGames and showGameInfo %}
+            {% set h = games[0].headers %}
+            <dl class="lpv-info" id="{{ elementId }}-info">
+                {% for key in lpvInfoFields %}
+                    {% if key.tag == 'Date' %}
+                        {#
+                            Datum im Systemformat (d.m.Y) statt PGN-Rohformat
+                            (JJJJ.MM.TT); unbekannte Teile ("?"/"??") werden
+                            weggelassen (z. B. "1905.08.??" -> "08.1905",
+                            "1905.??.??" -> "1905").
+                        #}
+                        {% set dp = h.Date is defined and h.Date ? h.Date|split('.')|map(p => p matches '/^[0-9]+$/' ? p : '') : ['', '', ''] %}
+                        {% set v = dp[0] and dp[1] and dp[2] ? '%02d.%02d.%04d'|format(dp[2], dp[1], dp[0]) : (dp[0] and dp[1] ? '%02d.%04d'|format(dp[1], dp[0]) : dp[0]) %}
+                    {% else %}
+                        {% set v = h[key.tag] is defined and h[key.tag] and h[key.tag] != '?' and (key.tag != 'Result' or h[key.tag] != '*') ? h[key.tag] : '' %}
+                    {% endif %}
+                    <div class="lpv-info__row" data-lpv-info="{{ key.key }}"{% if not v %} hidden{% endif %}>
+                        <dt>{{ ('MSC.lpv_info_' ~ key.key)|trans({}, 'contao_default') }}</dt>
+                        <dd>{{ v }}</dd>
+                    </div>
+                {% endfor %}
+            </dl>
+        {% endif %}
+    {% endblock %}
+
+    {% block gameSelect %}
+        {#
+            Auswahl zwischen über "sid" verknüpften Varianten DERSELBEN
+            Partie (siehe ModuleLichessPgnviewerReader::collectSidVariants())
+            - Beschriftung wie in ce_lichessPgnviewer: Paarung, Ergebnis,
+            Datum, [Kommentator]. Nur sichtbar, wenn es
+            mehr als eine Variante gibt (showGameSelect). Der Wechsel erfolgt
+            clientseitig über "data-lpv-select".
+        #}
+        {% if showGameSelect %}
+            <div class="lpv-select">
+                <label for="{{ elementId }}-select">{{ 'MSC.lpv_gameSelect_label'|trans({}, 'contao_default') }}</label>
+                <select id="{{ elementId }}-select" class="lpv-select__input" data-lpv-select>
+                    {% for game in games %}
+                        {% set h = game.headers %}
+                        {% set dp = h.Date is defined and h.Date ? h.Date|split('.')|map(p => p matches '/^[0-9]+$/' ? p : '') : ['', '', ''] %}
+                        {% set dv = dp[0] and dp[1] and dp[2] ? '%02d.%02d.%04d'|format(dp[2], dp[1], dp[0]) : (dp[0] and dp[1] ? '%02d.%04d'|format(dp[1], dp[0]) : dp[0]) %}
+                        {% set white = h.White is defined and h.White and h.White != '?' ? h.White : '' %}
+                        {% set black = h.Black is defined and h.Black and h.Black != '?' ? h.Black : '' %}
+                        {% set result = h.Result is defined and h.Result and h.Result != '?' and h.Result != '*' ? h.Result : '' %}
+                        {% set annotator = h.Annotator is defined and h.Annotator and h.Annotator != '?' ? h.Annotator : '' %}
+                        {% set label = white ~ (white and black ? ' - ' : '') ~ black ~ (result ? ' ' ~ result : '') ~ (dv ? ' ' ~ dv : '') ~ (annotator ? ' [' ~ annotator ~ ']' : '') %}
+                        {% set label = label|trim != '' ? label|trim : ('MSC.lpv_game_fallback'|trans({}, 'contao_default')) %}
+                        <option
+                            value="{{ loop.index0 }}"
+                            data-pgn="{{ game.pgn|e('html_attr') }}"
+                            {%- for key in lpvInfoFields %}
+                                {% if key.tag == 'Date' %}
+                                    {% set v = dv %}
+                                {% else %}
+                                    {% set v = h[key.tag] is defined and h[key.tag] and h[key.tag] != '?' and (key.tag != 'Result' or h[key.tag] != '*') ? h[key.tag] : '' %}
+                                {% endif %}
+                                data-{{ key.key }}="{{ v|e('html_attr') }}"
+                            {%- endfor %}
+                            {% if loop.first %} selected="selected"{% endif %}
+                        >{{ label|trim }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        {% endif %}
+    {% endblock %}
+
+    {% block viewer %}
+        {% if hasGames %}
+            {#
+                Feldfarben (--lpv-square-light/-dark, siehe public/lpv.css)
+                und die feste Brettbreite (--lpv-board-width) werden - falls im
+                Modul gesetzt - zu einem einzigen style="..."-Attribut auf dem
+                inneren #{{ elementId }}-Div zusammengeführt (nicht mit dem
+                äußeren, Contao-eigenen cssID-"style" auf .lpv-wrapper
+                verwechseln).
+
+                Die feste Brettbreite wirkt nur, wenn die Zugliste rechts
+                oder links vom Brett angezeigt wird (options.showMoves ==
+                'right', "links" läuft intern ebenfalls als 'right').
+                --lpv-side-width schaltet die Zugliste-Spalte dabei auf "1fr"
+                um, damit sie den verbleibenden Platz ausfüllt.
+            #}
+            {% set widthStyle = width ? 'max-width: ' ~ width ~ ';' : '' %}
+            {% set boardWidthActive = boardWidth and options.showMoves == 'right' %}
+            {% set boardWidthStyle = boardWidthActive ? ('--lpv-board-width: ' ~ boardWidth ~ '; --lpv-side-width: 1fr;') : '' %}
+            {% set styleAttr = (
+                widthStyle
+                ~ (widthStyle and (designStyle or boardWidthStyle) ? ' ' : '')
+                ~ designStyle
+                ~ (designStyle and boardWidthStyle ? ' ' : '')
+                ~ boardWidthStyle
+            )|trim %}
+            <div
+                id="{{ elementId }}"
+                class="lpv-root{% if cssClass %} {{ cssClass }}{% endif %}"
+                data-lpv-root
+                data-lpv-options="{{ elementId }}-options"
+                {#
+                    "data-lpv-pgn" enthält die aufgerufene Partie (games[0]).
+                    Gibt es ein "data-lpv-select"-Dropdown (sid-Varianten),
+                    bevorzugt lichess-pgn-viewer-init.js dieses und ignoriert
+                    "data-lpv-pgn" - die Einbettung ist also in jedem Fall
+                    sicher.
+                #}
+                {% set h = games[0].headers %}
+                data-lpv-pgn="{{ games[0].pgn|e('html_attr') }}"
+                {%- for key in lpvInfoFields %}
+                    {% if key.tag == 'Date' %}
+                        {% set dp = h.Date is defined and h.Date ? h.Date|split('.')|map(p => p matches '/^[0-9]+$/' ? p : '') : ['', '', ''] %}
+                        {% set v = dp[0] and dp[1] and dp[2] ? '%02d.%02d.%04d'|format(dp[2], dp[1], dp[0]) : (dp[0] and dp[1] ? '%02d.%04d'|format(dp[1], dp[0]) : dp[0]) %}
+                    {% else %}
+                        {% set v = h[key.tag] is defined and h[key.tag] and h[key.tag] != '?' and (key.tag != 'Result' or h[key.tag] != '*') ? h[key.tag] : '' %}
+                    {% endif %}
+                    data-{{ key.key }}="{{ v|e('html_attr') }}"
+                {%- endfor %}
+                {%- if styleAttr %} style="{{ styleAttr }}"{% endif -%}
+            ></div>
+            <script type="application/json" id="{{ elementId }}-options">{{ optionsJson|raw }}</script>
+            <link rel="stylesheet" href="{{ assetsPath }}/lichess-pgn-viewer.css?v={{ assetsVersion }}">
+            <script type="module" src="{{ assetsPath }}/lichess-pgn-viewer-init.js?v={{ assetsVersion }}"></script>
+        {% else %}
+            <p class="lpv-empty">{{ 'MSC.lpv_noGames'|trans({}, 'contao_default') }}</p>
+        {% endif %}
+    {% endblock %}
+
+    {% block remark %}
+        {#
+            Freitext-Anmerkung zur Partie (Feld "remark" aus
+            tl_dbChess_games). Bezieht sich auf die aufgerufene Partie
+            (games[0]) und wechselt beim Umschalten der sid-Variante NICHT
+            mit.
+        #}
+        {% if remark %}
+            <div class="lpv-remark rte content-text">
+                {{ remark|sanitize_html('contao')|csp_inline_styles|encode_email|insert_tag_raw }}
+            </div>
+        {% endif %}
+    {% endblock %}
+</div>
