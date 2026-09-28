@@ -1,6 +1,7 @@
 <?php
 
 use Contao\Backend;
+use Contao\BackendUser;
 use Contao\Database;
 use Contao\DataContainer;
 use Contao\StringUtil;
@@ -9,6 +10,11 @@ use Wiksoft\ContaoLichessPgnviewerBundle\Pgn\DbChessAvailability;
 /**
  * DCA-Erweiterung tl_content für das Content-Element "lichessPgnviewer".
  */
+
+/**
+ * Config
+ */
+$GLOBALS['TL_DCA']['tl_content']['config']['onload_callback'][] = ['tl_content_lichessPgnviewer', 'protectFilterField'];
 
 /**
  * Palette
@@ -98,6 +104,8 @@ $GLOBALS['TL_DCA']['tl_content']['fields']['lpv_dbChess_filter'] = [
     'exclude' => true,
     'inputType' => 'text',
     'eval' => ['decodeEntities' => true, 'tl_class' => 'clr'],
+    // Freier SQL-Ausdruck: nur Administratoren dürfen ihn ändern
+    'save_callback' => [['tl_content_lichessPgnviewer', 'saveFilterField']],
     'sql' => "varchar(255) NOT NULL default ''",
 ];
 
@@ -384,6 +392,33 @@ $GLOBALS['TL_DCA']['tl_content']['fields']['lpv_template'] = [
 
 class tl_content_lichessPgnviewer extends Backend
 {
+    /**
+     * Der Filter ist ein freier SQL-Ausdruck, der unverändert in die Abfrage
+     * auf tl_dbChess_games übernommen wird. Für Nicht-Administratoren wird
+     * das Feld daher schreibgeschützt angezeigt.
+     */
+    public function protectFilterField(DataContainer $dc): void
+    {
+        if (!BackendUser::getInstance()->isAdmin) {
+            $GLOBALS['TL_DCA']['tl_content']['fields']['lpv_dbChess_filter']['eval']['readonly'] = true;
+        }
+    }
+
+    /**
+     * Verhindert, dass Nicht-Administratoren den Filter ändern (auch nicht
+     * über einen manipulierten Request): es bleibt der gespeicherte Wert.
+     */
+    public function saveFilterField(mixed $value, DataContainer $dc): mixed
+    {
+        if (BackendUser::getInstance()->isAdmin) {
+            return $value;
+        }
+
+        $record = $dc->getCurrentRecord();
+
+        return (string) ($record['lpv_dbChess_filter'] ?? '');
+    }
+
     /**
      * Quellen "Interne Datenbank" und "Einzelauswahl" nur anbieten, wenn
      * wiksoft/contao-dbchess-bundle installiert ist (siehe DbChessAvailability).

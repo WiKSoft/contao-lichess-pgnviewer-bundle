@@ -19,7 +19,7 @@ $GLOBALS['TL_LANG']['tl_content']['lpv_file'] = ['PGN-Datei', 'Wählen Sie eine 
 $GLOBALS['TL_LANG']['tl_content']['lpv_text'] = ['PGN-Text', 'Geben Sie die PGN-Notation direkt ein. Mehrere Partien werden automatisch erkannt.'];
 
 $GLOBALS['TL_LANG']['tl_content']['dbChess_list_collection'] = ['Partiesammlung(en)', 'Wählen Sie eine oder mehrere Partiesammlungen aus der dbChess-Datenbank.'];
-$GLOBALS['TL_LANG']['tl_content']['lpv_dbChess_filter'] = ['Eigener Filter (optional)', 'Zusätzliche SQL-WHERE-Bedingung für tl_dbChess_games, z. B. white=\'Carlsen\'.'];
+$GLOBALS['TL_LANG']['tl_content']['lpv_dbChess_filter'] = ['Eigener Filter (optional)', 'Zusätzliche SQL-WHERE-Bedingung für tl_dbChess_games, z. B. white=\'Carlsen\'. Nur Administratoren können dieses Feld bearbeiten.'];
 
 $GLOBALS['TL_LANG']['tl_content']['lpv_dbChess_sortfields'] = ['Liste sortieren nach', 'Wählen Sie eines oder mehrere Felder, nach denen die gefundenen Partien sortiert werden sollen. Ohne Auswahl wird nach Datum sortiert.'];
 $GLOBALS['TL_LANG']['tl_content']['lpv_dbChess_sortfields_option'] = [

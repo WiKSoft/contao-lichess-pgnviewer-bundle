@@ -19,7 +19,7 @@ $GLOBALS['TL_LANG']['tl_content']['lpv_file'] = ['PGN file', 'Select a .pgn file
 $GLOBALS['TL_LANG']['tl_content']['lpv_text'] = ['PGN text', 'Enter the PGN notation directly. Multiple games are detected automatically.'];
 
 $GLOBALS['TL_LANG']['tl_content']['dbChess_list_collection'] = ['Game collection(s)', 'Select one or more game collections from the dbChess database.'];
-$GLOBALS['TL_LANG']['tl_content']['lpv_dbChess_filter'] = ['Custom filter (optional)', 'Additional SQL WHERE condition for tl_dbChess_games, e.g. white=\'Carlsen\'.'];
+$GLOBALS['TL_LANG']['tl_content']['lpv_dbChess_filter'] = ['Custom filter (optional)', 'Additional SQL WHERE condition for tl_dbChess_games, e.g. white=\'Carlsen\'. Only administrators can edit this field.'];
 
 $GLOBALS['TL_LANG']['tl_content']['lpv_dbChess_sortfields'] = ['Sort list by', 'Select one or more fields by which the games found should be sorted. Without a selection, games are sorted by date.'];
 $GLOBALS['TL_LANG']['tl_content']['lpv_dbChess_sortfields_option'] = [
