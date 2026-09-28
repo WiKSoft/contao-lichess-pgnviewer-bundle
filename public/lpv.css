@@ -18,10 +18,8 @@
  * Schwarz abdunkelt. Das ergibt unabhängig von der gewählten Farbe nur
  * ein sehr geringes Kontrastverhältnis von ca. 1,5:1 zwischen hellen und
  * dunklen Feldern. Für ein normales, gut lesbares Schachbrett wird das
- * Muster hier daher komplett durch zwei unabhängige Farben ersetzt
- * (klassisches lichess-Braun/Beige, identisch zu den Standardfarben in
- * wiksoft/pgn4web-bundle und wiksoft/contao-dbchess-bundle), Kontrastverhältnis
- * ca. 2,3:1.
+ * Muster hier daher komplett durch zwei unabhängige Farben ersetzt,
+ * Kontrastverhältnis ca. 2,3:1.
  */
 .lpv-wrapper cg-board {
     --lpv-square-light: #f0d9b5;
@@ -90,7 +88,7 @@
  * die gestapelte Grid-Definition aus lichess-pgn-viewer.css für
  * ".lpv--moves-auto" unterhalb von 450px übernommen.
  */
-@media (max-width: 520px) {
+@media (max-width: 450px) {
     .lpv-wrapper .lpv--moves-right,
     .lpv-wrapper.lpv-wrapper--moves-left .lpv--moves-right {
         grid-template-areas: "board" "controls" "side";
