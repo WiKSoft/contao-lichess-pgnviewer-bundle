@@ -78,6 +78,22 @@
 }
 
 /*
+ * Menü und PGN-Ansicht überdecken das Brett. lichess-pgn-viewer.css
+ * platziert sie über feste Spaltennummern (grid-area: 1/1/2/2 bzw. mit
+ * Spielerleisten 1/1/4/2), also immer in Spalte 1 - bei gespiegelten
+ * Spalten läge das Menü sonst über der Zugliste statt über dem Brett.
+ */
+.lpv-wrapper.lpv-wrapper--moves-left .lpv--moves-right .lpv__menu,
+.lpv-wrapper.lpv-wrapper--moves-left .lpv--moves-right .lpv__pgn {
+    grid-area: 1 / 2 / 2 / 3;
+}
+
+.lpv-wrapper.lpv-wrapper--moves-left .lpv--players.lpv--moves-right .lpv__menu,
+.lpv-wrapper.lpv-wrapper--moves-left .lpv--players.lpv--moves-right .lpv__pgn {
+    grid-area: 1 / 2 / 4 / 3;
+}
+
+/*
  * Responsive Fallback für den Modus "Zugliste rechts" (showMoves: 'right'):
  * lichess-pgn-viewer.css bringt die @media(max-width: 450px)-Umschaltung
  * auf gestapeltes Layout (Zugliste unter das Brett) nur für den Modus
@@ -101,6 +117,17 @@
         grid-template-areas: "player-top" "board" "player-bot" "controls" "side";
         grid-template-columns: minmax(200px, calc(100vh - 2 * 2em - var(--controls-height) - 6em));
         grid-template-rows: 2em auto 2em var(--controls-height) 6em;
+    }
+
+    /* Gestapelt gibt es nur eine Spalte: Menü wieder in Spalte 1 */
+    .lpv-wrapper.lpv-wrapper--moves-left .lpv--moves-right .lpv__menu,
+    .lpv-wrapper.lpv-wrapper--moves-left .lpv--moves-right .lpv__pgn {
+        grid-area: 1 / 1 / 2 / 2;
+    }
+
+    .lpv-wrapper.lpv-wrapper--moves-left .lpv--players.lpv--moves-right .lpv__menu,
+    .lpv-wrapper.lpv-wrapper--moves-left .lpv--players.lpv--moves-right .lpv__pgn {
+        grid-area: 1 / 1 / 4 / 2;
     }
 }
 
