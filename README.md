@@ -196,7 +196,7 @@ funktioniert, sollten die Partien nach Runde sortiert sein.
 | `contao/dca/tl_content.php`, `contao/dca/tl_module.php` | Paletten, Felder und Options-Callbacks für Inhaltselement und Modul |
 | `contao/templates/ce_lichessPgnviewer.html.twig` | Standard-Vorlage des Inhaltselements inkl. Partieauswahl |
 | `contao/templates/mod_lichessPgnviewerReader.html.twig` | Standard-Vorlage des Reader-Moduls |
-| `contao/languages/de/*.php` | Backend-Sprachdateien |
+| `contao/languages/de/*.php`, `contao/languages/en/*.php` | Sprachdateien (Deutsch, Englisch) für Backend und Frontend |
 | `public/lichess-pgn-viewer/` | Unveränderte Originaldateien des lichess-pgn-viewer (JS/CSS) plus eigenes Init-Script |
 | `public/lichess-pgn-viewer/NOTICE.md` | Herkunft, Lizenz und Quellcode-Link der mitgelieferten lichess-Dateien |
 | `public/lpv.css` | Layout von Wrapper und Auswahlliste (nicht die Viewer-Styles selbst) |
