@@ -36,7 +36,10 @@ function initViewer(root) {
     }
     root.dataset.lpvInitialised = '1';
 
-    const baseOptions = readOptions(root);
+    // "initialVariation" (siehe buildViewerOptions() im Controller) kennt
+    // der lichess-pgn-viewer nicht - die Option wird hier herausgelöst und
+    // nach dem Aufbau des Viewers selbst ausgewertet, siehe goToVariation().
+    const { initialVariation, ...baseOptions } = readOptions(root);
     const wrapper = root.closest('.lpv-wrapper');
     const select = wrapper ? wrapper.querySelector('[data-lpv-select]') : null;
 
@@ -85,11 +88,42 @@ function initViewer(root) {
         root.innerHTML = '';
         const mount = document.createElement('div');
         root.appendChild(mount);
-        LichessPgnViewer(mount, Object.assign({}, baseOptions, { pgn: pgn || '' }));
+        const ctrl = LichessPgnViewer(mount, Object.assign({}, baseOptions, { pgn: pgn || '' }));
+
+        if (initialVariation) {
+            goToVariation(ctrl);
+        }
 
         if (baseOptions.initialPly) {
             scrollToCurrentMove();
         }
+    };
+
+    // Start in einer Nebenvariante: Variante Nummer "index" ersetzt den
+    // Halbzug "initialPly" der Hauptlinie (1 = erste Variante, 2 = zweite
+    // ...). Deren Knoten hängen im Zugbaum als weitere Kinder neben dem
+    // Hauptlinienzug (children[0]) am vorherigen Knoten. Von dort geht es
+    // "depth - 1" Halbzüge entlang der Variante weiter (children[0] ist
+    // jeweils ihre eigene Fortsetzung), höchstens bis zu ihrem Ende. Gibt
+    // es die Variante nicht, bleibt der Viewer beim Hauptlinien-Halbzug.
+    const goToVariation = (ctrl) => {
+        const ply = baseOptions.initialPly;
+        const game = ctrl && ctrl.game;
+        if (!game || typeof ply !== 'number' || ply < 1 || !game.mainline[ply - 1]) {
+            return;
+        }
+
+        const parent = ply === 1 ? game.moves : game.nodeAt(game.mainline[ply - 2].path);
+        let node = parent && parent.children[initialVariation.index];
+        if (!node) {
+            return;
+        }
+
+        for (let i = 1; i < initialVariation.depth && node.children[0]; i++) {
+            node = node.children[0];
+        }
+
+        ctrl.toPath(node.data.path, false);
     };
 
     // Startet der Viewer nicht in der Grundstellung (initialPly = Halbzug-

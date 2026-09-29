@@ -48,6 +48,8 @@ $GLOBALS['TL_LANG']['tl_module']['lpv_initialPlyMode_option'] = [
     'n' => 'Bestimmter Halbzug',
 ];
 $GLOBALS['TL_LANG']['tl_module']['lpv_initialPlyNumber'] = ['Halbzug-Nummer', 'Halbzug, mit dem der Viewer startet (0 = Grundstellung).'];
+$GLOBALS['TL_LANG']['tl_module']['lpv_initialVariation'] = ['Variante', 'Nummer der Nebenvariante zum Halbzug oben (1 = erste Variante, 2 = zweite ...). Die Variante ersetzt diesen Halbzug. 0 = keine Variante, Start in der Hauptlinie.'];
+$GLOBALS['TL_LANG']['tl_module']['lpv_initialVariationDepth'] = ['Tiefe in der Variante', 'Anzahl der Halbzüge innerhalb der Variante, nach denen der Viewer startet (1 = erster Zug der Variante). Ist die Variante kürzer, wird ihr letzter Zug gezeigt.'];
 
 $GLOBALS['TL_LANG']['tl_module']['lpv_drawArrows'] = ['Pfeile/Markierungen erlauben', 'Erlaubt Besuchern, mit der Maus Pfeile auf das Brett zu zeichnen.'];
 $GLOBALS['TL_LANG']['tl_module']['lpv_coordinates'] = ['Koordinaten am Rand', 'Zeigt die Feldkoordinaten (a-h, 1-8) am Brettrand an.'];

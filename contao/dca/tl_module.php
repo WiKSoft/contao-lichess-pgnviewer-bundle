@@ -30,7 +30,7 @@ $GLOBALS['TL_DCA']['tl_module']['palettes']['lichessPgnviewerReader'] = '
 	{protected_legend:hide},protected;
 	{expert_legend:hide},guest,cssID';
 
-$GLOBALS['TL_DCA']['tl_module']['subpalettes']['lpv_initialPlyMode_n'] = 'lpv_initialPlyNumber';
+$GLOBALS['TL_DCA']['tl_module']['subpalettes']['lpv_initialPlyMode_n'] = 'lpv_initialPlyNumber,lpv_initialVariation,lpv_initialVariationDepth';
 $GLOBALS['TL_DCA']['tl_module']['subpalettes']['lpv_menuGetPgn'] = 'lpv_menuGetPgnFileName';
 
 /**
@@ -141,6 +141,24 @@ $GLOBALS['TL_DCA']['tl_module']['fields']['lpv_initialPlyNumber'] = [
     'inputType' => 'text',
     'eval' => ['rgxp' => 'digit', 'tl_class' => 'w50'],
     'sql' => "smallint(5) unsigned NOT NULL default '0'",
+];
+
+$GLOBALS['TL_DCA']['tl_module']['fields']['lpv_initialVariation'] = [
+    'label' => &$GLOBALS['TL_LANG']['tl_module']['lpv_initialVariation'],
+    'default' => '0',
+    'exclude' => true,
+    'inputType' => 'text',
+    'eval' => ['rgxp' => 'digit', 'tl_class' => 'w50 clr'],
+    'sql' => "smallint(5) unsigned NOT NULL default '0'",
+];
+
+$GLOBALS['TL_DCA']['tl_module']['fields']['lpv_initialVariationDepth'] = [
+    'label' => &$GLOBALS['TL_LANG']['tl_module']['lpv_initialVariationDepth'],
+    'default' => '1',
+    'exclude' => true,
+    'inputType' => 'text',
+    'eval' => ['rgxp' => 'natural', 'tl_class' => 'w50'],
+    'sql' => "smallint(5) unsigned NOT NULL default '1'",
 ];
 
 $GLOBALS['TL_DCA']['tl_module']['fields']['lpv_drawArrows'] = [

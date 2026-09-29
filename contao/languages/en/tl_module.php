@@ -48,6 +48,8 @@ $GLOBALS['TL_LANG']['tl_module']['lpv_initialPlyMode_option'] = [
     'n' => 'Specific half-move',
 ];
 $GLOBALS['TL_LANG']['tl_module']['lpv_initialPlyNumber'] = ['Half-move number', 'Half-move at which the viewer starts (0 = initial position).'];
+$GLOBALS['TL_LANG']['tl_module']['lpv_initialVariation'] = ['Variation', 'Number of the side variation to the half-move above (1 = first variation, 2 = second ...). The variation replaces that half-move. 0 = no variation, start on the main line.'];
+$GLOBALS['TL_LANG']['tl_module']['lpv_initialVariationDepth'] = ['Depth in variation', 'Number of half-moves within the variation after which the viewer starts (1 = first move of the variation). If the variation is shorter, its last move is shown.'];
 
 $GLOBALS['TL_LANG']['tl_module']['lpv_drawArrows'] = ['Allow arrows/markers', 'Allows visitors to draw arrows on the board with the mouse.'];
 $GLOBALS['TL_LANG']['tl_module']['lpv_coordinates'] = ['Coordinates on the edge', 'Shows the square coordinates (a-h, 1-8) on the edge of the board.'];

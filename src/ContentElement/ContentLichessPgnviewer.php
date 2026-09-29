@@ -827,6 +827,19 @@ class ContentLichessPgnviewer extends ContentElement
             default => 0,
         };
 
+        // Start in einer Nebenvariante (nur bei "Bestimmter Halbzug"): die
+        // Variante mit Nummer "index" ersetzt den Halbzug "initialPly", der
+        // Viewer startet nach "depth" Halbzügen in ihr. Der lichess-pgn-
+        // viewer kennt das nicht - lichess-pgn-viewer-init.js entfernt die
+        // Option vor der Übergabe und steuert den Zug selbst an.
+        $initialVariation = null;
+        if ('n' === $this->lpv_initialPlyMode && $initialPly > 0 && (int) $this->lpv_initialVariation > 0) {
+            $initialVariation = [
+                'index' => (int) $this->lpv_initialVariation,
+                'depth' => max(1, (int) $this->lpv_initialVariationDepth),
+            ];
+        }
+
         $showPlayers = match ((string) $this->lpv_showPlayers) {
             '1' => true,
             '0' => false,
@@ -848,6 +861,7 @@ class ContentLichessPgnviewer extends ContentElement
             'scrollToMove' => (bool) $this->lpv_scrollToMove,
             'keyboardToMove' => (bool) $this->lpv_keyboardToMove,
             'initialPly' => $initialPly,
+            'initialVariation' => $initialVariation,
             'drawArrows' => (bool) $this->lpv_drawArrows,
             'menu' => [
                 'getPgn' => [
