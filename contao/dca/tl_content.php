@@ -26,7 +26,7 @@ $GLOBALS['TL_DCA']['tl_content']['palettes']['__selector__'][] = 'lpv_menuGetPgn
 $GLOBALS['TL_DCA']['tl_content']['palettes']['lichessPgnviewer'] = '
 	{type_legend},type,headline;
 	{lpv_source_legend},lpv_source;
-	{lpv_display_legend},lpv_showPlayers,lpv_showClocks,lpv_showMoves,lpv_showControls,lpv_scrollToMove,lpv_keyboardToMove,lpv_showGameInfo;
+	{lpv_display_legend},lpv_showPlayers,lpv_showClocks,lpv_showMoves,lpv_movesLayout,lpv_showControls,lpv_scrollToMove,lpv_keyboardToMove,lpv_showGameInfo;
 	{lpv_board_legend},lpv_orientation,lpv_initialPlyMode,lpv_drawArrows,lpv_coordinates,lpv_highlightLastMove,lpv_highlightCheck,lpv_animationDuration,lpv_blockTouchScroll;
 	{lpv_design_legend},lpv_squareLightColorHex,lpv_squareDarkColorHex;
 	{lpv_menu_legend},lpv_menuGetPgn,lpv_menuPractice,lpv_menuAnalysisBoard,lpv_lichessLink;
@@ -173,6 +173,17 @@ $GLOBALS['TL_DCA']['tl_content']['fields']['lpv_showMoves'] = [
     'reference' => &$GLOBALS['TL_LANG']['tl_content']['lpv_showMoves_option'],
     'eval' => ['tl_class' => 'w50'],
     'sql' => "varchar(1) NOT NULL default 'a'",
+];
+
+$GLOBALS['TL_DCA']['tl_content']['fields']['lpv_movesLayout'] = [
+    'label' => &$GLOBALS['TL_LANG']['tl_content']['lpv_movesLayout'],
+    'default' => 'c',
+    'exclude' => true,
+    'inputType' => 'select',
+    'options' => ['c', 'f'],
+    'reference' => &$GLOBALS['TL_LANG']['tl_content']['lpv_movesLayout_option'],
+    'eval' => ['tl_class' => 'w50'],
+    'sql' => "varchar(1) NOT NULL default 'c'",
 ];
 
 $GLOBALS['TL_DCA']['tl_content']['fields']['lpv_showControls'] = [

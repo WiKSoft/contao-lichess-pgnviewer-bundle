@@ -63,6 +63,11 @@ $GLOBALS['TL_LANG']['tl_content']['lpv_showMoves_option'] = [
     'b' => 'Unter dem Brett',
     '0' => 'Ausblenden',
 ];
+$GLOBALS['TL_LANG']['tl_content']['lpv_movesLayout'] = ['Notation der Hauptlinie', 'Darstellung der Hauptlinie in der Zugliste. Kommentare und Varianten stehen in beiden Fällen als eigene Blöcke.'];
+$GLOBALS['TL_LANG']['tl_content']['lpv_movesLayout_option'] = [
+    'c' => 'In Spalten',
+    'f' => 'Als Fließtext',
+];
 
 $GLOBALS['TL_LANG']['tl_content']['lpv_showControls'] = ['Steuerbuttons anzeigen', 'Zeigt die Buttons "Zurück/Menü/Vor" an.'];
 $GLOBALS['TL_LANG']['tl_content']['lpv_scrollToMove'] = ['Navigation per Mausrad', 'Erlaubt das Durchblättern der Züge mit dem Mausrad.'];

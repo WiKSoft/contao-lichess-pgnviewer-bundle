@@ -141,6 +141,7 @@ class ContentLichessPgnviewer extends ContentElement
         $this->Template->width = trim((string) $this->lpv_width);
         $this->Template->boardWidth = trim((string) $this->lpv_boardWidth);
         $this->Template->movesLeft = 'l' === (string) $this->lpv_showMoves;
+        $this->Template->movesFlow = 'f' === (string) $this->lpv_movesLayout;
         $this->Template->designStyle = $this->buildDesignStyle();
 
         $options = $this->buildViewerOptions();

@@ -188,3 +188,39 @@
 .lpv-wrapper .lpv-round-nav__next {
     margin-left: auto;
 }
+
+/*
+ * Notation der Hauptlinie als Fließtext (lpv_movesLayout = 'f', Wrapper-
+ * Modifier ".lpv-wrapper--moves-flow", siehe ce_lichessPgnviewer.html.twig):
+ * lichess-pgn-viewer.css erzeugt die Spalten der Zugliste über feste
+ * Breiten (Zugnummer 15 %, jeder Zug 41 %). Hier bekommen Zugnummer und
+ * Züge nur ihre natürliche Breite und fließen wie Text. Kommentare und
+ * Varianten bleiben unverändert eigene Blöcke über die volle Breite.
+ */
+.lpv-wrapper.lpv-wrapper--moves-flow .lpv__moves {
+    align-items: baseline;
+    padding: .2em .4em;
+}
+
+.lpv-wrapper.lpv-wrapper--moves-flow .lpv__moves > index {
+    flex: 0 0 auto;
+    margin: 0 .15em 0 .35em;
+}
+
+.lpv-wrapper.lpv-wrapper--moves-flow .lpv__moves > .move {
+    flex: 0 0 auto;
+    padding: 4px .2em 6px;
+}
+
+/*
+ * Platzhalter "..." (die Hauptlinie geht nach einem Kommentar oder einer
+ * Variante mit Schwarz weiter) ausblenden und stattdessen die Zugnummer
+ * als "33..." schreiben. Ohne :has()-Unterstützung bleibt es bei "33.".
+ */
+.lpv-wrapper.lpv-wrapper--moves-flow .lpv__moves > .move.empty {
+    display: none;
+}
+
+.lpv-wrapper.lpv-wrapper--moves-flow .lpv__moves > index:has(+ .move.empty)::after {
+    content: "..";
+}

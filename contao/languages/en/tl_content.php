@@ -63,6 +63,11 @@ $GLOBALS['TL_LANG']['tl_content']['lpv_showMoves_option'] = [
     'b' => 'Below the board',
     '0' => 'Hide',
 ];
+$GLOBALS['TL_LANG']['tl_content']['lpv_movesLayout'] = ['Main line notation', 'Layout of the main line in the move list. Comments and variations are shown as separate blocks in both cases.'];
+$GLOBALS['TL_LANG']['tl_content']['lpv_movesLayout_option'] = [
+    'c' => 'In columns',
+    'f' => 'As running text',
+];
 
 $GLOBALS['TL_LANG']['tl_content']['lpv_showControls'] = ['Show control buttons', 'Shows the "Back/Menu/Forward" buttons.'];
 $GLOBALS['TL_LANG']['tl_content']['lpv_scrollToMove'] = ['Mouse wheel navigation', 'Allows stepping through the moves with the mouse wheel.'];
