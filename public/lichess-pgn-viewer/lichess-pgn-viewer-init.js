@@ -90,6 +90,10 @@ function initViewer(root) {
         root.appendChild(mount);
         const ctrl = LichessPgnViewer(mount, Object.assign({}, baseOptions, { pgn: pgn || '' }));
 
+        if (makePathsUnique(ctrl)) {
+            ctrl.redraw();
+        }
+
         if (initialVariation) {
             goToVariation(ctrl);
         }
@@ -97,6 +101,54 @@ function initViewer(root) {
         if (baseOptions.initialPly) {
             scrollToCurrentMove();
         }
+    };
+
+    // Der lichess-pgn-viewer adressiert jeden Knoten im Zugbaum über einen
+    // Pfad aus 2-Zeichen-IDs, die allein aus dem Zug berechnet werden
+    // (Start-/Zielfeld). Beginnen zwei Äste am selben Knoten mit demselben
+    // Zug - eine Nebenvariante mit dem Hauptlinienzug oder zwei
+    // Nebenvarianten mit dem gleichen Zug -, erhalten sie denselben Pfad.
+    // Die Bibliothek findet dann immer nur den ersten Ast: ein Klick in den
+    // zweiten springt in den ersten, beide werden als aktuell markiert und
+    // "vor" läuft im falschen Ast weiter. Die IDs dienen nur als Schlüssel
+    // und werden nirgends in Züge zurückgerechnet - doppelte Geschwister-
+    // IDs werden daher hier durch freie Zeichen aus dem Unicode-Bereich für
+    // private Nutzung ersetzt und die Pfade des ganzen Teilbaums neu
+    // gesetzt. Der erste Ast (Hauptlinie bzw. erste Variante) behält seine
+    // ID, die Pfade der Hauptlinie ändern sich also nie. Rückgabe: true,
+    // wenn etwas umbenannt wurde (dann muss neu gezeichnet werden).
+    const makePathsUnique = (ctrl) => {
+        const root = ctrl && ctrl.game && ctrl.game.moves;
+        if (!root || !root.children) {
+            return false;
+        }
+
+        const Path = ctrl.path.constructor;
+        let counter = 0;
+        let changed = false;
+
+        const walk = (node, prefix) => {
+            const used = new Set();
+            node.children.forEach((child) => {
+                let id = child.data.path.last();
+                if (used.has(id)) {
+                    do {
+                        id = String.fromCharCode(0xe000 + Math.floor(counter / 64), 0xe000 + (counter % 64));
+                        counter++;
+                    } while (used.has(id));
+                    changed = true;
+                }
+                used.add(id);
+                if (child.data.path.path !== prefix + id) {
+                    child.data.path = new Path(prefix + id);
+                }
+                walk(child, prefix + id);
+            });
+        };
+
+        walk(root, '');
+
+        return changed;
     };
 
     // Start in einer Nebenvariante: Variante Nummer "index" ersetzt den
