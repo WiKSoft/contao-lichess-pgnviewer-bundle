@@ -69,22 +69,80 @@ function initViewer(root) {
         });
     };
 
-    // LichessPgnViewer() does not update the element it is given in place -
-    // internally it replaces it with a freshly built element (snabbdom
-    // patch against a non-vnode element only reuses the node when its
-    // tag/id/class selector matches the new render, which it never does
-    // here). Passing the same "root" element into it a second time would
-    // therefore try to replace an element that is no longer attached to the
-    // document (it was already swapped out on the first render), and the
-    // new content silently fails to appear. To make re-rendering with a
-    // different game safe, "root" is kept as our own stable, never-replaced
-    // container, and a brand new child element is created for the library
-    // on every render.
+    // LichessPgnViewer() aktualisiert das übergebene Element nicht an Ort
+    // und Stelle, sondern ersetzt es intern durch ein neu aufgebautes
+    // Element (ein snabbdom-Patch gegen ein Element ohne vnode übernimmt
+    // den Knoten nur, wenn dessen Tag/ID/Klassen-Selektor zum neuen Rendern
+    // passt - was hier nie der Fall ist). Würde man dasselbe "root"-Element
+    // ein zweites Mal übergeben, versuchte die Bibliothek ein Element zu
+    // ersetzen, das gar nicht mehr im Dokument hängt (es wurde schon beim
+    // ersten Rendern ausgetauscht), und der neue Inhalt erschiene
+    // stillschweigend nicht. Damit das erneute Rendern mit einer anderen
+    // Partie sicher funktioniert, bleibt "root" unser eigener, stabiler und
+    // nie ersetzter Container, und für die Bibliothek wird bei jedem
+    // Rendern ein neues Kind-Element angelegt.
     const render = (pgn) => {
         root.innerHTML = '';
         const mount = document.createElement('div');
         root.appendChild(mount);
         LichessPgnViewer(mount, Object.assign({}, baseOptions, { pgn: pgn || '' }));
+
+        if (baseOptions.initialPly) {
+            scrollToCurrentMove();
+        }
+    };
+
+    // Startet der Viewer nicht in der Grundstellung (initialPly = Halbzug-
+    // Nummer oder 'last'), versucht der lichess-pgn-viewer zwar selbst, die
+    // Zugliste zum aktuellen Zug (.current) zu scrollen - aber nur einmal
+    // direkt beim Einfügen ins DOM. Zu diesem Zeitpunkt hat die Zugliste
+    // ihre endgültige Höhe noch nicht (sie wächst erst mit dem Brett bzw.
+    // dem CSS-Grid mit), der Scroll geht daher ins Leere und die Liste
+    // bleibt oben stehen. Hier wird deshalb bei jeder Größenänderung der
+    // Zugliste erneut zentriert, bis der Nutzer selbst eingreift oder das
+    // Layout sich gesetzt hat. Zusätzlich nach dem Laden der Webfonts und
+    // der ganzen Seite: dabei ändert sich nicht die Größe der Zugliste,
+    // wohl aber der Zeilenumbruch langer Kommentare - der aktuelle Zug
+    // rutscht dann innerhalb der Liste, ohne dass ResizeObserver feuert.
+    const scrollToCurrentMove = () => {
+        const moves = root.querySelector('.lpv__moves');
+        if (!moves || typeof ResizeObserver === 'undefined') {
+            return;
+        }
+
+        const center = () => {
+            const current = moves.querySelector('.current');
+            if (!current) {
+                return;
+            }
+            const offset = current.getBoundingClientRect().top - moves.getBoundingClientRect().top + moves.scrollTop;
+            moves.scrollTop = offset - moves.clientHeight / 2 + current.offsetHeight;
+        };
+
+        let active = true;
+        const recenter = () => {
+            if (active) {
+                center();
+            }
+        };
+
+        const observer = new ResizeObserver(recenter);
+        const stop = () => {
+            active = false;
+            observer.disconnect();
+            window.removeEventListener('load', recenter);
+            ['pointerdown', 'wheel', 'keydown', 'touchstart'].forEach((type) => root.removeEventListener(type, stop));
+        };
+
+        observer.observe(moves);
+        if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(recenter);
+        }
+        if (document.readyState !== 'complete') {
+            window.addEventListener('load', recenter);
+        }
+        ['pointerdown', 'wheel', 'keydown', 'touchstart'].forEach((type) => root.addEventListener(type, stop, { passive: true }));
+        window.setTimeout(stop, 10000);
     };
 
     if (select) {
