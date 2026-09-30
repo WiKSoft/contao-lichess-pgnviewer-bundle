@@ -2,16 +2,29 @@
     "name": "wiksoft/contao-lichess-pgnviewer-bundle",
     "type": "contao-bundle",
     "description": "Schachpartien (PGN) im Contao-Frontend nachspielbar machen, mit dem lichess.org PGN-Viewer.",
-    "keywords": ["contao", "chess", "schach", "pgn", "lichess"],
+    "keywords": [
+        "contao",
+        "chess",
+        "schach",
+        "pgn",
+        "pgn-viewer",
+        "lichess",
+        "chessboard",
+        "schachbrett"
+    ],
     "license": "GPL-3.0-or-later",
+    "homepage": "https://github.com/WiKSoft/contao-lichess-pgnviewer-bundle",
     "authors": [
         {
-            "name": "Wilfried Krebbers"
-        },
-        {
-            "name": "Wiksoft"
+            "name": "Wilfried Krebbers",
+            "homepage": "https://github.com/WiKSoft",
+            "role": "Developer"
         }
     ],
+    "support": {
+        "issues": "https://github.com/WiKSoft/contao-lichess-pgnviewer-bundle/issues",
+        "source": "https://github.com/WiKSoft/contao-lichess-pgnviewer-bundle"
+    },
     "require": {
         "php": "^8.1",
         "contao/core-bundle": "^5.3"

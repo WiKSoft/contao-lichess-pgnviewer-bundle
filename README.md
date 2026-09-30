@@ -19,12 +19,28 @@ Einstellungen.
   geschieht ohne Neuladen der Seite.
 - Im Element lässt sich vieles einstellen:
   - Spieler, Uhren, Zugliste und Steuerung
-  - Brettausrichtung und Startzug
+  - Position der Zugliste: rechts oder links neben dem Brett, darunter oder
+    ausgeblendet
+  - Notation der Hauptlinie in Spalten oder als Fließtext
+  - Brettausrichtung und Startposition: Grundstellung, letzter Zug, ein
+    bestimmter Halbzug oder ein Zug in einer Nebenvariante
   - Pfeile, Koordinaten und Hervorhebungen
   - Animation
   - Menüpunkte (PGN herunterladen, gegen den Computer üben, Analysebrett, Link
     zu lichess.org)
-  - Breite und Farben der Brettfelder
+  - Gesamtbreite, Brettbreite und Farben der Brettfelder
+- Die Darstellung ist responsiv: Neben dem Brett wird zuerst das Brett
+  schmaler (die „Brettbreite" ist eine Höchstbreite), die Zugliste behält
+  mindestens 232px. Ist der Viewer schmaler als 432px, rutscht die Zugliste
+  unter das Brett.
+- Beim Start mit einem Halbzug scrollt die Zugliste zum aktuellen Zug.
+- Nullzüge (`--`, `Z0`), mit denen Anmerkungen Drohungen zeigen, kann der
+  lichess-Viewer nicht ausführen. Die Linie ab dem Nullzug wird deshalb als
+  Kommentartext angezeigt, statt verloren zu gehen. „PGN herunterladen" liefert
+  weiterhin die Original-PGN.
+- Züge in Kommentaren werden als `<span class="lpv-comment-move">`
+  ausgezeichnet, z. B. um sie wie die Zugliste in einer Figurinen-Schrift
+  darzustellen (siehe [Anpassen per CSS](#anpassen-per-css)).
 - Die Darstellung läuft über Twig-Vorlagen mit überschreibbaren Blöcken
   (`gameInfo`, `gameSelect`, `viewer`, `remark`). Eigene Vorlagen nach dem
   Muster `ce_lichessPgnviewer_*` können im Element ausgewählt werden.
@@ -182,6 +198,17 @@ funktioniert, sollten die Partien nach Runde sortiert sein.
 {% endblock %}
 ```
 
+## Anpassen per CSS
+
+Im eigenen Theme lassen sich unter anderem folgende Punkte anpassen:
+
+| Selektor / Variable | Wirkung |
+|---|---|
+| `.lpv-wrapper { --lpv-moves-height: 18em; }` | Höhe der Zugliste, wenn sie unter dem Brett steht (Standard 14em) |
+| `.lpv-wrapper .lpv__moves comment .lpv-comment-move` | Züge innerhalb von Kommentaren, z. B. `font-family` einer Figurinen-Schrift |
+| `.lpv-wrapper--moves-left`, `.lpv-wrapper--moves-flow` | Wrapper-Klassen für „Zugliste links" bzw. „Notation als Fließtext" |
+| `--c-lpv-*` | Farbvariablen des lichess-Viewers (siehe `lichess-pgn-viewer.css`) |
+
 ## Aufbau
 
 | Pfad | Zweck |
@@ -191,6 +218,8 @@ funktioniert, sollten die Partien nach Runde sortiert sein.
 | `src/Pgn/PgnSplitter.php` | Zerlegt einen PGN-Text mit mehreren Partien in einzelne Partien samt Kopfzeilen |
 | `src/Pgn/DbChessAvailability.php` | Prüft per `class_exists()`, ob `wiksoft/contao-dbchess-bundle` installiert ist |
 | `src/EventListener/LoadDataContainerListener.php` | Bindet `backend.css` nur beim Laden der DCA von `tl_content`/`tl_module` ein |
+| `src/Migration/ShowMovesAutoMigration.php` | Datenbank-Migration: stellt die entfallene Zuglisten-Option „Automatisch" auf „Rechts" um |
+| `src/DependencyInjection/`, `config/services.yaml` | Registrierung der Dienste (Migrationen) |
 | `src/ContaoManager/Plugin.php` | Contao-Manager-Plugin für die Bundle-Registrierung |
 | `contao/config/config.php` | Registriert Inhaltselement, Frontend-Modul, CSS und Hook |
 | `contao/dca/tl_content.php`, `contao/dca/tl_module.php` | Paletten, Felder und Options-Callbacks für Inhaltselement und Modul |
@@ -199,16 +228,26 @@ funktioniert, sollten die Partien nach Runde sortiert sein.
 | `contao/languages/de/*.php`, `contao/languages/en/*.php` | Sprachdateien (Deutsch, Englisch) für Backend und Frontend |
 | `public/lichess-pgn-viewer/` | Unveränderte Originaldateien des lichess-pgn-viewer (JS/CSS) plus eigenes Init-Script |
 | `public/lichess-pgn-viewer/NOTICE.md` | Herkunft, Lizenz und Quellcode-Link der mitgelieferten lichess-Dateien |
-| `public/lpv.css` | Layout von Wrapper und Auswahlliste (nicht die Viewer-Styles selbst) |
+| `public/lichess-pgn-viewer/lichess-pgn-viewer-init.js` | Eigenes Init-Script (siehe unten) |
+| `public/lpv.css` | Layout von Wrapper und Auswahlliste, responsive Spalten, Zuglisten-Position und Fließtext-Notation |
 | `public/backend.css` | Styles für die Eingabemasken im Backend |
 
 ## Änderungen am lichess-pgn-viewer-Code
 
 Eingebunden sind ausschließlich die unveränderten Originaldateien
 `lichess-pgn-viewer.min.js` und `lichess-pgn-viewer.css` (Version 2.6.4).
-Die gesamte Contao-spezifische Logik liegt in einem eigenen, schlanken
-Init-Script (`public/lichess-pgn-viewer/lichess-pgn-viewer-init.js`), das den
-Viewer initialisiert und bei einer Auswahl im Auswahlfeld neu erzeugt.
+Die gesamte Contao-spezifische Logik liegt in einem eigenen Init-Script
+(`public/lichess-pgn-viewer/lichess-pgn-viewer-init.js`). Es
+
+- initialisiert den Viewer und erzeugt ihn bei einer Auswahl im Auswahlfeld neu,
+- wandelt Nullzüge vor der Übergabe in Kommentartext um,
+- vergibt eindeutige Pfade, wenn Varianten mit demselben Zug beginnen wie die
+  Hauptlinie oder eine andere Variante (sonst springt die Navigation in den
+  falschen Ast),
+- steuert eine Startposition in einer Nebenvariante an,
+- scrollt die Zugliste zum aktuellen Zug und
+- zeichnet Züge in Kommentaren aus.
+
 Änderungen am lichess-Code selbst sind nicht vorgesehen.
 
 ## Anforderungen
