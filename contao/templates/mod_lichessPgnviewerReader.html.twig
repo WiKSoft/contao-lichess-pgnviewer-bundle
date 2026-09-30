@@ -12,7 +12,7 @@
     {'tag': 'Annotator', 'key': 'annotator'},
     {'tag': 'Source', 'key': 'source'},
 ] %}
-<div class="{{ class }} block lpv-wrapper{% if movesLeft %} lpv-wrapper--moves-left{% endif %}{% if movesFlow %} lpv-wrapper--moves-flow{% endif %}{% block wrapperExtraClass %}{% endblock %}" {{ cssID }}{% if style %} style="{{ style }}"{% endif %}>
+<div class="{{ class }} block lpv-wrapper{% if movesLeft %} lpv-wrapper--moves-left{% endif %}{% if movesFlow %} lpv-wrapper--moves-flow{% endif %}{% block wrapperExtraClass %}{% endblock %}"{{ cssID|raw }}{% if style %} style="{{ style }}"{% endif %}>
     {% block headline %}
         {% if headline %}
             <{{ hl }}>{{ headline }}</{{ hl }}>
