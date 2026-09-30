@@ -30,6 +30,187 @@ function readOptions(root) {
     }
 }
 
+/*
+ * Nullzüge ("--", "Z0"), mit denen Anmerkungen Drohungen zeigen, z. B.
+ * "( 17...Nf5 {Drohend} 18.-- Ng4+ 19.hxg4 ... )": Der lichess-pgn-viewer
+ * kann sie nicht ausführen und verwirft den Nullzug samt allem, was in
+ * dieser Linie folgt - gerade die Drohung selbst fehlte dann. Vor der
+ * Übergabe an den Viewer wird deshalb jede Linie ab ihrem ersten Nullzug
+ * bis zu ihrem Ende in einen Kommentar umgewandelt (Züge in algebraischer
+ * Notation wie in der PGN, Nullzug als "–", Bewertungszeichen als Symbol, Kommentare und
+ * verschachtelte Varianten als Text):
+ *
+ * - Variante mit echten Zügen davor: bleibt bis dahin nachspielbar, der
+ *   Rest steht als Kommentar dahinter.
+ * - Variante, die mit dem Nullzug beginnt: wird ganz zum Kommentar an
+ *   ihrer Stelle (hinter dem Zug, zu dem sie gehört).
+ * - Hauptlinie: endet beim letzten echten Zug, der Rest folgt als
+ *   Kommentar, das Ergebnis bleibt erhalten.
+ *
+ * PGNs ohne Nullzug werden unverändert durchgereicht.
+ */
+const NULL_MOVE_RE = /(^|[\s.(])(--|Z0)(?=[\s)]|$)/;
+const PGN_TOKEN_RE = /\{[^}]*\}|;[^\n]*|\[[^\]]*\]|\(|\)|\$\d+|\d+\s*\.+|1-0|0-1|1\/2-1\/2|\*|[^\s(){};$[\]]+/g;
+const NAG_SYMBOLS = {
+    1: '!', 2: '?', 3: '!!', 4: '??', 5: '!?', 6: '?!', 10: '=', 13: '∞', 14: '⩲', 15: '⩱',
+    16: '±', 17: '∓', 18: '+−', 19: '−+', 22: '⨀', 23: '⨀', 32: '⟳', 33: '⟳', 36: '↑', 37: '↑',
+    40: '→', 41: '→', 132: '⇆', 133: '⇆', 140: '∆', 146: 'N',
+};
+
+const isNullMove = (san) => san === '--' || san === 'Z0';
+
+function parsePgnMovetext(text) {
+    const tokens = text.match(PGN_TOKEN_RE) || [];
+    const root = { items: [] };
+    const stack = [root];
+    let pendingNumber = '';
+
+    for (const token of tokens) {
+        const line = stack[stack.length - 1];
+
+        if (token.startsWith('{')) {
+            line.items.push({ type: 'comment', text: token.slice(1, -1).trim() });
+        } else if (token.startsWith(';')) {
+            line.items.push({ type: 'comment', text: token.slice(1).trim() });
+        } else if (token.startsWith('[')) {
+            line.items.push({ type: 'raw', text: token });
+        } else if (token === '(') {
+            const variation = { type: 'variation', items: [] };
+            line.items.push(variation);
+            stack.push(variation);
+        } else if (token === ')') {
+            if (stack.length > 1) {
+                stack.pop();
+            }
+        } else if (token.startsWith('$')) {
+            line.items.push({ type: 'nag', nag: parseInt(token.slice(1), 10) });
+        } else if (/^\d+\s*\.+$/.test(token)) {
+            pendingNumber = token.replace(/\s+/g, '');
+        } else if (/^(1-0|0-1|1\/2-1\/2|\*)$/.test(token)) {
+            line.items.push({ type: 'raw', text: token });
+        } else {
+            line.items.push({ type: 'move', number: pendingNumber, san: token });
+            pendingNumber = '';
+        }
+    }
+
+    return root;
+}
+
+function nullMoveLineToText(items) {
+    const parts = [];
+
+    for (const item of items) {
+        if (item.type === 'move') {
+            const number = item.number.replace(/\.{2,}$/, '…');
+            const san = isNullMove(item.san) ? '–' : item.san;
+            parts.push(number + san);
+        } else if (item.type === 'nag') {
+            if (NAG_SYMBOLS[item.nag]) {
+                if (parts.length && item.nag <= 6) {
+                    parts[parts.length - 1] += NAG_SYMBOLS[item.nag];
+                } else {
+                    parts.push(NAG_SYMBOLS[item.nag]);
+                }
+            }
+        } else if (item.type === 'comment') {
+            if (item.text) {
+                parts.push(item.text);
+            }
+        } else if (item.type === 'variation') {
+            parts.push('(' + nullMoveLineToText(item.items) + ')');
+        }
+    }
+
+    return parts.join(' ');
+}
+
+// Zugnummer ("12." bzw. "12...") für den Zug an Position "index", der
+// selbst keine hat (z. B. der schwarze Nullzug in "1.b4 -- 2.a4"): vom
+// letzten nummerierten Zug davor aus weitergezählt. Leer, wenn es keinen gibt.
+function moveNumberAt(items, index) {
+    let count = 0;
+
+    for (let i = index - 1; i >= 0; i--) {
+        if (items[i].type !== 'move') {
+            continue;
+        }
+        count++;
+        const match = items[i].number.match(/^(\d+)(\.+)$/);
+        if (match) {
+            const number = parseInt(match[1], 10);
+            // Halbzug-Index des gesuchten Zugs relativ zu Weiß am Zug von "number"
+            const ply = (match[2].length > 1 ? 1 : 0) + count;
+            return (number + Math.floor(ply / 2)) + (ply % 2 ? '...' : '.');
+        }
+    }
+
+    return '';
+}
+
+// Wandelt eine Linie um. Rückgabe: true, wenn sie keinen echten Zug mehr
+// enthält und die aufrufende Linie sie komplett durch einen Kommentar
+// ersetzen soll (Variante beginnt mit dem Nullzug).
+function convertNullMoveLine(line, isMainline) {
+    const nullIndex = line.items.findIndex((item) => item.type === 'move' && isNullMove(item.san));
+    let trailing = [];
+
+    if (nullIndex >= 0) {
+        const rest = line.items.slice(nullIndex);
+        if (!rest[0].number) {
+            rest[0].number = moveNumberAt(line.items, nullIndex);
+        }
+        // Das Partieergebnis am Ende der Hauptlinie bleibt als Ergebnis stehen.
+        if (isMainline && rest.length && rest[rest.length - 1].type === 'raw') {
+            trailing = [rest.pop()];
+        }
+        line.items = line.items.slice(0, nullIndex);
+
+        const text = nullMoveLineToText(rest);
+        const last = line.items[line.items.length - 1];
+        if (last && last.type === 'comment') {
+            last.text = (last.text ? last.text + ' ' : '') + text;
+        } else {
+            line.items.push({ type: 'comment', text });
+        }
+    }
+
+    line.items.forEach((item, index) => {
+        if (item.type === 'variation' && convertNullMoveLine(item, false)) {
+            line.items[index] = { type: 'comment', text: nullMoveLineToText(item.items) };
+        }
+    });
+
+    line.items.push(...trailing);
+
+    return !isMainline && !line.items.some((item) => item.type === 'move');
+}
+
+function serializePgnLine(items) {
+    return items.map((item) => {
+        switch (item.type) {
+            case 'move': return item.number + item.san;
+            case 'comment': return '{' + item.text.replace(/}/g, ')') + '}';
+            case 'nag': return '$' + item.nag;
+            case 'variation': return '(' + serializePgnLine(item.items) + ')';
+            default: return item.text;
+        }
+    }).join(' ');
+}
+
+function convertNullMoves(pgn) {
+    if (!pgn || !NULL_MOVE_RE.test(pgn.replace(/\{[^}]*\}/g, ''))) {
+        return pgn;
+    }
+
+    // Kopfzeilen ([Tag "..."]) unverändert übernehmen, nur den Zugteil umwandeln.
+    const header = pgn.match(/^(?:\s*\[[^\]]*\]\s*)*/)[0];
+    const tree = parsePgnMovetext(pgn.slice(header.length));
+    convertNullMoveLine(tree, true);
+
+    return header.trimEnd() + '\n\n' + serializePgnLine(tree.items) + '\n';
+}
+
 function initViewer(root) {
     if (root.dataset.lpvInitialised === '1') {
         return;
@@ -88,7 +269,13 @@ function initViewer(root) {
         root.innerHTML = '';
         const mount = document.createElement('div');
         root.appendChild(mount);
-        const ctrl = LichessPgnViewer(mount, Object.assign({}, baseOptions, { pgn: pgn || '' }));
+        const ctrl = LichessPgnViewer(mount, Object.assign({}, baseOptions, { pgn: convertNullMoves(pgn || '') }));
+
+        // "PGN anzeigen"/Download im Menü des Viewers liest opts.pgn erst
+        // beim Öffnen - dort soll die Original-PGN (mit Nullzügen) stehen.
+        if (ctrl && ctrl.opts) {
+            ctrl.opts.pgn = pgn || '';
+        }
 
         if (makePathsUnique(ctrl)) {
             ctrl.redraw();
