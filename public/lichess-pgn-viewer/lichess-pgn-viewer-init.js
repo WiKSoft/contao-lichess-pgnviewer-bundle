@@ -211,6 +211,70 @@ function convertNullMoves(pgn) {
     return header.trimEnd() + '\n\n' + serializePgnLine(tree.items) + '\n';
 }
 
+/*
+ * Züge in Kommentaren auszeichnen: Der lichess-pgn-viewer gibt einen
+ * Kommentar als reinen Text aus ("<comment>...</comment>"). Damit Züge
+ * darin wie in der Zugliste dargestellt werden können (z. B. mit einer
+ * Figurinen-Schrift, die K/Q/R/B/N als Figur zeichnet), wird jeder Zug in
+ * ein <span class="lpv-comment-move"> gesetzt - samt Zugnummer davor
+ * ("18.", "48...", "48…") und dem Nullzug "–" (siehe convertNullMoves()).
+ * Erkannt werden nur eindeutige Muster in englischer Notation:
+ * Figurenzüge (Ng4+, Rxh4, Nbd2), Bauernzüge (g3, hxg4, e8=Q+) und
+ * Rochaden. Der Text selbst bleibt unverändert.
+ *
+ * Der Viewer ändert Kommentartexte beim Nachspielen nicht (snabbdom
+ * vergleicht nur den Text und lässt das Element sonst in Ruhe), die
+ * Auszeichnung bleibt daher erhalten. Neu aufgebaute Kommentare (z. B.
+ * nach einem Partiewechsel) findet ein MutationObserver, siehe initViewer().
+ */
+const COMMENT_MOVE_RE = new RegExp(
+    '(?<![\\p{L}\\d])'
+    + '(?:(\\d+\\s*(?:\\.\\.\\.|…|\\.)\\s*)(–|--)|(\\d+\\s*(?:\\.\\.\\.|…|\\.)\\s*)?'
+    + '((?:[KQRBN][a-h]?[1-8]?x?[a-h][1-8]|[a-h](?:x[a-h])?[1-8](?:=[QRBN])?|O-O(?:-O)?)[+#]?[!?]{0,2}))'
+    + '(?![\\p{L}\\d])',
+    'gu',
+);
+
+function markCommentMoves(container) {
+    container.querySelectorAll('.lpv__moves comment:not([data-lpv-moves])').forEach((comment) => {
+        comment.setAttribute('data-lpv-moves', '1');
+
+        const textNodes = [];
+        const walker = document.createTreeWalker(comment, NodeFilter.SHOW_TEXT);
+        while (walker.nextNode()) {
+            if (!walker.currentNode.parentElement.closest('.lpv-comment-move')) {
+                textNodes.push(walker.currentNode);
+            }
+        }
+
+        textNodes.forEach((node) => {
+            const text = node.nodeValue;
+            COMMENT_MOVE_RE.lastIndex = 0;
+            if (!COMMENT_MOVE_RE.test(text)) {
+                return;
+            }
+
+            const fragment = document.createDocumentFragment();
+            let last = 0;
+            COMMENT_MOVE_RE.lastIndex = 0;
+            for (const match of text.matchAll(COMMENT_MOVE_RE)) {
+                if (match.index > last) {
+                    fragment.appendChild(document.createTextNode(text.slice(last, match.index)));
+                }
+                const span = document.createElement('span');
+                span.className = 'lpv-comment-move';
+                span.textContent = match[0];
+                fragment.appendChild(span);
+                last = match.index + match[0].length;
+            }
+            if (last < text.length) {
+                fragment.appendChild(document.createTextNode(text.slice(last)));
+            }
+            node.replaceWith(fragment);
+        });
+    });
+}
+
 function initViewer(root) {
     if (root.dataset.lpvInitialised === '1') {
         return;
@@ -223,6 +287,22 @@ function initViewer(root) {
     const { initialVariation, ...baseOptions } = readOptions(root);
     const wrapper = root.closest('.lpv-wrapper');
     const select = wrapper ? wrapper.querySelector('[data-lpv-select]') : null;
+
+    // Kommentare, die der Viewer nachträglich (neu) aufbaut, ebenfalls
+    // auszeichnen (siehe markCommentMoves()). Das eigene Umbauen löst den
+    // Observer zwar erneut aus, bereits markierte Kommentare werden aber
+    // übersprungen.
+    let markPending = false;
+    new MutationObserver(() => {
+        if (markPending) {
+            return;
+        }
+        markPending = true;
+        requestAnimationFrame(() => {
+            markPending = false;
+            markCommentMoves(root);
+        });
+    }).observe(root, { childList: true, subtree: true });
 
     // Die zusätzlichen Partiedaten (Veranstaltung, Ort, Runde, ECO, Elo,
     // Kommentator, Quelle - siehe Block "gameInfo" im Twig-Template, bzw.
@@ -284,6 +364,8 @@ function initViewer(root) {
         if (initialVariation) {
             goToVariation(ctrl);
         }
+
+        markCommentMoves(root);
 
         if (baseOptions.initialPly) {
             scrollToCurrentMove();

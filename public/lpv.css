@@ -256,3 +256,12 @@
 .lpv-wrapper.lpv-wrapper--moves-flow .lpv__moves > index:has(+ .move.empty)::after {
     content: "..";
 }
+
+/*
+ * Züge in Kommentaren (siehe markCommentMoves() in
+ * lichess-pgn-viewer-init.js): nicht mitten im Zug umbrechen. Die Schrift
+ * (z. B. eine Figurinen-Schrift wie in der Zugliste) legt das Theme fest.
+ */
+.lpv-wrapper .lpv__moves .lpv-comment-move {
+    white-space: nowrap;
+}
