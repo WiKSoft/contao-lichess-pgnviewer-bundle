@@ -107,6 +107,22 @@
 }
 
 /*
+ * Höhe der Zugliste, wenn sie unter dem Brett steht - bei Zugliste "Unter
+ * dem Brett" ebenso wie beim gestapelten Layout von "rechts"/"links"
+ * (siehe @container unten). lichess-pgn-viewer.css sieht dafür fest 6em
+ * vor, das reicht nur für wenige Zeilen. Die Höhe ist über die CSS-
+ * Variable --lpv-moves-height einstellbar (Standard 14em), z. B. im
+ * eigenen Theme: ".lpv-wrapper { --lpv-moves-height: 18em; }".
+ */
+.lpv-wrapper .lpv--moves-bottom {
+    grid-template-rows: auto var(--controls-height) var(--lpv-moves-height, 14em);
+}
+
+.lpv-wrapper .lpv--players.lpv--moves-bottom {
+    grid-template-rows: 2em auto 2em var(--controls-height) var(--lpv-moves-height, 14em);
+}
+
+/*
  * Gestapeltes Layout (Zugliste unter dem Brett), sobald der Viewer selbst
  * schmaler ist als die beiden Mindestbreiten nebeneinander (Brett 200px +
  * Zugliste 232px = 432px). Maßgeblich ist bewusst die Breite des Viewers,
@@ -124,15 +140,15 @@
     .lpv-wrapper .lpv--moves-right,
     .lpv-wrapper.lpv-wrapper--moves-left .lpv--moves-right {
         grid-template-areas: "board" "controls" "side";
-        grid-template-columns: minmax(200px, min(var(--lpv-board-width, 100vw), calc(100vh - var(--controls-height) - 6em)));
-        grid-template-rows: auto var(--controls-height) 6em;
+        grid-template-columns: minmax(200px, min(var(--lpv-board-width, 100vw), calc(100vh - var(--controls-height) - var(--lpv-moves-height, 14em))));
+        grid-template-rows: auto var(--controls-height) var(--lpv-moves-height, 14em);
     }
 
     .lpv-wrapper .lpv--players.lpv--moves-right,
     .lpv-wrapper.lpv-wrapper--moves-left .lpv--players.lpv--moves-right {
         grid-template-areas: "player-top" "board" "player-bot" "controls" "side";
-        grid-template-columns: minmax(200px, min(var(--lpv-board-width, 100vw), calc(100vh - 2 * 2em - var(--controls-height) - 6em)));
-        grid-template-rows: 2em auto 2em var(--controls-height) 6em;
+        grid-template-columns: minmax(200px, min(var(--lpv-board-width, 100vw), calc(100vh - 2 * 2em - var(--controls-height) - var(--lpv-moves-height, 14em))));
+        grid-template-rows: 2em auto 2em var(--controls-height) var(--lpv-moves-height, 14em);
     }
 
     /* Gestapelt gibt es nur eine Spalte: Menü wieder in Spalte 1 */
