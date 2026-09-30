@@ -57,7 +57,6 @@ $GLOBALS['TL_LANG']['tl_content']['lpv_showClocks'] = ['Show clocks', 'Shows the
 
 $GLOBALS['TL_LANG']['tl_content']['lpv_showMoves'] = ['Show move list', 'Position and visibility of the move list.'];
 $GLOBALS['TL_LANG']['tl_content']['lpv_showMoves_option'] = [
-    'a' => 'Automatic (responsive)',
     'r' => 'Right of the board',
     'l' => 'Left of the board',
     'b' => 'Below the board',
@@ -112,6 +111,6 @@ $GLOBALS['TL_LANG']['tl_content']['lpv_lichessLink'] = ['lichess.org link', 'Det
 
 $GLOBALS['TL_LANG']['tl_content']['lpv_layout_legend'] = 'Layout settings';
 $GLOBALS['TL_LANG']['tl_content']['lpv_width'] = ['Width', 'CSS width of the viewer, e.g. 480px or 100%. Empty = full width.'];
-$GLOBALS['TL_LANG']['tl_content']['lpv_boardWidth'] = ['Board width', 'CSS width of the chessboard only, e.g. 480px. Only takes effect if "Show move list" is set to "Right of the board" - the move list then adjusts automatically without a gap to the board. For other move list positions, please use "Width" instead. Empty = board fills the available width.'];
+$GLOBALS['TL_LANG']['tl_content']['lpv_boardWidth'] = ['Board width', 'Maximum width of the chessboard, e.g. 480px. Only takes effect if "Show move list" is set to "Right" or "Left of the board". If space runs short, the board gets narrower and the move list keeps at least 232px; the board also adapts to the window height. For other move list positions, please use "Width" instead. Empty = board as large as space and window height allow.'];
 $GLOBALS['TL_LANG']['tl_content']['lpv_cssClass'] = ['CSS class(es)', 'Additional CSS classes for the root element of the viewer.'];
 $GLOBALS['TL_LANG']['tl_content']['lpv_template'] = ['Custom template', 'Alternative Twig template for the output (e.g. for custom sorting/labelling of the game selection).'];

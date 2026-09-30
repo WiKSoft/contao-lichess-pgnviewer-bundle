@@ -227,26 +227,23 @@
                 Feldfarben (--lpv-square-light/-dark, siehe public/lpv.css),
                 Chrome-Farben des lichess-Viewers (--c-lpv-*, siehe
                 public/lichess-pgn-viewer/lichess-pgn-viewer.css) und die
-                feste Brettbreite (--lpv-board-width, siehe public/lpv.css)
+                Brettbreite (--lpv-board-width, siehe public/lpv.css)
                 werden - falls im Content-Element gesetzt - hier zu einem
                 einzigen style="..."-Attribut auf dem inneren
                 #{{ elementId }}-Div zusammengeführt (nicht mit dem äußeren,
                 Contao-eigenen cssID-"style" auf .lpv-wrapper verwechseln).
 
-                Die feste Brettbreite wirkt nur, wenn die Zugliste rechts
-                oder links vom Brett angezeigt wird (options.showMoves ==
+                Die Brettbreite wirkt nur, wenn die Zugliste rechts oder
+                links vom Brett angezeigt wird (options.showMoves ==
                 'right', "links" läuft intern ebenfalls als 'right') -
                 nur dort konkurrieren Brett und Zugliste in derselben
-                CSS-Grid-Zeile um die Breite. --lpv-side-width schaltet die
-                Zugliste-Spalte dabei zusätzlich von "fit-content(40%)" auf
-                "1fr" um (siehe public/lpv.css), damit die Zugliste den nach
-                Abzug des Bretts verbleibenden Platz bis zur über "width"
-                konfigurierten Gesamtbreite komplett ausfüllt, statt auf
-                ihre Inhaltsbreite begrenzt zu bleiben.
+                CSS-Grid-Zeile um die Breite. Sie ist eine Höchstbreite:
+                fehlt der Platz, wird das Brett schmaler, die Zugliste
+                behält mindestens 232px (siehe public/lpv.css).
             #}
             {% set widthStyle = width ? 'max-width: ' ~ width ~ ';' : '' %}
             {% set boardWidthActive = boardWidth and options.showMoves == 'right' %}
-            {% set boardWidthStyle = boardWidthActive ? ('--lpv-board-width: ' ~ boardWidth ~ '; --lpv-side-width: 1fr;') : '' %}
+            {% set boardWidthStyle = boardWidthActive ? ('--lpv-board-width: ' ~ boardWidth ~ ';') : '' %}
             {% set styleAttr = (
                 widthStyle
                 ~ (widthStyle and (designStyle or boardWidthStyle) ? ' ' : '')

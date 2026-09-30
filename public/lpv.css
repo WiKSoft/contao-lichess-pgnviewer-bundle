@@ -39,25 +39,33 @@
 }
 
 /*
- * Feste Brettbreite (Feld "Brettbreite", nur bei Zugliste "Rechts neben
- * dem Brett" wirksam, siehe ce_lichessPgnviewer.html.twig): der lichess-
- * Viewer legt für diesen Modus per CSS-Grid "grid-template-columns: auto
- * fit-content(40%);" fest - die Brett-Spalte ("auto") füllt dabei immer
- * den nach Abzug der Zugliste verbleibenden Platz, eine feste Brettgröße
- * lässt sich darüber nicht direkt einstellen. Die Brett-Spalte wird daher
- * hier auf --lpv-board-width fixiert (Fallback "auto" = unverändertes
- * Standardverhalten, falls die Variable nicht gesetzt ist).
+ * Zugliste "Rechts neben dem Brett" (showMoves: 'right'), responsiv:
+ * lichess-pgn-viewer.css gibt diesem Modus nur starre Spalten ("auto
+ * fit-content(40%)"). Hier gelten stattdessen dieselben flexiblen Spalten,
+ * die die Bibliothek für ihren Modus "auto" verwendet:
  *
- * Die Zugliste-Spalte bleibt im Standardfall "fit-content(40%)" (schmiegt
- * sich an ihren Inhalt an, damit das Brett bei "auto" möglichst viel Platz
- * bekommt). Ist die Brettbreite jedoch fest vorgegeben, wird über
- * --lpv-side-width auf "1fr" umgeschaltet (siehe ce_lichessPgnviewer.html.twig):
- * so füllt die Zugliste genau den nach Abzug des Bretts verbleibenden
- * Platz bis zur konfigurierten Gesamtbreite aus, statt auf ihre
- * Inhaltsbreite (bzw. das 40%-Limit) begrenzt zu bleiben.
+ * - Brett: minmax(200px, Obergrenze). Die Obergrenze ist die kleinere von
+ *   Feld "Brettbreite" (--lpv-board-width, falls gesetzt - sonst ohne
+ *   Begrenzung) und der Fensterhöhe abzüglich Steuerleiste (bzw. Spieler-
+ *   leisten), damit Brett und Steuerleiste immer ganz sichtbar sind.
+ * - Zugliste: minmax(232px, 1fr) - sie füllt den restlichen Platz und
+ *   behält mindestens 232px, das Brett gibt zuerst nach.
+ *
+ * "Brettbreite" ist damit eine Höchstbreite: Auf breiten Bildschirmen hat
+ * das Brett genau diese Breite, fehlt der Platz, wird es kleiner. Reicht
+ * die Breite des Viewers nicht mehr für beide Mindestbreiten (432px),
+ * rutscht die Zugliste unter das Brett (siehe @container weiter unten).
  */
 .lpv-wrapper .lpv--moves-right {
-    grid-template-columns: var(--lpv-board-width, auto) var(--lpv-side-width, fit-content(40%));
+    grid-template-columns:
+        minmax(200px, min(var(--lpv-board-width, 100vw), calc(100vh - var(--controls-height))))
+        minmax(232px, 1fr);
+}
+
+.lpv-wrapper .lpv--players.lpv--moves-right {
+    grid-template-columns:
+        minmax(200px, min(var(--lpv-board-width, 100vw), calc(100vh - 2 * 2em - var(--controls-height))))
+        minmax(232px, 1fr);
 }
 
 /*
@@ -65,16 +73,21 @@
  * Viewer kennt diesen Modus nicht - der Controller übergibt ihm daher
  * 'right', und der Wrapper-Modifier ".lpv-wrapper--moves-left" (siehe
  * ce_lichessPgnviewer.html.twig) spiegelt hier nur die Grid-Spalten.
- * Brettbreite/Zuglistenbreite (--lpv-board-width/--lpv-side-width)
- * wirken genauso wie bei "rechts", nur in umgekehrter Spaltenreihenfolge.
+ * Brett und Zugliste verhalten sich genauso wie bei "rechts", nur in
+ * umgekehrter Spaltenreihenfolge.
  */
 .lpv-wrapper.lpv-wrapper--moves-left .lpv--moves-right {
     grid-template-areas: "side board" "side controls";
-    grid-template-columns: var(--lpv-side-width, fit-content(40%)) var(--lpv-board-width, auto);
+    grid-template-columns:
+        minmax(232px, 1fr)
+        minmax(200px, min(var(--lpv-board-width, 100vw), calc(100vh - var(--controls-height))));
 }
 
 .lpv-wrapper.lpv-wrapper--moves-left .lpv--players.lpv--moves-right {
     grid-template-areas: "side player-top" "side board" "side player-bot" "side controls";
+    grid-template-columns:
+        minmax(232px, 1fr)
+        minmax(200px, min(var(--lpv-board-width, 100vw), calc(100vh - 2 * 2em - var(--controls-height))));
 }
 
 /*
@@ -94,28 +107,31 @@
 }
 
 /*
- * Responsive Fallback für den Modus "Zugliste rechts" (showMoves: 'right'):
- * lichess-pgn-viewer.css bringt die @media(max-width: 450px)-Umschaltung
- * auf gestapeltes Layout (Zugliste unter das Brett) nur für den Modus
- * "auto" mit - ".lpv--moves-right" bleibt dort unabhängig von der
- * Fensterbreite immer starr nebeneinander stehen. Damit Nutzer der festen
- * Brettbreite (--lpv-board-width, siehe oben) auf schmalen Bildschirmen
- * nicht auf ein nicht-responsives Layout festgelegt sind, wird hier exakt
- * die gestapelte Grid-Definition aus lichess-pgn-viewer.css für
- * ".lpv--moves-auto" unterhalb von 450px übernommen.
+ * Gestapeltes Layout (Zugliste unter dem Brett), sobald der Viewer selbst
+ * schmaler ist als die beiden Mindestbreiten nebeneinander (Brett 200px +
+ * Zugliste 232px = 432px). Maßgeblich ist bewusst die Breite des Viewers,
+ * nicht die des Browserfensters (wie bei der @media(max-width: 450px)-
+ * Regel für "auto" in lichess-pgn-viewer.css): Steht der Viewer in einem
+ * schmaleren Bereich der Seite, würde er sonst bei knapp über 450px
+ * Fensterbreite noch nebeneinander dargestellt und über den Rand ragen.
+ * Container ist das innere #lpv-...-Div ([data-lpv-root]) um den Viewer.
  */
-@media (max-width: 450px) {
+.lpv-wrapper [data-lpv-root] {
+    container-type: inline-size;
+}
+
+@container (width < 432px) {
     .lpv-wrapper .lpv--moves-right,
     .lpv-wrapper.lpv-wrapper--moves-left .lpv--moves-right {
         grid-template-areas: "board" "controls" "side";
-        grid-template-columns: minmax(200px, calc(100vh - var(--controls-height) - 6em));
+        grid-template-columns: minmax(200px, min(var(--lpv-board-width, 100vw), calc(100vh - var(--controls-height) - 6em)));
         grid-template-rows: auto var(--controls-height) 6em;
     }
 
     .lpv-wrapper .lpv--players.lpv--moves-right,
     .lpv-wrapper.lpv-wrapper--moves-left .lpv--players.lpv--moves-right {
         grid-template-areas: "player-top" "board" "player-bot" "controls" "side";
-        grid-template-columns: minmax(200px, calc(100vh - 2 * 2em - var(--controls-height) - 6em));
+        grid-template-columns: minmax(200px, min(var(--lpv-board-width, 100vw), calc(100vh - 2 * 2em - var(--controls-height) - 6em)));
         grid-template-rows: 2em auto 2em var(--controls-height) 6em;
     }
 

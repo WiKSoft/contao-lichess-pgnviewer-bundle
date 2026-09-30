@@ -97,21 +97,20 @@
         {% if hasGames %}
             {#
                 Feldfarben (--lpv-square-light/-dark, siehe public/lpv.css)
-                und die feste Brettbreite (--lpv-board-width) werden - falls im
+                und die Brettbreite (--lpv-board-width) werden - falls im
                 Modul gesetzt - zu einem einzigen style="..."-Attribut auf dem
                 inneren #{{ elementId }}-Div zusammengeführt (nicht mit dem
                 äußeren, Contao-eigenen cssID-"style" auf .lpv-wrapper
                 verwechseln).
 
-                Die feste Brettbreite wirkt nur, wenn die Zugliste rechts
-                oder links vom Brett angezeigt wird (options.showMoves ==
-                'right', "links" läuft intern ebenfalls als 'right').
-                --lpv-side-width schaltet die Zugliste-Spalte dabei auf "1fr"
-                um, damit sie den verbleibenden Platz ausfüllt.
+                Die Brettbreite wirkt nur, wenn die Zugliste rechts oder
+                links vom Brett angezeigt wird (options.showMoves ==
+                'right', "links" läuft intern ebenfalls als 'right'). Sie
+                ist eine Höchstbreite, siehe ce_lichessPgnviewer.html.twig.
             #}
             {% set widthStyle = width ? 'max-width: ' ~ width ~ ';' : '' %}
             {% set boardWidthActive = boardWidth and options.showMoves == 'right' %}
-            {% set boardWidthStyle = boardWidthActive ? ('--lpv-board-width: ' ~ boardWidth ~ '; --lpv-side-width: 1fr;') : '' %}
+            {% set boardWidthStyle = boardWidthActive ? ('--lpv-board-width: ' ~ boardWidth ~ ';') : '' %}
             {% set styleAttr = (
                 widthStyle
                 ~ (widthStyle and (designStyle or boardWidthStyle) ? ' ' : '')

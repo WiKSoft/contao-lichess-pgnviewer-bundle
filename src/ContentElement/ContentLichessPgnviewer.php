@@ -847,11 +847,13 @@ class ContentLichessPgnviewer extends ContentElement
             default => 'auto',
         };
 
+        // "Links" läuft intern ebenfalls als 'right' (siehe public/lpv.css).
+        // Die frühere Option "Automatisch" ('a') gibt es nicht mehr - ein
+        // noch nicht migrierter Wert wird wie "Rechts" behandelt.
         $showMoves = match ((string) $this->lpv_showMoves) {
-            'r', 'l' => 'right',
             'b' => 'bottom',
             '0' => false,
-            default => 'auto',
+            default => 'right',
         };
 
         $options = [

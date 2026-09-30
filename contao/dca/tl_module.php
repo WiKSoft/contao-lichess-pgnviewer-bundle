@@ -67,13 +67,13 @@ $GLOBALS['TL_DCA']['tl_module']['fields']['lpv_showClocks'] = [
 
 $GLOBALS['TL_DCA']['tl_module']['fields']['lpv_showMoves'] = [
     'label' => &$GLOBALS['TL_LANG']['tl_module']['lpv_showMoves'],
-    'default' => 'a',
+    'default' => 'r',
     'exclude' => true,
     'inputType' => 'select',
-    'options' => ['a', 'r', 'l', 'b', '0'],
+    'options' => ['r', 'l', 'b', '0'],
     'reference' => &$GLOBALS['TL_LANG']['tl_module']['lpv_showMoves_option'],
     'eval' => ['tl_class' => 'w50'],
-    'sql' => "varchar(1) NOT NULL default 'a'",
+    'sql' => "varchar(1) NOT NULL default 'r'",
 ];
 
 $GLOBALS['TL_DCA']['tl_module']['fields']['lpv_movesLayout'] = [

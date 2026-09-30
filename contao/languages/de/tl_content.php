@@ -57,7 +57,6 @@ $GLOBALS['TL_LANG']['tl_content']['lpv_showClocks'] = ['Bedenkzeiten anzeigen', 
 
 $GLOBALS['TL_LANG']['tl_content']['lpv_showMoves'] = ['Zugliste anzeigen', 'Position und Sichtbarkeit der Zugliste.'];
 $GLOBALS['TL_LANG']['tl_content']['lpv_showMoves_option'] = [
-    'a' => 'Automatisch (responsiv)',
     'r' => 'Rechts neben dem Brett',
     'l' => 'Links neben dem Brett',
     'b' => 'Unter dem Brett',
@@ -112,6 +111,6 @@ $GLOBALS['TL_LANG']['tl_content']['lpv_lichessLink'] = ['lichess.org-Verknüpfun
 
 $GLOBALS['TL_LANG']['tl_content']['lpv_layout_legend'] = 'Layout-Einstellungen';
 $GLOBALS['TL_LANG']['tl_content']['lpv_width'] = ['Breite', 'CSS-Breite des Viewers, z. B. 480px oder 100%. Leer = volle Breite.'];
-$GLOBALS['TL_LANG']['tl_content']['lpv_boardWidth'] = ['Brettbreite', 'CSS-Breite nur des Schachbretts, z. B. 480px. Wirkt nur, wenn "Zugliste anzeigen" auf "Rechts neben dem Brett" steht - die Zugliste passt sich dann automatisch an, ohne Lücke zum Brett. Bei anderen Zugliste-Positionen bitte stattdessen "Breite" verwenden. Leer = Brett füllt die verfügbare Breite.'];
+$GLOBALS['TL_LANG']['tl_content']['lpv_boardWidth'] = ['Brettbreite', 'Höchstbreite des Schachbretts, z. B. 480px. Wirkt nur, wenn "Zugliste anzeigen" auf "Rechts" oder "Links neben dem Brett" steht. Wird der Platz knapp, wird das Brett schmaler, die Zugliste behält mindestens 232px; außerdem passt sich das Brett an die Fensterhöhe an. Bei anderen Zugliste-Positionen bitte stattdessen "Breite" verwenden. Leer = Brett so groß, wie Platz und Fensterhöhe es erlauben.'];
 $GLOBALS['TL_LANG']['tl_content']['lpv_cssClass'] = ['CSS-Klasse(n)', 'Zusätzliche CSS-Klassen für das Wurzelelement des Viewers.'];
 $GLOBALS['TL_LANG']['tl_content']['lpv_template'] = ['Eigene Vorlage', 'Abweichende Twig-Vorlage für die Ausgabe (z. B. für eigene Sortierung/Beschriftung der Partieauswahl).'];
