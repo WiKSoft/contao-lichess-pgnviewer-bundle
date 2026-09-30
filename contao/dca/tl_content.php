@@ -77,6 +77,7 @@ $GLOBALS['TL_DCA']['tl_content']['fields']['lpv_text'] = [
     'exclude' => true,
     'inputType' => 'textarea',
     'eval' => ['mandatory' => true, 'decodeEntities' => true, 'class' => 'monospace', 'rows' => 12, 'tl_class' => 'clr'],
+    'save_callback' => [['tl_content_lichessPgnviewer', 'checkPgnTextLength']],
     'sql' => 'text NULL',
 ];
 
@@ -446,6 +447,28 @@ class tl_content_lichessPgnviewer extends Backend
         $record = $dc->getCurrentRecord();
 
         return (string) ($record['lpv_dbChess_filter'] ?? '');
+    }
+
+    /**
+     * Die Spalte lpv_text ist vom Typ TEXT und fasst höchstens 65.535 Byte.
+     * Längerer Text würde von der Datenbank abgeschnitten oder abgelehnt.
+     * Geprüft wird die Länge in Byte (UTF-8), nicht in Zeichen: Umlaute
+     * belegen 2 Byte, Zeichen wie "–" oder "…" 3 Byte.
+     */
+    public function checkPgnTextLength(mixed $value, DataContainer $dc): mixed
+    {
+        $max = 65535;
+        $length = \strlen((string) $value);
+
+        if ($length > $max) {
+            throw new \RuntimeException(sprintf(
+                $GLOBALS['TL_LANG']['tl_content']['lpv_text_tooLong'] ?? 'Text too long (%s of %s bytes).',
+                number_format($length, 0, ',', '.'),
+                number_format($max, 0, ',', '.'),
+            ));
+        }
+
+        return $value;
     }
 
     /**

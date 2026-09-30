@@ -273,6 +273,18 @@ Die gesamte Contao-spezifische Logik liegt in einem eigenen Init-Script
    vendor/bin/contao-console contao:migrate
    ```
 
+3. Damit PGN-Dateien in die Dateiverwaltung hochgeladen, als Quelle „Datei“
+   geladen und über das Menü des Viewers heruntergeladen werden können, muss
+   der Dateityp `pgn` in den Backend-Einstellungen erlaubt sein. Unter
+   *System → Einstellungen* `pgn` in beide Felder eintragen:
+   - **Erlaubte Upload-Dateitypen** (Abschnitt *Datei-Uploads*) – für das
+     Hochladen bzw. Importieren von `.pgn`-Dateien
+   - **Erlaubte Download-Dateitypen** (Abschnitt *Dateien und Bilder*) – für
+     das Herunterladen bzw. Exportieren von `.pgn`-Dateien
+
+   Der Eintrag wird kommagetrennt an die vorhandene Liste angehängt,
+   z. B. `…,zip,pgn`.
+
 ## Lizenz
 
 GPL-3.0-or-later, siehe [LICENSE](LICENSE).

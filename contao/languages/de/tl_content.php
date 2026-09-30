@@ -17,6 +17,7 @@ $GLOBALS['TL_LANG']['tl_content']['lpv_source_option'] = [
 
 $GLOBALS['TL_LANG']['tl_content']['lpv_file'] = ['PGN-Datei', 'Wählen Sie eine .pgn-Datei aus der Dateiverwaltung. Sie darf mehrere Partien enthalten.'];
 $GLOBALS['TL_LANG']['tl_content']['lpv_text'] = ['PGN-Text', 'Geben Sie die PGN-Notation direkt ein. Mehrere Partien werden automatisch erkannt.'];
+$GLOBALS['TL_LANG']['tl_content']['lpv_text_tooLong'] = 'Der PGN-Text ist zu lang: %s von höchstens %s Byte. Umlaute zählen doppelt, Zeichen wie „–“ dreifach. Bitte kürzen oder die Partien als PGN-Datei (Quelle „Datei“) einbinden.';
 
 $GLOBALS['TL_LANG']['tl_content']['dbChess_list_collection'] = ['Partiesammlung(en)', 'Wählen Sie eine oder mehrere Partiesammlungen aus der dbChess-Datenbank.'];
 $GLOBALS['TL_LANG']['tl_content']['lpv_dbChess_filter'] = ['Eigener Filter (optional)', 'Zusätzliche SQL-WHERE-Bedingung für tl_dbChess_games, z. B. white=\'Carlsen\'. Nur Administratoren können dieses Feld bearbeiten.'];

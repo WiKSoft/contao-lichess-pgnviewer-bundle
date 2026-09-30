@@ -17,6 +17,7 @@ $GLOBALS['TL_LANG']['tl_content']['lpv_source_option'] = [
 
 $GLOBALS['TL_LANG']['tl_content']['lpv_file'] = ['PGN file', 'Select a .pgn file from the file manager. It may contain several games.'];
 $GLOBALS['TL_LANG']['tl_content']['lpv_text'] = ['PGN text', 'Enter the PGN notation directly. Multiple games are detected automatically.'];
+$GLOBALS['TL_LANG']['tl_content']['lpv_text_tooLong'] = 'The PGN text is too long: %s of at most %s bytes. Umlauts count twice, characters like “–” three times. Please shorten it or include the games as a PGN file (source “File”).';
 
 $GLOBALS['TL_LANG']['tl_content']['dbChess_list_collection'] = ['Game collection(s)', 'Select one or more game collections from the dbChess database.'];
 $GLOBALS['TL_LANG']['tl_content']['lpv_dbChess_filter'] = ['Custom filter (optional)', 'Additional SQL WHERE condition for tl_dbChess_games, e.g. white=\'Carlsen\'. Only administrators can edit this field.'];
