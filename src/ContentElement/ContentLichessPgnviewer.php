@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Wiksoft\ContaoLichessPgnviewerBundle\ContentElement;
 
-use Contao\Config;
 use Contao\ContentElement;
 use Contao\Database;
 use Contao\File;
@@ -484,21 +483,23 @@ class ContentLichessPgnviewer extends ContentElement
     }
 
     /**
-     * Liest den von Contao über auto_item bzw. den Query-Parameter "items"
-     * bereitgestellten URL-Fragment-Wert - analog zu
-     * ContentPgn4web::compile() und ModulePgn4webReader::generate() im
-     * pgn4web-Bundle. Ein Link aus ContentDbChessList (Feld
-     * "dbChess_list_jumpTo", siehe ContentDbChessList sowie
-     * ce_dbChess_list_table.html.twig im wiksoft/contao-dbchess-bundle) zeigt auf
-     * genau diesen Parameter, befüllt mit dem Alias der angeklickten Partie.
+     * Liest den Partie-Alias aus der URL: Contao 5 liefert ihn immer als
+     * auto_item, ältere Links können ihn noch als "items" übergeben
+     * (vgl. ModuleLichessPgnviewerReader::getRequestedGameAlias()). Ein Link
+     * aus ContentDbChessList (Feld "dbChess_list_jumpTo", siehe
+     * ContentDbChessList sowie ce_dbChess_list_table.html.twig im
+     * wiksoft/contao-dbchess-bundle) hängt den Alias der angeklickten Partie
+     * an die URL.
      */
     private function getRequestedGameAlias(): string
     {
-        if (!isset($_GET['items']) && Config::get('useAutoItem') && isset($_GET['auto_item'])) {
-            Input::setGet('items', Input::get('auto_item'));
+        $alias = (string) Input::get('auto_item');
+
+        if ('' === $alias) {
+            $alias = (string) Input::get('items');
         }
 
-        return (string) Input::get('items');
+        return $alias;
     }
 
     /**
@@ -637,11 +638,9 @@ class ContentLichessPgnviewer extends ContentElement
 
     /**
      * Baut die Frontend-URL der aktuellen Seite mit dem Alias der
-     * übergebenen Partie als "items"-Fragment - analog zu
-     * ContentPgn4web::generatePrevNextLinks() bzw.
+     * übergebenen Partie als auto_item - analog zu
      * ContentDbChessList::compile() (siehe dort "getFrontendUrl('/' .
-     * $alias)"), inklusive derselben Berücksichtigung von
-     * Config::get('useAutoItem')/'disableAlias' für den "/items/"-Fallback.
+     * $alias)").
      */
     private function buildGameUrl(?array $row): ?string
     {
@@ -657,9 +656,7 @@ class ContentLichessPgnviewer extends ContentElement
             return null;
         }
 
-        $prefix = (Config::get('useAutoItem') && !Config::get('disableAlias')) ? '/' : '/items/';
-
-        return $currentPage->getFrontendUrl($prefix . $alias);
+        return $currentPage->getFrontendUrl('/' . $alias);
     }
 
     /**

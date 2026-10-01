@@ -11,6 +11,14 @@ Die Versionsnummern folgen [Semantic Versioning](https://semver.org/lang/de/).
   Grenze der Datenbankspalte) und zeigt bei Überschreitung eine Meldung am
   Feld.
 
+### Geändert
+
+- Der Partie-Alias in der URL wird immer über `auto_item` gelesen und Links
+  auf Partien werden immer ohne `/items/` erzeugt. Die Contao-4-Einstellung
+  `useAutoItem` (z. B. `contao.localconfig.useAutoItem` in der
+  `config/config.yaml`) wird nicht mehr benötigt. Alte Links mit `/items/`
+  funktionieren weiterhin.
+
 ### Dokumentation
 
 - README: Hinweis auf den Dateityp `pgn` in den erlaubten Upload- und
