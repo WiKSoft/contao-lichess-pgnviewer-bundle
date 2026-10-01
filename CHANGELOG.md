@@ -3,7 +3,7 @@
 Alle nennenswerten Änderungen an `wiksoft/contao-lichess-pgnviewer-bundle`.
 Die Versionsnummern folgen [Semantic Versioning](https://semver.org/lang/de/).
 
-## [Unveröffentlicht]
+## [1.2.0] – 2026-10-01
 
 ### Neu
 
@@ -92,7 +92,7 @@ Einzelauswahl), Frontend-Modul „lichessPgnviewer Reader", Partieauswahl,
 verknüpfte Partien, Rundennavigation, Zugliste links oder rechts, feste
 Brettbreite und Farben der Brettfelder, Sprachdateien Deutsch und Englisch.
 
-[Unveröffentlicht]: https://github.com/WiKSoft/contao-lichess-pgnviewer-bundle/compare/v1.1.0...HEAD
+[1.2.0]: https://github.com/WiKSoft/contao-lichess-pgnviewer-bundle/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/WiKSoft/contao-lichess-pgnviewer-bundle/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/WiKSoft/contao-lichess-pgnviewer-bundle/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/WiKSoft/contao-lichess-pgnviewer-bundle/releases/tag/v1.0.0
