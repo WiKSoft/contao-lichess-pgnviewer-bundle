@@ -4,7 +4,9 @@ use Contao\Backend;
 use Contao\BackendUser;
 use Contao\Database;
 use Contao\DataContainer;
+use Contao\Input;
 use Contao\StringUtil;
+use Wiksoft\ContaoLichessPgnviewerBundle\Settings\ViewerSettings;
 use Wiksoft\ContaoLichessPgnviewerBundle\Pgn\DbChessAvailability;
 
 /**
@@ -21,15 +23,14 @@ $GLOBALS['TL_DCA']['tl_content']['config']['onload_callback'][] = ['tl_content_l
  */
 $GLOBALS['TL_DCA']['tl_content']['palettes']['__selector__'][] = 'lpv_source';
 $GLOBALS['TL_DCA']['tl_content']['palettes']['__selector__'][] = 'lpv_initialPlyMode';
-$GLOBALS['TL_DCA']['tl_content']['palettes']['__selector__'][] = 'lpv_menuGetPgn';
 
 $GLOBALS['TL_DCA']['tl_content']['palettes']['lichessPgnviewer'] = '
 	{type_legend},type,headline;
 	{lpv_source_legend},lpv_source;
 	{lpv_display_legend},lpv_showPlayers,lpv_showClocks,lpv_showMoves,lpv_movesLayout,lpv_showControls,lpv_scrollToMove,lpv_keyboardToMove,lpv_showGameInfo;
 	{lpv_board_legend},lpv_orientation,lpv_initialPlyMode,lpv_drawArrows,lpv_coordinates,lpv_highlightLastMove,lpv_highlightCheck,lpv_animationDuration,lpv_blockTouchScroll;
-	{lpv_design_legend},lpv_squareLightColorHex,lpv_squareDarkColorHex;
-	{lpv_menu_legend},lpv_menuGetPgn,lpv_menuPractice,lpv_menuAnalysisBoard,lpv_lichessLink;
+	{lpv_design_legend},lpv_squareLightColorHex,lpv_squareDarkColorHex,lpv_pieceSet;
+	{lpv_menu_legend},lpv_menuGetPgn,lpv_menuGetPgnFileName,lpv_menuPractice,lpv_menuAnalysisBoard,lpv_lichessLink;
 	{lpv_layout_legend},lpv_width,lpv_boardWidth,lpv_cssClass;
 	{template_legend:hide},lpv_template;
 	{protected_legend:hide},protected;
@@ -41,7 +42,6 @@ $GLOBALS['TL_DCA']['tl_content']['subpalettes']['lpv_source_t'] = 'lpv_text';
 $GLOBALS['TL_DCA']['tl_content']['subpalettes']['lpv_source_d'] = 'dbChess_list_collection,lpv_dbChess_filter,lpv_dbChess_sortfields,lpv_dbChess_byorder';
 $GLOBALS['TL_DCA']['tl_content']['subpalettes']['lpv_source_e'] = 'dbChess_list_collection,lpv_dbChess_selection';
 $GLOBALS['TL_DCA']['tl_content']['subpalettes']['lpv_initialPlyMode_n'] = 'lpv_initialPlyNumber,lpv_initialVariation,lpv_initialVariationDepth';
-$GLOBALS['TL_DCA']['tl_content']['subpalettes']['lpv_menuGetPgn'] = 'lpv_menuGetPgnFileName';
 
 /**
  * Fields
@@ -342,6 +342,16 @@ $GLOBALS['TL_DCA']['tl_content']['fields']['lpv_squareDarkColorHex'] = [
     'sql' => "varchar(6) NOT NULL default ''",
 ];
 
+$GLOBALS['TL_DCA']['tl_content']['fields']['lpv_pieceSet'] = [
+    'label' => &$GLOBALS['TL_LANG']['tl_content']['lpv_pieceSet'],
+    'exclude' => true,
+    'inputType' => 'radio',
+    // Labels mit Vorschau (HTML), '' = Standard, siehe ViewerSettings::getPieceSetOptions()
+    'options_callback' => static fn (DataContainer|null $dc = null): array => ViewerSettings::getPieceSetOptions($dc),
+    'eval' => ['tl_class' => 'clr lpv-pieceset-field'],
+    'sql' => "varchar(32) NOT NULL default ''",
+];
+
 $GLOBALS['TL_DCA']['tl_content']['fields']['lpv_menuGetPgn'] = [
     'label' => &$GLOBALS['TL_LANG']['tl_content']['lpv_menuGetPgn'],
     'default' => '1',
@@ -419,6 +429,19 @@ $GLOBALS['TL_DCA']['tl_content']['fields']['lpv_template'] = [
     'eval' => ['tl_class' => 'w50'],
     'sql' => "varchar(64) NOT NULL default ''",
 ];
+
+/**
+ * Vorgaben vom Startpunkt der Website (siehe ViewerSettings): Felder erben,
+ * '' = Standard. Im Bearbeiten-Formular zeigt jedes Feld, was "Standard"
+ * gerade bedeutet, und am Startpunkt gesperrte Felder sind schreibgeschützt.
+ */
+ViewerSettings::makeInheritable('tl_content');
+
+$GLOBALS['TL_DCA']['tl_content']['config']['onload_callback'][] = static function (DataContainer $dc): void {
+    if ('edit' === Input::get('act')) {
+        ViewerSettings::prepareBackendFields($dc);
+    }
+};
 
 class tl_content_lichessPgnviewer extends Backend
 {

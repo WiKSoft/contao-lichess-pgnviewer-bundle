@@ -59,12 +59,13 @@ $GLOBALS['TL_LANG']['tl_module']['lpv_drawArrows'] = ['Pfeile/Markierungen erlau
 $GLOBALS['TL_LANG']['tl_module']['lpv_coordinates'] = ['Koordinaten am Rand', 'Zeigt die Feldkoordinaten (a-h, 1-8) am Brettrand an.'];
 $GLOBALS['TL_LANG']['tl_module']['lpv_highlightLastMove'] = ['Letzten Zug hervorheben', 'Markiert Start- und Zielfeld des zuletzt gezeigten Zuges.'];
 $GLOBALS['TL_LANG']['tl_module']['lpv_highlightCheck'] = ['Schach hervorheben', 'Markiert das Feld des Königs bei Schach.'];
-$GLOBALS['TL_LANG']['tl_module']['lpv_animationDuration'] = ['Animationsdauer (ms)', 'Dauer der Zug-Animation in Millisekunden. 0 deaktiviert die Animation.'];
+$GLOBALS['TL_LANG']['tl_module']['lpv_animationDuration'] = ['Animationsdauer (ms)', 'Dauer der Zug-Animation in Millisekunden. 0 deaktiviert die Animation. Leer = Vorgabe vom Startpunkt der Website, sonst 250.'];
 $GLOBALS['TL_LANG']['tl_module']['lpv_blockTouchScroll'] = ['Touch-Scrollen blockieren', 'Verhindert auf Touch-Geräten das Scrollen der Seite beim Bedienen des Bretts.'];
 
 $GLOBALS['TL_LANG']['tl_module']['lpv_design_legend'] = 'Design-Einstellungen';
-$GLOBALS['TL_LANG']['tl_module']['lpv_squareLightColorHex'] = ['Farbe helle Felder', 'Hex-Farbcode ohne #, z. B. f0d9b5. Leer = Standardfarbe (f0d9b5).'];
-$GLOBALS['TL_LANG']['tl_module']['lpv_squareDarkColorHex'] = ['Farbe dunkle Felder', 'Hex-Farbcode ohne #, z. B. b58863. Leer = Standardfarbe (b58863).'];
+$GLOBALS['TL_LANG']['tl_module']['lpv_squareLightColorHex'] = ['Farbe helle Felder', 'Hex-Farbcode ohne #, z. B. f0d9b5. Leer = Vorgabe vom Startpunkt der Website, sonst f0d9b5.'];
+$GLOBALS['TL_LANG']['tl_module']['lpv_squareDarkColorHex'] = ['Farbe dunkle Felder', 'Hex-Farbcode ohne #, z. B. b58863. Leer = Vorgabe vom Startpunkt der Website, sonst b58863.'];
+$GLOBALS['TL_LANG']['tl_module']['lpv_pieceSet'] = ['Figurensatz', 'Aussehen der Figuren auf dem Brett. Bei allen Sätzen außer rhosgfx (CC0) Urheber und Lizenz auf der Website nennen, z. B. im Impressum. Details in public/pieces/LICENSES.md der Erweiterung.'];
 
 $GLOBALS['TL_LANG']['tl_module']['lpv_menu_legend'] = 'Brettmenü-Einstellungen';
 $GLOBALS['TL_LANG']['tl_module']['lpv_menuGetPgn'] = ['Menüpunkt "PGN herunterladen"', 'Zeigt im Viewer-Menü einen Download-Link für die aktuelle Partie an.'];
@@ -74,7 +75,7 @@ $GLOBALS['TL_LANG']['tl_module']['lpv_menuAnalysisBoard'] = ['Menüpunkt "Analys
 $GLOBALS['TL_LANG']['tl_module']['lpv_lichessLink'] = ['lichess.org-Verknüpfung', 'Erkennt lichess-Partien in der PGN und verlinkt Spieler/Partie auf lichess.org.'];
 
 $GLOBALS['TL_LANG']['tl_module']['lpv_layout_legend'] = 'Layout-Einstellungen';
-$GLOBALS['TL_LANG']['tl_module']['lpv_width'] = ['Breite', 'CSS-Breite des Viewers, z. B. 480px oder 100%. Leer = volle Breite.'];
-$GLOBALS['TL_LANG']['tl_module']['lpv_boardWidth'] = ['Brettbreite', 'Höchstbreite des Schachbretts, z. B. 480px. Wirkt nur, wenn "Zugliste anzeigen" auf "Rechts" oder "Links neben dem Brett" steht. Wird der Platz knapp, wird das Brett schmaler, die Zugliste behält mindestens 232px; außerdem passt sich das Brett an die Fensterhöhe an. Bei anderen Zugliste-Positionen bitte stattdessen "Breite" verwenden. Leer = Brett so groß, wie Platz und Fensterhöhe es erlauben.'];
+$GLOBALS['TL_LANG']['tl_module']['lpv_width'] = ['Breite', 'CSS-Breite des Viewers, z. B. 480px oder 100%. Leer = Vorgabe vom Startpunkt der Website, sonst volle Breite.'];
+$GLOBALS['TL_LANG']['tl_module']['lpv_boardWidth'] = ['Brettbreite', 'Höchstbreite des Schachbretts, z. B. 480px. Wirkt nur, wenn "Zugliste anzeigen" auf "Rechts" oder "Links neben dem Brett" steht. Wird der Platz knapp, wird das Brett schmaler, die Zugliste behält mindestens 232px; außerdem passt sich das Brett an die Fensterhöhe an. Bei anderen Zugliste-Positionen bitte stattdessen "Breite" verwenden. Leer = Vorgabe vom Startpunkt der Website, sonst so groß, wie Platz und Fensterhöhe es erlauben.'];
 $GLOBALS['TL_LANG']['tl_module']['lpv_cssClass'] = ['CSS-Klasse(n)', 'Zusätzliche CSS-Klassen für das Wurzelelement des Viewers.'];
-$GLOBALS['TL_LANG']['tl_module']['lpv_template'] = ['Eigene Vorlage', 'Abweichende Twig-Vorlage für die Ausgabe (mod_lichessPgnviewerReader_*).'];
+$GLOBALS['TL_LANG']['tl_module']['lpv_template'] = ['Modul-Template', 'Hier können Sie das Modul-Template auswählen.'];

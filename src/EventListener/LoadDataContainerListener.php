@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Wiksoft\ContaoLichessPgnviewerBundle\EventListener;
 
+use Contao\System;
+
 /**
  * Registrierung erfolgt klassisch über $GLOBALS['TL_HOOKS']['loadDataContainer']
  * in contao/config/config.php (analog zum Stil von
@@ -23,15 +25,30 @@ namespace Wiksoft\ContaoLichessPgnviewerBundle\EventListener;
  * tl_content-DCA tatsächlich geladen wird (Backend-Bearbeitung), und ist
  * damit der korrekte Ersatz. Für das Frontend-Modul lichessPgnviewerReader
  * gilt dasselbe mit der tl_module-DCA.
+ *
+ * Nachtrag: Die DCA wird auch im Frontend geladen. Deshalb prüft der Hook
+ * zusätzlich per ScopeMatcher, ob es eine Backend-Anfrage ist.
  */
 class LoadDataContainerListener
 {
     public function onLoadDataContainer(string $table): void
     {
-        if (!\in_array($table, ['tl_content', 'tl_module'], true)) {
+        if (!\in_array($table, ['tl_content', 'tl_module', 'tl_page'], true)) {
+            return;
+        }
+
+        // Die DCA wird auch im Frontend geladen (z. B. beim Rendern von
+        // Inhaltselementen) - die Backend-Dateien dort nicht einbinden.
+        $container = System::getContainer();
+        $request = $container->get('request_stack')->getCurrentRequest();
+
+        if (!$request || !$container->get('contao.routing.scope_matcher')->isBackendRequest($request)) {
             return;
         }
 
         $GLOBALS['TL_CSS'][] = 'bundles/wiksoftcontaolichesspgnviewer/backend.css';
+
+        // Vorschau der Figurensätze: Feldfarben sofort übernehmen (siehe backend.js)
+        $GLOBALS['TL_JAVASCRIPT'][] = 'bundles/wiksoftcontaolichesspgnviewer/backend.js';
     }
 }

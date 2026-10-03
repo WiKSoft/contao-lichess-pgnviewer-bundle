@@ -1,0 +1,20 @@
+/*
+ * Figurensatz "kiwen-suwi" für den lichess-pgn-viewer
+ * Figuren: neverRare, Lizenz: CC-BY-4.0 (siehe pieces/LICENSES.md)
+ * Quelle: https://github.com/lichess-org/lila/tree/master/public/piece/kiwen-suwi
+ *
+ * Wird nur geladen, wenn im Element/Modul dieser Figurensatz gewählt ist.
+ * Die Klasse .lpv-pieces--kiwen-suwi setzt das Template auf den .lpv-wrapper.
+ */
+.lpv-pieces--kiwen-suwi .cg-wrap piece.king.white { background-image: url("kiwen-suwi/wK.svg"); }
+.lpv-pieces--kiwen-suwi .cg-wrap piece.queen.white { background-image: url("kiwen-suwi/wQ.svg"); }
+.lpv-pieces--kiwen-suwi .cg-wrap piece.rook.white { background-image: url("kiwen-suwi/wR.svg"); }
+.lpv-pieces--kiwen-suwi .cg-wrap piece.bishop.white { background-image: url("kiwen-suwi/wB.svg"); }
+.lpv-pieces--kiwen-suwi .cg-wrap piece.knight.white { background-image: url("kiwen-suwi/wN.svg"); }
+.lpv-pieces--kiwen-suwi .cg-wrap piece.pawn.white { background-image: url("kiwen-suwi/wP.svg"); }
+.lpv-pieces--kiwen-suwi .cg-wrap piece.king.black { background-image: url("kiwen-suwi/bK.svg"); }
+.lpv-pieces--kiwen-suwi .cg-wrap piece.queen.black { background-image: url("kiwen-suwi/bQ.svg"); }
+.lpv-pieces--kiwen-suwi .cg-wrap piece.rook.black { background-image: url("kiwen-suwi/bR.svg"); }
+.lpv-pieces--kiwen-suwi .cg-wrap piece.bishop.black { background-image: url("kiwen-suwi/bB.svg"); }
+.lpv-pieces--kiwen-suwi .cg-wrap piece.knight.black { background-image: url("kiwen-suwi/bN.svg"); }
+.lpv-pieces--kiwen-suwi .cg-wrap piece.pawn.black { background-image: url("kiwen-suwi/bP.svg"); }

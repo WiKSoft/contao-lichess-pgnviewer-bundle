@@ -1,0 +1,20 @@
+/*
+ * Figurensatz "merida" für den lichess-pgn-viewer
+ * Figuren: Armando Hernandez Marroquin, Lizenz: GPL-2.0-or-later (siehe pieces/LICENSES.md)
+ * Quelle: https://github.com/lichess-org/lila/tree/master/public/piece/merida
+ *
+ * Wird nur geladen, wenn im Element/Modul dieser Figurensatz gewählt ist.
+ * Die Klasse .lpv-pieces--merida setzt das Template auf den .lpv-wrapper.
+ */
+.lpv-pieces--merida .cg-wrap piece.king.white { background-image: url("merida/wK.svg"); }
+.lpv-pieces--merida .cg-wrap piece.queen.white { background-image: url("merida/wQ.svg"); }
+.lpv-pieces--merida .cg-wrap piece.rook.white { background-image: url("merida/wR.svg"); }
+.lpv-pieces--merida .cg-wrap piece.bishop.white { background-image: url("merida/wB.svg"); }
+.lpv-pieces--merida .cg-wrap piece.knight.white { background-image: url("merida/wN.svg"); }
+.lpv-pieces--merida .cg-wrap piece.pawn.white { background-image: url("merida/wP.svg"); }
+.lpv-pieces--merida .cg-wrap piece.king.black { background-image: url("merida/bK.svg"); }
+.lpv-pieces--merida .cg-wrap piece.queen.black { background-image: url("merida/bQ.svg"); }
+.lpv-pieces--merida .cg-wrap piece.rook.black { background-image: url("merida/bR.svg"); }
+.lpv-pieces--merida .cg-wrap piece.bishop.black { background-image: url("merida/bB.svg"); }
+.lpv-pieces--merida .cg-wrap piece.knight.black { background-image: url("merida/bN.svg"); }
+.lpv-pieces--merida .cg-wrap piece.pawn.black { background-image: url("merida/bP.svg"); }

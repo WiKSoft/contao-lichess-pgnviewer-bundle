@@ -12,7 +12,16 @@
     {'tag': 'Annotator', 'key': 'annotator'},
     {'tag': 'Source', 'key': 'source'},
 ] %}
-<div class="{{ class }} block lpv-wrapper{% if movesLeft %} lpv-wrapper--moves-left{% endif %}{% if movesFlow %} lpv-wrapper--moves-flow{% endif %}{% block wrapperExtraClass %}{% endblock %}"{{ cssID|raw }}{% if style %} style="{{ style }}"{% endif %}>
+<div class="{{ class }} block lpv-wrapper{% if movesLeft %} lpv-wrapper--moves-left{% endif %}{% if movesFlow %} lpv-wrapper--moves-flow{% endif %}{% if pieceSet|default %} lpv-pieces--{{ pieceSet }}{% endif %}{% block wrapperExtraClass %}{% endblock %}"{{ cssID|raw }}{% if style %} style="{{ style }}"{% endif %}>
+    {#
+        Figurensatz (Feld "Figurensatz", siehe Board\PieceSets): Die Datei
+        überschreibt die Figurenbilder für .lpv-pieces--<satz>. Steht
+        außerhalb der Blöcke, damit eigene Vorlagen sie nicht verlieren.
+        Beim Standard "cburnett" gibt es keine eigene Datei.
+    #}
+    {% if pieceSetStylesheet|default %}
+        <link rel="stylesheet" href="{{ pieceSetStylesheet }}">
+    {% endif %}
     {% block headline %}
         {% if headline %}
             <{{ hl }}>{{ headline }}</{{ hl }}>

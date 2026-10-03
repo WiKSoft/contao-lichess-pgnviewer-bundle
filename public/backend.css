@@ -11,3 +11,154 @@
     max-height: 60vh;
     overflow-y: auto;
 }
+
+
+/*
+ * Feld "Figurensatz" (lpv_pieceSet, siehe src/Board/PieceSets.php): jede
+ * Option zeigt sechs Figuren des Satzes auf Brettfeldern, dazu Name, Urheber
+ * und Lizenz. Die Bilder sind Hintergründe aus public/pieces/<satz>/ und
+ * werden nur geladen, wenn das Feld im Formular angezeigt wird. Die Felder
+ * zeigen die Feldfarben des Elements (--lpv-sq-light/-dark).
+ */
+.lpv-pieceset-field .tl_radio_container > span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 4px 0;
+}
+.lpv-pieceset {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 12px;
+    vertical-align: middle;
+}
+.lpv-pieceset__preview {
+    /* Feldfarben: Standard, im Datensatz eingetragene Farben setzt
+       PieceSets::getBackendOptions() bzw. public/backend.js per style */
+    --lpv-sq-light: #f0d9b5;
+    --lpv-sq-dark: #b58863;
+    --lpv-sq: 26px;
+    display: inline-block;
+    width: calc(6 * var(--lpv-sq));
+    height: var(--lpv-sq);
+    border-radius: 2px;
+    background-repeat: no-repeat;
+    background-size: var(--lpv-sq) var(--lpv-sq);
+    background-color: var(--lpv-sq-light);
+}
+.lpv-pieceset__name {
+    min-width: 6.5em;
+    font-weight: 600;
+}
+.lpv-pieceset__license {
+    color: var(--info, #6c6c6c);
+}
+.lpv-pieceset__preview--cburnett {
+    background-image:
+        url("pieces/cburnett/wK.svg"),
+        url("pieces/cburnett/wQ.svg"),
+        url("pieces/cburnett/wN.svg"),
+        url("pieces/cburnett/bK.svg"),
+        url("pieces/cburnett/bQ.svg"),
+        url("pieces/cburnett/bN.svg"),
+        linear-gradient(90deg, var(--lpv-sq-light) 0 16.66%, var(--lpv-sq-dark) 16.66% 33.33%, var(--lpv-sq-light) 33.33% 50%, var(--lpv-sq-dark) 50% 66.66%, var(--lpv-sq-light) 66.66% 83.33%, var(--lpv-sq-dark) 83.33% 100%);
+    background-position: calc(0 * var(--lpv-sq)) 0, calc(1 * var(--lpv-sq)) 0, calc(2 * var(--lpv-sq)) 0, calc(3 * var(--lpv-sq)) 0, calc(4 * var(--lpv-sq)) 0, calc(5 * var(--lpv-sq)) 0, 0 0;
+    background-size: var(--lpv-sq) var(--lpv-sq), var(--lpv-sq) var(--lpv-sq), var(--lpv-sq) var(--lpv-sq), var(--lpv-sq) var(--lpv-sq), var(--lpv-sq) var(--lpv-sq), var(--lpv-sq) var(--lpv-sq), 100% 100%;
+}
+.lpv-pieceset__preview--merida {
+    background-image:
+        url("pieces/merida/wK.svg"),
+        url("pieces/merida/wQ.svg"),
+        url("pieces/merida/wN.svg"),
+        url("pieces/merida/bK.svg"),
+        url("pieces/merida/bQ.svg"),
+        url("pieces/merida/bN.svg"),
+        linear-gradient(90deg, var(--lpv-sq-light) 0 16.66%, var(--lpv-sq-dark) 16.66% 33.33%, var(--lpv-sq-light) 33.33% 50%, var(--lpv-sq-dark) 50% 66.66%, var(--lpv-sq-light) 66.66% 83.33%, var(--lpv-sq-dark) 83.33% 100%);
+    background-position: calc(0 * var(--lpv-sq)) 0, calc(1 * var(--lpv-sq)) 0, calc(2 * var(--lpv-sq)) 0, calc(3 * var(--lpv-sq)) 0, calc(4 * var(--lpv-sq)) 0, calc(5 * var(--lpv-sq)) 0, 0 0;
+    background-size: var(--lpv-sq) var(--lpv-sq), var(--lpv-sq) var(--lpv-sq), var(--lpv-sq) var(--lpv-sq), var(--lpv-sq) var(--lpv-sq), var(--lpv-sq) var(--lpv-sq), var(--lpv-sq) var(--lpv-sq), 100% 100%;
+}
+.lpv-pieceset__preview--mpchess {
+    background-image:
+        url("pieces/mpchess/wK.svg"),
+        url("pieces/mpchess/wQ.svg"),
+        url("pieces/mpchess/wN.svg"),
+        url("pieces/mpchess/bK.svg"),
+        url("pieces/mpchess/bQ.svg"),
+        url("pieces/mpchess/bN.svg"),
+        linear-gradient(90deg, var(--lpv-sq-light) 0 16.66%, var(--lpv-sq-dark) 16.66% 33.33%, var(--lpv-sq-light) 33.33% 50%, var(--lpv-sq-dark) 50% 66.66%, var(--lpv-sq-light) 66.66% 83.33%, var(--lpv-sq-dark) 83.33% 100%);
+    background-position: calc(0 * var(--lpv-sq)) 0, calc(1 * var(--lpv-sq)) 0, calc(2 * var(--lpv-sq)) 0, calc(3 * var(--lpv-sq)) 0, calc(4 * var(--lpv-sq)) 0, calc(5 * var(--lpv-sq)) 0, 0 0;
+    background-size: var(--lpv-sq) var(--lpv-sq), var(--lpv-sq) var(--lpv-sq), var(--lpv-sq) var(--lpv-sq), var(--lpv-sq) var(--lpv-sq), var(--lpv-sq) var(--lpv-sq), var(--lpv-sq) var(--lpv-sq), 100% 100%;
+}
+.lpv-pieceset__preview--chessnut {
+    background-image:
+        url("pieces/chessnut/wK.svg"),
+        url("pieces/chessnut/wQ.svg"),
+        url("pieces/chessnut/wN.svg"),
+        url("pieces/chessnut/bK.svg"),
+        url("pieces/chessnut/bQ.svg"),
+        url("pieces/chessnut/bN.svg"),
+        linear-gradient(90deg, var(--lpv-sq-light) 0 16.66%, var(--lpv-sq-dark) 16.66% 33.33%, var(--lpv-sq-light) 33.33% 50%, var(--lpv-sq-dark) 50% 66.66%, var(--lpv-sq-light) 66.66% 83.33%, var(--lpv-sq-dark) 83.33% 100%);
+    background-position: calc(0 * var(--lpv-sq)) 0, calc(1 * var(--lpv-sq)) 0, calc(2 * var(--lpv-sq)) 0, calc(3 * var(--lpv-sq)) 0, calc(4 * var(--lpv-sq)) 0, calc(5 * var(--lpv-sq)) 0, 0 0;
+    background-size: var(--lpv-sq) var(--lpv-sq), var(--lpv-sq) var(--lpv-sq), var(--lpv-sq) var(--lpv-sq), var(--lpv-sq) var(--lpv-sq), var(--lpv-sq) var(--lpv-sq), var(--lpv-sq) var(--lpv-sq), 100% 100%;
+}
+.lpv-pieceset__preview--fantasy {
+    background-image:
+        url("pieces/fantasy/wK.svg"),
+        url("pieces/fantasy/wQ.svg"),
+        url("pieces/fantasy/wN.svg"),
+        url("pieces/fantasy/bK.svg"),
+        url("pieces/fantasy/bQ.svg"),
+        url("pieces/fantasy/bN.svg"),
+        linear-gradient(90deg, var(--lpv-sq-light) 0 16.66%, var(--lpv-sq-dark) 16.66% 33.33%, var(--lpv-sq-light) 33.33% 50%, var(--lpv-sq-dark) 50% 66.66%, var(--lpv-sq-light) 66.66% 83.33%, var(--lpv-sq-dark) 83.33% 100%);
+    background-position: calc(0 * var(--lpv-sq)) 0, calc(1 * var(--lpv-sq)) 0, calc(2 * var(--lpv-sq)) 0, calc(3 * var(--lpv-sq)) 0, calc(4 * var(--lpv-sq)) 0, calc(5 * var(--lpv-sq)) 0, 0 0;
+    background-size: var(--lpv-sq) var(--lpv-sq), var(--lpv-sq) var(--lpv-sq), var(--lpv-sq) var(--lpv-sq), var(--lpv-sq) var(--lpv-sq), var(--lpv-sq) var(--lpv-sq), var(--lpv-sq) var(--lpv-sq), 100% 100%;
+}
+.lpv-pieceset__preview--celtic {
+    background-image:
+        url("pieces/celtic/wK.svg"),
+        url("pieces/celtic/wQ.svg"),
+        url("pieces/celtic/wN.svg"),
+        url("pieces/celtic/bK.svg"),
+        url("pieces/celtic/bQ.svg"),
+        url("pieces/celtic/bN.svg"),
+        linear-gradient(90deg, var(--lpv-sq-light) 0 16.66%, var(--lpv-sq-dark) 16.66% 33.33%, var(--lpv-sq-light) 33.33% 50%, var(--lpv-sq-dark) 50% 66.66%, var(--lpv-sq-light) 66.66% 83.33%, var(--lpv-sq-dark) 83.33% 100%);
+    background-position: calc(0 * var(--lpv-sq)) 0, calc(1 * var(--lpv-sq)) 0, calc(2 * var(--lpv-sq)) 0, calc(3 * var(--lpv-sq)) 0, calc(4 * var(--lpv-sq)) 0, calc(5 * var(--lpv-sq)) 0, 0 0;
+    background-size: var(--lpv-sq) var(--lpv-sq), var(--lpv-sq) var(--lpv-sq), var(--lpv-sq) var(--lpv-sq), var(--lpv-sq) var(--lpv-sq), var(--lpv-sq) var(--lpv-sq), var(--lpv-sq) var(--lpv-sq), 100% 100%;
+}
+.lpv-pieceset__preview--rhosgfx {
+    background-image:
+        url("pieces/rhosgfx/wK.svg"),
+        url("pieces/rhosgfx/wQ.svg"),
+        url("pieces/rhosgfx/wN.svg"),
+        url("pieces/rhosgfx/bK.svg"),
+        url("pieces/rhosgfx/bQ.svg"),
+        url("pieces/rhosgfx/bN.svg"),
+        linear-gradient(90deg, var(--lpv-sq-light) 0 16.66%, var(--lpv-sq-dark) 16.66% 33.33%, var(--lpv-sq-light) 33.33% 50%, var(--lpv-sq-dark) 50% 66.66%, var(--lpv-sq-light) 66.66% 83.33%, var(--lpv-sq-dark) 83.33% 100%);
+    background-position: calc(0 * var(--lpv-sq)) 0, calc(1 * var(--lpv-sq)) 0, calc(2 * var(--lpv-sq)) 0, calc(3 * var(--lpv-sq)) 0, calc(4 * var(--lpv-sq)) 0, calc(5 * var(--lpv-sq)) 0, 0 0;
+    background-size: var(--lpv-sq) var(--lpv-sq), var(--lpv-sq) var(--lpv-sq), var(--lpv-sq) var(--lpv-sq), var(--lpv-sq) var(--lpv-sq), var(--lpv-sq) var(--lpv-sq), var(--lpv-sq) var(--lpv-sq), 100% 100%;
+}
+.lpv-pieceset__preview--kiwen-suwi {
+    background-image:
+        url("pieces/kiwen-suwi/wK.svg"),
+        url("pieces/kiwen-suwi/wQ.svg"),
+        url("pieces/kiwen-suwi/wN.svg"),
+        url("pieces/kiwen-suwi/bK.svg"),
+        url("pieces/kiwen-suwi/bQ.svg"),
+        url("pieces/kiwen-suwi/bN.svg"),
+        linear-gradient(90deg, var(--lpv-sq-light) 0 16.66%, var(--lpv-sq-dark) 16.66% 33.33%, var(--lpv-sq-light) 33.33% 50%, var(--lpv-sq-dark) 50% 66.66%, var(--lpv-sq-light) 66.66% 83.33%, var(--lpv-sq-dark) 83.33% 100%);
+    background-position: calc(0 * var(--lpv-sq)) 0, calc(1 * var(--lpv-sq)) 0, calc(2 * var(--lpv-sq)) 0, calc(3 * var(--lpv-sq)) 0, calc(4 * var(--lpv-sq)) 0, calc(5 * var(--lpv-sq)) 0, 0 0;
+    background-size: var(--lpv-sq) var(--lpv-sq), var(--lpv-sq) var(--lpv-sq), var(--lpv-sq) var(--lpv-sq), var(--lpv-sq) var(--lpv-sq), var(--lpv-sq) var(--lpv-sq), var(--lpv-sq) var(--lpv-sq), 100% 100%;
+}
+.lpv-pieceset__preview--totoy {
+    background-image:
+        url("pieces/totoy/wK.svg"),
+        url("pieces/totoy/wQ.svg"),
+        url("pieces/totoy/wN.svg"),
+        url("pieces/totoy/bK.svg"),
+        url("pieces/totoy/bQ.svg"),
+        url("pieces/totoy/bN.svg"),
+        linear-gradient(90deg, var(--lpv-sq-light) 0 16.66%, var(--lpv-sq-dark) 16.66% 33.33%, var(--lpv-sq-light) 33.33% 50%, var(--lpv-sq-dark) 50% 66.66%, var(--lpv-sq-light) 66.66% 83.33%, var(--lpv-sq-dark) 83.33% 100%);
+    background-position: calc(0 * var(--lpv-sq)) 0, calc(1 * var(--lpv-sq)) 0, calc(2 * var(--lpv-sq)) 0, calc(3 * var(--lpv-sq)) 0, calc(4 * var(--lpv-sq)) 0, calc(5 * var(--lpv-sq)) 0, 0 0;
+    background-size: var(--lpv-sq) var(--lpv-sq), var(--lpv-sq) var(--lpv-sq), var(--lpv-sq) var(--lpv-sq), var(--lpv-sq) var(--lpv-sq), var(--lpv-sq) var(--lpv-sq), var(--lpv-sq) var(--lpv-sq), 100% 100%;
+}

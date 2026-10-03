@@ -1,0 +1,20 @@
+/*
+ * Figurensatz "fantasy" für den lichess-pgn-viewer
+ * Figuren: Maurizio Monge, Lizenz: MIT (siehe pieces/LICENSES.md)
+ * Quelle: https://github.com/lichess-org/lila/tree/master/public/piece/fantasy
+ *
+ * Wird nur geladen, wenn im Element/Modul dieser Figurensatz gewählt ist.
+ * Die Klasse .lpv-pieces--fantasy setzt das Template auf den .lpv-wrapper.
+ */
+.lpv-pieces--fantasy .cg-wrap piece.king.white { background-image: url("fantasy/wK.svg"); }
+.lpv-pieces--fantasy .cg-wrap piece.queen.white { background-image: url("fantasy/wQ.svg"); }
+.lpv-pieces--fantasy .cg-wrap piece.rook.white { background-image: url("fantasy/wR.svg"); }
+.lpv-pieces--fantasy .cg-wrap piece.bishop.white { background-image: url("fantasy/wB.svg"); }
+.lpv-pieces--fantasy .cg-wrap piece.knight.white { background-image: url("fantasy/wN.svg"); }
+.lpv-pieces--fantasy .cg-wrap piece.pawn.white { background-image: url("fantasy/wP.svg"); }
+.lpv-pieces--fantasy .cg-wrap piece.king.black { background-image: url("fantasy/bK.svg"); }
+.lpv-pieces--fantasy .cg-wrap piece.queen.black { background-image: url("fantasy/bQ.svg"); }
+.lpv-pieces--fantasy .cg-wrap piece.rook.black { background-image: url("fantasy/bR.svg"); }
+.lpv-pieces--fantasy .cg-wrap piece.bishop.black { background-image: url("fantasy/bB.svg"); }
+.lpv-pieces--fantasy .cg-wrap piece.knight.black { background-image: url("fantasy/bN.svg"); }
+.lpv-pieces--fantasy .cg-wrap piece.pawn.black { background-image: url("fantasy/bP.svg"); }

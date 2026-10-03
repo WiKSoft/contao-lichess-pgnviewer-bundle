@@ -1,0 +1,20 @@
+/*
+ * Figurensatz "chessnut" für den lichess-pgn-viewer
+ * Figuren: Alexis Luengas, Lizenz: Apache-2.0 (siehe pieces/LICENSES.md)
+ * Quelle: https://github.com/lichess-org/lila/tree/master/public/piece/chessnut
+ *
+ * Wird nur geladen, wenn im Element/Modul dieser Figurensatz gewählt ist.
+ * Die Klasse .lpv-pieces--chessnut setzt das Template auf den .lpv-wrapper.
+ */
+.lpv-pieces--chessnut .cg-wrap piece.king.white { background-image: url("chessnut/wK.svg"); }
+.lpv-pieces--chessnut .cg-wrap piece.queen.white { background-image: url("chessnut/wQ.svg"); }
+.lpv-pieces--chessnut .cg-wrap piece.rook.white { background-image: url("chessnut/wR.svg"); }
+.lpv-pieces--chessnut .cg-wrap piece.bishop.white { background-image: url("chessnut/wB.svg"); }
+.lpv-pieces--chessnut .cg-wrap piece.knight.white { background-image: url("chessnut/wN.svg"); }
+.lpv-pieces--chessnut .cg-wrap piece.pawn.white { background-image: url("chessnut/wP.svg"); }
+.lpv-pieces--chessnut .cg-wrap piece.king.black { background-image: url("chessnut/bK.svg"); }
+.lpv-pieces--chessnut .cg-wrap piece.queen.black { background-image: url("chessnut/bQ.svg"); }
+.lpv-pieces--chessnut .cg-wrap piece.rook.black { background-image: url("chessnut/bR.svg"); }
+.lpv-pieces--chessnut .cg-wrap piece.bishop.black { background-image: url("chessnut/bB.svg"); }
+.lpv-pieces--chessnut .cg-wrap piece.knight.black { background-image: url("chessnut/bN.svg"); }
+.lpv-pieces--chessnut .cg-wrap piece.pawn.black { background-image: url("chessnut/bP.svg"); }

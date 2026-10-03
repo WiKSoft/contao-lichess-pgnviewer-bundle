@@ -3,6 +3,65 @@
 Alle nennenswerten Änderungen an `wiksoft/contao-lichess-pgnviewer-bundle`.
 Die Versionsnummern folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.3.0] – 2026-10-03
+
+### Neu
+
+- **Vorgaben am Startpunkt der Website:** Die Darstellungs-Einstellungen
+  (Anzeige, Brett, Design, Menü, Breiten, Vorlage) lassen sich am Startpunkt
+  der Website vorgeben. Inhaltselemente und Reader-Module erben sie, solange
+  sie auf „Standard“ stehen. Einzelne Einstellungen lassen sich mit „Für alle
+  Elemente erzwingen“ sperren und gelten dann auch für Elemente mit eigenem
+  Wert. Im Element zeigt jede Einstellung, was „Standard“ gerade bedeutet.
+- **Figurensatz wählbar:** Inhaltselement und Reader-Modul haben unter
+  *Design-Einstellungen* das Feld „Figurensatz". Zur Wahl stehen neun Sätze
+  von lichess.org: cburnett (Standard), merida, mpchess, chessnut, fantasy,
+  celtic, rhosgfx, kiwen-suwi und totoy. Jede Option zeigt im Backend eine
+  kleine Vorschau mit Urheber und Lizenz. Im Frontend wird nur die CSS-Datei
+  des gewählten Satzes geladen, beim Standard gar keine.
+- Die Vorschau der Figurensätze zeigt die Feldfarben des Elements („Farbe
+  helle/dunkle Felder“), auch sofort beim Ändern der Farben vor dem Speichern
+  (`public/backend.js`).
+- Urheber und Lizenzen der Figurensätze stehen in
+  `public/pieces/LICENSES.md`, die Lizenztexte für MIT und Apache 2.0 in
+  `public/pieces/licenses/`.
+
+### Geändert
+
+- Ja/Nein-Einstellungen sind jetzt Auswahllisten „Standard / Ja / Nein“.
+- Das Feld „Dateiname für PGN-Download“ steht immer im Formular, nicht erst
+  nach Anhaken von „PGN herunterladen“.
+- Das Template-Feld heißt wie im Contao-Standard „Inhaltselement-Template“
+  bzw. im Reader-Modul „Modul-Template“.
+- Leere Felder (Feldfarben, Breiten, Animationsdauer) bedeuten „Vorgabe vom
+  Startpunkt, sonst eingebauter Standard“.
+
+### Behoben
+
+- Die Felder „Farbe helle Felder" und „Farbe dunkle Felder" hatten keine
+  Wirkung: Die Standardfarben in `public/lpv.css` waren direkt auf
+  `cg-board` gesetzt und überschrieben die vererbten Werte aus dem Element.
+  Sie stehen jetzt nur noch als Rückfallwert in `var()`.
+- `backend.css` wurde auch im Frontend eingebunden, weil die DCA von
+  `tl_content` dort ebenfalls geladen wird. Backend-Styles und -Skript werden
+  jetzt nur noch bei Backend-Anfragen eingebunden.
+
+### Dokumentation
+
+- README: Abschnitt „Figurensätze" mit Lizenzhinweisen und einer Anleitung,
+  wie man eigene Figurensätze per CSS nachrüstet.
+
+### Update-Hinweis
+
+- Nach dem Update **sofort** die Datenbank aktualisieren (Contao Manager:
+  *Datenbank aktualisieren*, oder `contao:migrate`). Bis dahin fehlen die
+  neuen Spalten am Startpunkt, und Seiten mit Viewer melden einen Fehler.
+- Die Migration „Einstellungen auf Standard umstellen“ wandelt die
+  Ja/Nein-Felder um und setzt Werte, die dem bisherigen Standard entsprechen,
+  auf „Standard“. Die Darstellung ändert sich dadurch nicht, solange am
+  Startpunkt nichts vorgegeben ist. Abweichende Werte bleiben als eigene
+  Werte der Elemente erhalten.
+
 ## [1.2.0] – 2026-10-01
 
 ### Neu

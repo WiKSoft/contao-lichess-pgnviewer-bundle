@@ -13,8 +13,10 @@ use Contao\Input;
 use Contao\PageModel;
 use Contao\StringUtil;
 use Contao\System;
+use Wiksoft\ContaoLichessPgnviewerBundle\Board\PieceSets;
 use Wiksoft\ContaoLichessPgnviewerBundle\Pgn\DbChessAvailability;
 use Wiksoft\ContaoLichessPgnviewerBundle\Pgn\PgnSplitter;
+use Wiksoft\ContaoLichessPgnviewerBundle\Settings\ViewerSettings;
 
 /**
  * Content-Element "lichessPgnviewer" (registriert in contao/config/config.php
@@ -60,6 +62,13 @@ class ContentLichessPgnviewer extends ContentElement
 
     protected function compile(): void
     {
+        // Wirksame Einstellungen: eigener Wert, sonst Vorgabe am Startpunkt
+        // der Website, sonst eingebauter Standard (siehe ViewerSettings).
+        // Danach steht hier überall die bisherige Form ('1'/'' für Ja/Nein).
+        foreach (ViewerSettings::resolve('tl_content', $this->arrData, ViewerSettings::getRootForCurrentPage()) as $field => $value) {
+            $this->$field = $value;
+        }
+
         if ($this->lpv_template) {
             $this->Template = new FrontendTemplate($this->lpv_template);
         }
@@ -142,6 +151,12 @@ class ContentLichessPgnviewer extends ContentElement
         $this->Template->movesLeft = 'l' === (string) $this->lpv_showMoves;
         $this->Template->movesFlow = 'f' === (string) $this->lpv_movesLayout;
         $this->Template->designStyle = $this->buildDesignStyle();
+        // Figurensatz: Klasse .lpv-pieces--<satz> am Wrapper, CSS nur für Nicht-Standard-Sätze
+        $this->Template->pieceSet = PieceSets::normalize($this->lpv_pieceSet);
+        $this->Template->pieceSetStylesheet = PieceSets::getStylesheet(
+            $this->Template->pieceSet,
+            System::getContainer()->getParameter('kernel.project_dir'),
+        );
 
         $options = $this->buildViewerOptions();
         $this->Template->options = $options;

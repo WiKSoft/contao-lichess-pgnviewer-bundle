@@ -22,14 +22,19 @@
  * Kontrastverhältnis ca. 2,3:1.
  */
 .lpv-wrapper cg-board {
-    --lpv-square-light: #f0d9b5;
-    --lpv-square-dark: #b58863;
+    /*
+     * Die Farben aus dem Element (--lpv-square-light/-dark) stehen im
+     * style-Attribut des äußeren .lpv-root und werden hierher vererbt. Die
+     * Standardfarben deshalb nur als Rückfallwert in var(), nicht als
+     * eigene Deklaration auf cg-board - die würde die vererbten Werte
+     * überschreiben.
+     */
     background-color: transparent;
     background-image: conic-gradient(
-        var(--lpv-square-dark) 0deg 90deg,
-        var(--lpv-square-light) 90deg 180deg,
-        var(--lpv-square-dark) 180deg 270deg,
-        var(--lpv-square-light) 270deg 360deg
+        var(--lpv-square-dark, #b58863) 0deg 90deg,
+        var(--lpv-square-light, #f0d9b5) 90deg 180deg,
+        var(--lpv-square-dark, #b58863) 180deg 270deg,
+        var(--lpv-square-light, #f0d9b5) 270deg 360deg
     );
     background-size: 25% 25%;
 }

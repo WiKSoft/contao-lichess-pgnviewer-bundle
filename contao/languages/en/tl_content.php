@@ -96,12 +96,13 @@ $GLOBALS['TL_LANG']['tl_content']['lpv_drawArrows'] = ['Allow arrows/markers', '
 $GLOBALS['TL_LANG']['tl_content']['lpv_coordinates'] = ['Coordinates on the edge', 'Shows the square coordinates (a-h, 1-8) on the edge of the board.'];
 $GLOBALS['TL_LANG']['tl_content']['lpv_highlightLastMove'] = ['Highlight last move', 'Marks the origin and destination squares of the last move shown.'];
 $GLOBALS['TL_LANG']['tl_content']['lpv_highlightCheck'] = ['Highlight check', 'Marks the king\'s square when in check.'];
-$GLOBALS['TL_LANG']['tl_content']['lpv_animationDuration'] = ['Animation duration (ms)', 'Duration of the move animation in milliseconds. 0 disables the animation.'];
+$GLOBALS['TL_LANG']['tl_content']['lpv_animationDuration'] = ['Animation duration (ms)', 'Duration of the move animation in milliseconds. 0 disables the animation. Empty = default from the website root, otherwise 250.'];
 $GLOBALS['TL_LANG']['tl_content']['lpv_blockTouchScroll'] = ['Block touch scrolling', 'Prevents the page from scrolling on touch devices while using the board.'];
 
 $GLOBALS['TL_LANG']['tl_content']['lpv_design_legend'] = 'Design settings';
-$GLOBALS['TL_LANG']['tl_content']['lpv_squareLightColorHex'] = ['Light square colour', 'Hex colour code without #, e.g. f0d9b5. Empty = default colour (f0d9b5).'];
-$GLOBALS['TL_LANG']['tl_content']['lpv_squareDarkColorHex'] = ['Dark square colour', 'Hex colour code without #, e.g. b58863. Empty = default colour (b58863).'];
+$GLOBALS['TL_LANG']['tl_content']['lpv_squareLightColorHex'] = ['Light square colour', 'Hex colour code without #, e.g. f0d9b5. Empty = default from the website root, otherwise f0d9b5.'];
+$GLOBALS['TL_LANG']['tl_content']['lpv_squareDarkColorHex'] = ['Dark square colour', 'Hex colour code without #, e.g. b58863. Empty = default from the website root, otherwise b58863.'];
+$GLOBALS['TL_LANG']['tl_content']['lpv_pieceSet'] = ['Piece set', 'Look of the pieces on the board. For every set except rhosgfx (CC0), credit the author and licence on the website, e.g. in the imprint. Details in public/pieces/LICENSES.md of the extension.'];
 
 $GLOBALS['TL_LANG']['tl_content']['lpv_menu_legend'] = 'Board menu settings';
 $GLOBALS['TL_LANG']['tl_content']['lpv_menuGetPgn'] = ['Menu item "Download PGN"', 'Shows a download link for the current game in the viewer menu.'];
@@ -111,7 +112,7 @@ $GLOBALS['TL_LANG']['tl_content']['lpv_menuAnalysisBoard'] = ['Menu item "Analys
 $GLOBALS['TL_LANG']['tl_content']['lpv_lichessLink'] = ['lichess.org link', 'Detects lichess games in the PGN and links players/game to lichess.org.'];
 
 $GLOBALS['TL_LANG']['tl_content']['lpv_layout_legend'] = 'Layout settings';
-$GLOBALS['TL_LANG']['tl_content']['lpv_width'] = ['Width', 'CSS width of the viewer, e.g. 480px or 100%. Empty = full width.'];
-$GLOBALS['TL_LANG']['tl_content']['lpv_boardWidth'] = ['Board width', 'Maximum width of the chessboard, e.g. 480px. Only takes effect if "Show move list" is set to "Right" or "Left of the board". If space runs short, the board gets narrower and the move list keeps at least 232px; the board also adapts to the window height. For other move list positions, please use "Width" instead. Empty = board as large as space and window height allow.'];
+$GLOBALS['TL_LANG']['tl_content']['lpv_width'] = ['Width', 'CSS width of the viewer, e.g. 480px or 100%. Empty = default from the website root, otherwise full width.'];
+$GLOBALS['TL_LANG']['tl_content']['lpv_boardWidth'] = ['Board width', 'Maximum width of the chessboard, e.g. 480px. Only takes effect if "Show move list" is set to "Right" or "Left of the board". If space runs short, the board gets narrower and the move list keeps at least 232px; the board also adapts to the window height. For other move list positions, please use "Width" instead. Empty = default from the website root, otherwise as large as space and window height allow.'];
 $GLOBALS['TL_LANG']['tl_content']['lpv_cssClass'] = ['CSS class(es)', 'Additional CSS classes for the root element of the viewer.'];
-$GLOBALS['TL_LANG']['tl_content']['lpv_template'] = ['Custom template', 'Alternative Twig template for the output (e.g. for custom sorting/labelling of the game selection).'];
+$GLOBALS['TL_LANG']['tl_content']['lpv_template'] = ['Content element template', 'Here you can select the content element template.'];

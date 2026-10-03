@@ -1,0 +1,20 @@
+/*
+ * Figurensatz "celtic" für den lichess-pgn-viewer
+ * Figuren: Maurizio Monge, Lizenz: MIT (siehe pieces/LICENSES.md)
+ * Quelle: https://github.com/lichess-org/lila/tree/master/public/piece/celtic
+ *
+ * Wird nur geladen, wenn im Element/Modul dieser Figurensatz gewählt ist.
+ * Die Klasse .lpv-pieces--celtic setzt das Template auf den .lpv-wrapper.
+ */
+.lpv-pieces--celtic .cg-wrap piece.king.white { background-image: url("celtic/wK.svg"); }
+.lpv-pieces--celtic .cg-wrap piece.queen.white { background-image: url("celtic/wQ.svg"); }
+.lpv-pieces--celtic .cg-wrap piece.rook.white { background-image: url("celtic/wR.svg"); }
+.lpv-pieces--celtic .cg-wrap piece.bishop.white { background-image: url("celtic/wB.svg"); }
+.lpv-pieces--celtic .cg-wrap piece.knight.white { background-image: url("celtic/wN.svg"); }
+.lpv-pieces--celtic .cg-wrap piece.pawn.white { background-image: url("celtic/wP.svg"); }
+.lpv-pieces--celtic .cg-wrap piece.king.black { background-image: url("celtic/bK.svg"); }
+.lpv-pieces--celtic .cg-wrap piece.queen.black { background-image: url("celtic/bQ.svg"); }
+.lpv-pieces--celtic .cg-wrap piece.rook.black { background-image: url("celtic/bR.svg"); }
+.lpv-pieces--celtic .cg-wrap piece.bishop.black { background-image: url("celtic/bB.svg"); }
+.lpv-pieces--celtic .cg-wrap piece.knight.black { background-image: url("celtic/bN.svg"); }
+.lpv-pieces--celtic .cg-wrap piece.pawn.black { background-image: url("celtic/bP.svg"); }

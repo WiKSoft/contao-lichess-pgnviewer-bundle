@@ -1,0 +1,20 @@
+/*
+ * Figurensatz "rhosgfx" für den lichess-pgn-viewer
+ * Figuren: RhosGFX, Lizenz: CC0-1.0 (siehe pieces/LICENSES.md)
+ * Quelle: https://github.com/lichess-org/lila/tree/master/public/piece/rhosgfx
+ *
+ * Wird nur geladen, wenn im Element/Modul dieser Figurensatz gewählt ist.
+ * Die Klasse .lpv-pieces--rhosgfx setzt das Template auf den .lpv-wrapper.
+ */
+.lpv-pieces--rhosgfx .cg-wrap piece.king.white { background-image: url("rhosgfx/wK.svg"); }
+.lpv-pieces--rhosgfx .cg-wrap piece.queen.white { background-image: url("rhosgfx/wQ.svg"); }
+.lpv-pieces--rhosgfx .cg-wrap piece.rook.white { background-image: url("rhosgfx/wR.svg"); }
+.lpv-pieces--rhosgfx .cg-wrap piece.bishop.white { background-image: url("rhosgfx/wB.svg"); }
+.lpv-pieces--rhosgfx .cg-wrap piece.knight.white { background-image: url("rhosgfx/wN.svg"); }
+.lpv-pieces--rhosgfx .cg-wrap piece.pawn.white { background-image: url("rhosgfx/wP.svg"); }
+.lpv-pieces--rhosgfx .cg-wrap piece.king.black { background-image: url("rhosgfx/bK.svg"); }
+.lpv-pieces--rhosgfx .cg-wrap piece.queen.black { background-image: url("rhosgfx/bQ.svg"); }
+.lpv-pieces--rhosgfx .cg-wrap piece.rook.black { background-image: url("rhosgfx/bR.svg"); }
+.lpv-pieces--rhosgfx .cg-wrap piece.bishop.black { background-image: url("rhosgfx/bB.svg"); }
+.lpv-pieces--rhosgfx .cg-wrap piece.knight.black { background-image: url("rhosgfx/bN.svg"); }
+.lpv-pieces--rhosgfx .cg-wrap piece.pawn.black { background-image: url("rhosgfx/bP.svg"); }

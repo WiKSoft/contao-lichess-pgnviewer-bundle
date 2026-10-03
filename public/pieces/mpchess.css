@@ -1,0 +1,20 @@
+/*
+ * Figurensatz "mpchess" für den lichess-pgn-viewer
+ * Figuren: Maxime Chupin, Lizenz: GPL-3.0-or-later (siehe pieces/LICENSES.md)
+ * Quelle: https://github.com/lichess-org/lila/tree/master/public/piece/mpchess
+ *
+ * Wird nur geladen, wenn im Element/Modul dieser Figurensatz gewählt ist.
+ * Die Klasse .lpv-pieces--mpchess setzt das Template auf den .lpv-wrapper.
+ */
+.lpv-pieces--mpchess .cg-wrap piece.king.white { background-image: url("mpchess/wK.svg"); }
+.lpv-pieces--mpchess .cg-wrap piece.queen.white { background-image: url("mpchess/wQ.svg"); }
+.lpv-pieces--mpchess .cg-wrap piece.rook.white { background-image: url("mpchess/wR.svg"); }
+.lpv-pieces--mpchess .cg-wrap piece.bishop.white { background-image: url("mpchess/wB.svg"); }
+.lpv-pieces--mpchess .cg-wrap piece.knight.white { background-image: url("mpchess/wN.svg"); }
+.lpv-pieces--mpchess .cg-wrap piece.pawn.white { background-image: url("mpchess/wP.svg"); }
+.lpv-pieces--mpchess .cg-wrap piece.king.black { background-image: url("mpchess/bK.svg"); }
+.lpv-pieces--mpchess .cg-wrap piece.queen.black { background-image: url("mpchess/bQ.svg"); }
+.lpv-pieces--mpchess .cg-wrap piece.rook.black { background-image: url("mpchess/bR.svg"); }
+.lpv-pieces--mpchess .cg-wrap piece.bishop.black { background-image: url("mpchess/bB.svg"); }
+.lpv-pieces--mpchess .cg-wrap piece.knight.black { background-image: url("mpchess/bN.svg"); }
+.lpv-pieces--mpchess .cg-wrap piece.pawn.black { background-image: url("mpchess/bP.svg"); }

@@ -1,0 +1,20 @@
+/*
+ * Figurensatz "totoy" für den lichess-pgn-viewer
+ * Figuren: Kosal Sen, Lizenz: CC-BY-4.0 (siehe pieces/LICENSES.md)
+ * Quelle: https://github.com/lichess-org/lila/tree/master/public/piece/totoy
+ *
+ * Wird nur geladen, wenn im Element/Modul dieser Figurensatz gewählt ist.
+ * Die Klasse .lpv-pieces--totoy setzt das Template auf den .lpv-wrapper.
+ */
+.lpv-pieces--totoy .cg-wrap piece.king.white { background-image: url("totoy/wK.svg"); }
+.lpv-pieces--totoy .cg-wrap piece.queen.white { background-image: url("totoy/wQ.svg"); }
+.lpv-pieces--totoy .cg-wrap piece.rook.white { background-image: url("totoy/wR.svg"); }
+.lpv-pieces--totoy .cg-wrap piece.bishop.white { background-image: url("totoy/wB.svg"); }
+.lpv-pieces--totoy .cg-wrap piece.knight.white { background-image: url("totoy/wN.svg"); }
+.lpv-pieces--totoy .cg-wrap piece.pawn.white { background-image: url("totoy/wP.svg"); }
+.lpv-pieces--totoy .cg-wrap piece.king.black { background-image: url("totoy/bK.svg"); }
+.lpv-pieces--totoy .cg-wrap piece.queen.black { background-image: url("totoy/bQ.svg"); }
+.lpv-pieces--totoy .cg-wrap piece.rook.black { background-image: url("totoy/bR.svg"); }
+.lpv-pieces--totoy .cg-wrap piece.bishop.black { background-image: url("totoy/bB.svg"); }
+.lpv-pieces--totoy .cg-wrap piece.knight.black { background-image: url("totoy/bN.svg"); }
+.lpv-pieces--totoy .cg-wrap piece.pawn.black { background-image: url("totoy/bP.svg"); }

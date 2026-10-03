@@ -27,3 +27,10 @@ $GLOBALS['TL_LANG']['MSC']['lpv_round_prev'] = 'Previous round';
 $GLOBALS['TL_LANG']['MSC']['lpv_round_next'] = 'Next round';
 
 $GLOBALS['TL_LANG']['MSC']['lpv_game_nav_label'] = 'Game';
+
+// Defaults at the website root (see Settings\ViewerSettings)
+$GLOBALS['TL_LANG']['MSC']['lpv_yesNo'] = ['y' => 'Yes', 'n' => 'No'];
+$GLOBALS['TL_LANG']['MSC']['lpv_inherit'] = 'Default (%s)';
+$GLOBALS['TL_LANG']['MSC']['lpv_inheritShort'] = 'Default';
+$GLOBALS['TL_LANG']['MSC']['lpv_inheritBuiltin'] = 'Extension default (%s)';
+$GLOBALS['TL_LANG']['MSC']['lpv_locked'] = 'Fixed at the website root: %s. It can only be changed there.';
