@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Wiksoft\ContaoLichessPgnviewerBundle\ContentElement;
 
+use Contao\BackendTemplate;
 use Contao\ContentElement;
 use Contao\Database;
 use Contao\File;
@@ -59,6 +60,26 @@ class ContentLichessPgnviewer extends ContentElement
     private const SORTABLE_FIELDS = ['event', 'site', 'date', 'round', 'result', 'white', 'black', 'eco', 'whiteelo', 'blackelo', 'annotator', 'source'];
 
     protected $strTemplate = 'ce_lichessPgnviewer';
+
+    /**
+     * Im Backend (z. B. in der Liste der Inhaltselemente eines Artikels) nur
+     * den Contao-Standard-Platzhalter (be_wildcard) statt des vollständigen
+     * Viewers ausgeben - wie beim Reader-Modul.
+     */
+    public function generate(): string
+    {
+        $request = System::getContainer()->get('request_stack')->getCurrentRequest();
+
+        if ($request && System::getContainer()->get('contao.routing.scope_matcher')->isBackendRequest($request)) {
+            $objTemplate = new BackendTemplate('be_wildcard');
+            $objTemplate->wildcard = '### ' . mb_strtoupper($GLOBALS['TL_LANG']['CTE']['lichessPgnviewer'][0] ?? 'lichess PGN-Viewer') . ' ###';
+            $objTemplate->title = $this->headline;
+
+            return $objTemplate->parse();
+        }
+
+        return parent::generate();
+    }
 
     protected function compile(): void
     {

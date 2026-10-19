@@ -3,6 +3,16 @@
 Alle nennenswerten Änderungen an `wiksoft/contao-lichess-pgnviewer-bundle`.
 Die Versionsnummern folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.3.2] – 2026-10-19
+
+### Geändert
+
+- Im Backend (z. B. in der Liste der Inhaltselemente eines Artikels) zeigt
+  das Inhaltselement nur noch den Contao-Standard-Platzhalter (`be_wildcard`,
+  „### SCHACHPARTIE (LICHESS PGN-VIEWER) ###“, darüber die Überschrift) statt
+  des vollständigen, bedienbaren Viewers. Das Reader-Modul verhielt sich schon
+  so.
+
 ## [1.3.1] – 2026-10-19
 
 ### Behoben
