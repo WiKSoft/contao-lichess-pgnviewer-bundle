@@ -3,6 +3,15 @@
 Alle nennenswerten Änderungen an `wiksoft/contao-lichess-pgnviewer-bundle`.
 Die Versionsnummern folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.3.1] – 2026-10-19
+
+### Behoben
+
+- Das Inhaltselement hatte keinen Namen in `TL_LANG.CTE`. Erweiterungen, die
+  den Elementtyp darüber anzeigen (z. B. „Direct Content Elements“), lösten
+  deshalb die Warnung „Undefined array key "lichessPgnviewer"“ aus. Name und
+  Gruppe stehen jetzt in `default.php` (Deutsch und Englisch).
+
 ## [1.3.0] – 2026-10-03
 
 ### Neu

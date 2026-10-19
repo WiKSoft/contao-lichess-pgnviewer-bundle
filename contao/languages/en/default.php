@@ -34,3 +34,8 @@ $GLOBALS['TL_LANG']['MSC']['lpv_inherit'] = 'Default (%s)';
 $GLOBALS['TL_LANG']['MSC']['lpv_inheritShort'] = 'Default';
 $GLOBALS['TL_LANG']['MSC']['lpv_inheritBuiltin'] = 'Extension default (%s)';
 $GLOBALS['TL_LANG']['MSC']['lpv_locked'] = 'Fixed at the website root: %s. It can only be changed there.';
+
+// Content element name (type selection in the back end; extensions such as
+// "Direct Content Elements" read it from TL_LANG.CTE)
+$GLOBALS['TL_LANG']['CTE']['schach'] ??= 'Chess elements';
+$GLOBALS['TL_LANG']['CTE']['lichessPgnviewer'] = ['Chess game (lichess PGN viewer)', 'Allows replaying one or more chess games in the front end with the lichess.org PGN viewer.'];

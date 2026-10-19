@@ -34,3 +34,8 @@ $GLOBALS['TL_LANG']['MSC']['lpv_inherit'] = 'Standard (%s)';
 $GLOBALS['TL_LANG']['MSC']['lpv_inheritShort'] = 'Standard';
 $GLOBALS['TL_LANG']['MSC']['lpv_inheritBuiltin'] = 'Standard der Erweiterung (%s)';
 $GLOBALS['TL_LANG']['MSC']['lpv_locked'] = 'Am Startpunkt der Website fest vorgegeben: %s. Ändern lässt sich das nur dort.';
+
+// Name des Inhaltselements (Typauswahl im Backend, Erweiterungen wie
+// "Direct Content Elements" lesen ihn aus TL_LANG.CTE)
+$GLOBALS['TL_LANG']['CTE']['schach'] ??= 'Schach-Elemente';
+$GLOBALS['TL_LANG']['CTE']['lichessPgnviewer'] = ['Schachpartie (lichess PGN-Viewer)', 'Ermöglicht das Nachspielen einer oder mehrerer Schachpartien im Frontend mit dem lichess.org PGN-Viewer.'];
