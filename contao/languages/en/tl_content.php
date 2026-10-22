@@ -93,6 +93,7 @@ $GLOBALS['TL_LANG']['tl_content']['lpv_initialVariation'] = ['Variation', 'Numbe
 $GLOBALS['TL_LANG']['tl_content']['lpv_initialVariationDepth'] = ['Depth in variation', 'Number of half-moves within the variation after which the viewer starts (1 = first move of the variation). If the variation is shorter, its last move is shown.'];
 
 $GLOBALS['TL_LANG']['tl_content']['lpv_drawArrows'] = ['Allow arrows/markers', 'Allows visitors to draw arrows on the board with the mouse.'];
+$GLOBALS['TL_LANG']['tl_content']['lpv_showGlyphs'] = ['Annotation glyphs on the board', 'Shows annotation glyphs such as !, ?, !! or ?! as a badge on the destination square of the move, like on lichess.org. For games ending in threefold repetition, the repetitions are marked as well.'];
 $GLOBALS['TL_LANG']['tl_content']['lpv_coordinates'] = ['Coordinates on the edge', 'Shows the square coordinates (a-h, 1-8) on the edge of the board.'];
 $GLOBALS['TL_LANG']['tl_content']['lpv_highlightLastMove'] = ['Highlight last move', 'Marks the origin and destination squares of the last move shown.'];
 $GLOBALS['TL_LANG']['tl_content']['lpv_highlightCheck'] = ['Highlight check', 'Marks the king\'s square when in check.'];

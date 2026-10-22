@@ -28,7 +28,7 @@ $GLOBALS['TL_DCA']['tl_content']['palettes']['lichessPgnviewer'] = '
 	{type_legend},type,headline;
 	{lpv_source_legend},lpv_source;
 	{lpv_display_legend},lpv_showPlayers,lpv_showClocks,lpv_showMoves,lpv_movesLayout,lpv_showControls,lpv_scrollToMove,lpv_keyboardToMove,lpv_showGameInfo;
-	{lpv_board_legend},lpv_orientation,lpv_initialPlyMode,lpv_drawArrows,lpv_coordinates,lpv_highlightLastMove,lpv_highlightCheck,lpv_animationDuration,lpv_blockTouchScroll;
+	{lpv_board_legend},lpv_orientation,lpv_initialPlyMode,lpv_drawArrows,lpv_showGlyphs,lpv_coordinates,lpv_highlightLastMove,lpv_highlightCheck,lpv_animationDuration,lpv_blockTouchScroll;
 	{lpv_design_legend},lpv_squareLightColorHex,lpv_squareDarkColorHex,lpv_pieceSet;
 	{lpv_menu_legend},lpv_menuGetPgn,lpv_menuGetPgnFileName,lpv_menuPractice,lpv_menuAnalysisBoard,lpv_lichessLink;
 	{lpv_layout_legend},lpv_width,lpv_boardWidth,lpv_cssClass;
@@ -278,6 +278,15 @@ $GLOBALS['TL_DCA']['tl_content']['fields']['lpv_drawArrows'] = [
     'exclude' => true,
     'inputType' => 'checkbox',
     'eval' => ['tl_class' => 'w50 m12 clr'],
+    'sql' => "char(1) NOT NULL default '1'",
+];
+
+$GLOBALS['TL_DCA']['tl_content']['fields']['lpv_showGlyphs'] = [
+    'label' => &$GLOBALS['TL_LANG']['tl_content']['lpv_showGlyphs'],
+    'default' => '1',
+    'exclude' => true,
+    'inputType' => 'checkbox',
+    'eval' => ['tl_class' => 'w50 m12'],
     'sql' => "char(1) NOT NULL default '1'",
 ];
 

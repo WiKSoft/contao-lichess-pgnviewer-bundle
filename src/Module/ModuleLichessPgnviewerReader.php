@@ -310,7 +310,7 @@ class ModuleLichessPgnviewerReader extends Module
         $assetsDir = $projectDir . '/public' . self::ASSETS_PATH;
 
         $mtimes = [];
-        foreach (['lichess-pgn-viewer-init.js', 'lichess-pgn-viewer.css'] as $file) {
+        foreach (['lichess-pgn-viewer-init.js', 'lichess-pgn-viewer.min.js', 'lichess-pgn-viewer.css'] as $file) {
             $path = $assetsDir . '/' . $file;
             if (is_file($path)) {
                 $mtimes[] = filemtime($path);
@@ -459,6 +459,8 @@ class ModuleLichessPgnviewerReader extends Module
             'initialPly' => $initialPly,
             'initialVariation' => $initialVariation,
             'drawArrows' => (bool) $this->lpv_drawArrows,
+            // Bewertungszeichen (!, ?, !! ...) am Zielfeld des Zugs (ab lichess-pgn-viewer 2.7), 0 = aus
+            'maxGlyphs' => $this->lpv_showGlyphs ? 4 : 0,
             'menu' => [
                 'getPgn' => [
                     'enabled' => (bool) $this->lpv_menuGetPgn,

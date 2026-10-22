@@ -93,6 +93,7 @@ $GLOBALS['TL_LANG']['tl_content']['lpv_initialVariation'] = ['Variante', 'Nummer
 $GLOBALS['TL_LANG']['tl_content']['lpv_initialVariationDepth'] = ['Tiefe in der Variante', 'Anzahl der Halbzüge innerhalb der Variante, nach denen der Viewer startet (1 = erster Zug der Variante). Ist die Variante kürzer, wird ihr letzter Zug gezeigt.'];
 
 $GLOBALS['TL_LANG']['tl_content']['lpv_drawArrows'] = ['Pfeile/Markierungen erlauben', 'Erlaubt Besuchern, mit der Maus Pfeile auf das Brett zu zeichnen.'];
+$GLOBALS['TL_LANG']['tl_content']['lpv_showGlyphs'] = ['Bewertungszeichen auf dem Brett', 'Zeigt Bewertungszeichen wie !, ?, !! oder ?! zusätzlich als Plakette am Zielfeld des Zugs, wie auf lichess.org. Bei Partien, die mit dreifacher Stellungswiederholung enden, werden auch die Wiederholungen markiert.'];
 $GLOBALS['TL_LANG']['tl_content']['lpv_coordinates'] = ['Koordinaten am Rand', 'Zeigt die Feldkoordinaten (a-h, 1-8) am Brettrand an.'];
 $GLOBALS['TL_LANG']['tl_content']['lpv_highlightLastMove'] = ['Letzten Zug hervorheben', 'Markiert Start- und Zielfeld des zuletzt gezeigten Zuges.'];
 $GLOBALS['TL_LANG']['tl_content']['lpv_highlightCheck'] = ['Schach hervorheben', 'Markiert das Feld des Königs bei Schach.'];

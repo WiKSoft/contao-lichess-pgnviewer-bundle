@@ -25,6 +25,7 @@ Einstellungen.
   - Brettausrichtung und Startposition: Grundstellung, letzter Zug, ein
     bestimmter Halbzug oder ein Zug in einer Nebenvariante
   - Pfeile, Koordinaten und Hervorhebungen
+  - Bewertungszeichen (!, ?, !! …) als Plakette am Zielfeld des Zugs
   - Animation
   - Menüpunkte (PGN herunterladen, gegen den Computer üben, Analysebrett, Link
     zu lichess.org)
@@ -227,7 +228,7 @@ schreibgeschützt. Der eigene Wert bleibt gespeichert und gilt wieder, sobald
 die Sperre aufgehoben wird.
 
 Vorgeben lassen sich: Spieler, Uhren, Zugliste (Position und Notation),
-Steuerung, Mitscrollen, Tastatur, Partiedaten, Pfeile, Koordinaten,
+Steuerung, Mitscrollen, Tastatur, Partiedaten, Pfeile, Bewertungszeichen, Koordinaten,
 Hervorhebungen, Animation, Touch-Scrollen, Feldfarben, Figurensatz,
 Menüpunkte, Breite, Brettbreite und die Vorlage des Inhaltselements. Nur im
 Element einstellbar bleiben alles, was von der einzelnen Partie abhängt:
@@ -359,7 +360,7 @@ Im eigenen Theme lassen sich unter anderem folgende Punkte anpassen:
 ## Änderungen am lichess-pgn-viewer-Code
 
 Eingebunden sind ausschließlich die unveränderten Originaldateien
-`lichess-pgn-viewer.min.js` und `lichess-pgn-viewer.css` (Version 2.6.4).
+`lichess-pgn-viewer.min.js` und `lichess-pgn-viewer.css` (Version 2.7.3).
 Die gesamte Contao-spezifische Logik liegt in einem eigenen Init-Script
 (`public/lichess-pgn-viewer/lichess-pgn-viewer-init.js`). Es
 
@@ -414,7 +415,7 @@ Die gesamte Contao-spezifische Logik liegt in einem eigenen Init-Script
 GPL-3.0-or-later, siehe [LICENSE](LICENSE).
 
 Die Erweiterung liefert den
-[lichess-pgn-viewer](https://github.com/lichess-org/pgn-viewer) (Version 2.6.4,
+[lichess-pgn-viewer](https://github.com/lichess-org/pgn-viewer) (Version 2.7.3,
 © Lichess Team und Mitwirkende) mit aus, der unter GPL-3.0-or-later steht. Die
 Erweiterung steht deshalb als Ganzes ebenfalls unter dieser Lizenz. Herkunft
 und Quellcode der mitgelieferten Dateien sind in

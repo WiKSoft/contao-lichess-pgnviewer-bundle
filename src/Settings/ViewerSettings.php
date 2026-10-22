@@ -50,6 +50,7 @@ final class ViewerSettings
         'lpv_keyboardToMove' => [self::KIND_BOOL, '1'],
         'lpv_showGameInfo' => [self::KIND_BOOL, '1'],
         'lpv_drawArrows' => [self::KIND_BOOL, '1'],
+        'lpv_showGlyphs' => [self::KIND_BOOL, '1'],
         'lpv_coordinates' => [self::KIND_BOOL, '1'],
         'lpv_highlightLastMove' => [self::KIND_BOOL, '1'],
         'lpv_highlightCheck' => [self::KIND_BOOL, '1'],

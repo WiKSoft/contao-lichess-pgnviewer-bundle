@@ -3,6 +3,31 @@
 Alle nennenswerten Änderungen an `wiksoft/contao-lichess-pgnviewer-bundle`.
 Die Versionsnummern folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.4.0] – 2026-10-22
+
+### Neu
+
+- **lichess-pgn-viewer 2.7.3** (bisher 2.6.4): Bewertungszeichen wie `!`, `?`,
+  `!!` oder `?!` erscheinen zusätzlich als Plakette am Zielfeld des Zugs auf
+  dem Brett, wie auf lichess.org. Bei Partien, die mit dreifacher
+  Stellungswiederholung enden, werden die Wiederholungen markiert (①②③).
+- Neue Einstellung **„Bewertungszeichen auf dem Brett“** in Inhaltselement,
+  Reader-Modul und am Startpunkt der Website (Standard: Ja, vererbbar).
+
+### Behoben
+
+- Das Init-Script lud `lichess-pgn-viewer.min.js` ohne Versionsangabe. Weil
+  Dateien unter `/bundles/` lange im Browser-Cache bleiben, hätten Besucher
+  nach einem Update des Viewers weiter die alte Fassung bekommen. Die Datei
+  wird jetzt mit derselben Versionsangabe (`?v=…`) wie das Init-Script
+  geladen, und die Versionsangabe berücksichtigt auch die Viewer-Datei.
+
+### Update-Hinweis
+
+- Nach dem Update die Datenbank aktualisieren (neue Spalte `lpv_showGlyphs`
+  in `tl_content`, `tl_module` und `tl_page`). Bestehende Elemente stehen auf
+  „Standard“ und zeigen die Zeichen damit an.
+
 ## [1.3.2] – 2026-10-19
 
 ### Geändert

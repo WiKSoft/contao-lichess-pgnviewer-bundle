@@ -13,7 +13,11 @@
  * den Modul-Code trotzdem nur einmal aus). Ein einziger Durchlauf reicht
  * also aus, um alle Viewer der Seite zu finden und zu initialisieren.
  */
-import LichessPgnViewer from './lichess-pgn-viewer.min.js';
+// Den Viewer mit derselben Versionsangabe (?v=...) laden, mit der dieses
+// Modul eingebunden wurde: Dateien unter /bundles/ werden lange
+// zwischengespeichert, ein statischer Import ohne ?v= würde nach einem Update
+// weiter die alte Fassung aus dem Browser-Cache liefern.
+const { default: LichessPgnViewer } = await import(`./lichess-pgn-viewer.min.js${new URL(import.meta.url).search}`);
 
 function readOptions(root) {
     const id = root.dataset.lpvOptions;
