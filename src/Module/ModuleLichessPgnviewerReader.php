@@ -284,7 +284,7 @@ class ModuleLichessPgnviewerReader extends Module
 
         $placeholders = implode(',', array_fill(0, \count($sidIds), '?'));
         $result = $database
-            ->prepare("SELECT * FROM tl_dbChess_games WHERE id IN ({$placeholders})")
+            ->prepare("SELECT * FROM tl_dbChess_games WHERE id IN ({$placeholders}) ORDER BY id")
             ->execute(...$sidIds);
 
         $currentId = (int) $currentRow['id'];
@@ -359,7 +359,7 @@ class ModuleLichessPgnviewerReader extends Module
      *
      * @param array<string, mixed> $row
      *
-     * @return list<array{pgn: string, headers: array<string, string>, remark: string, alias: string}>
+     * @return list<array{pgn: string, headers: array<string, string>, remark: string, alias: string, id: int, featured: bool}>
      */
     private function buildGamesFromDbRow(array $row): array
     {
@@ -370,6 +370,9 @@ class ModuleLichessPgnviewerReader extends Module
         foreach ($games as &$game) {
             $game['remark'] = $remark;
             $game['alias'] = $alias;
+            // Für eigene Templates, z. B. um verknüpfte Varianten zu sortieren
+            $game['id'] = (int) ($row['id'] ?? 0);
+            $game['featured'] = !empty($row['gameFeatured']);
         }
         unset($game);
 

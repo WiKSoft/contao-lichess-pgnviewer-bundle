@@ -73,7 +73,15 @@
             <div class="lpv-select">
                 <label for="{{ elementId }}-select">{{ 'MSC.lpv_gameSelect_label'|trans({}, 'contao_default') }}</label>
                 <select id="{{ elementId }}-select" class="lpv-select__input" data-lpv-select>
-                    {% for game in games %}
+                    {#
+                        Hervorgehobene Partie zuerst (Feld "Partie hervorheben"
+                        aus dbChess: "Wird bei verknüpften Partien als erste
+                        Partie angezeigt"), danach nach ID. Vorausgewählt und
+                        angezeigt bleibt die aufgerufene Partie games[0].
+                    #}
+                    {% set order = games|keys|sort((a, b) => ((games[b].featured ? 1 : 0) <=> (games[a].featured ? 1 : 0)) ?: (games[a].id <=> games[b].id)) %}
+                    {% for index in order %}
+                        {% set game = games[index] %}
                         {% set h = game.headers %}
                         {% set dp = h.Date is defined and h.Date ? h.Date|split('.')|map(p => p matches '/^[0-9]+$/' ? p : '') : ['', '', ''] %}
                         {% set dv = dp[0] and dp[1] and dp[2] ? '%02d.%02d.%04d'|format(dp[2], dp[1], dp[0]) : (dp[0] and dp[1] ? '%02d.%04d'|format(dp[1], dp[0]) : dp[0]) %}
@@ -84,7 +92,7 @@
                         {% set label = white ~ (white and black ? ' - ' : '') ~ black ~ (result ? ' ' ~ result : '') ~ (dv ? ' ' ~ dv : '') ~ (annotator ? ' [' ~ annotator ~ ']' : '') %}
                         {% set label = label|trim != '' ? label|trim : ('MSC.lpv_game_fallback'|trans({}, 'contao_default')) %}
                         <option
-                            value="{{ loop.index0 }}"
+                            value="{{ index }}"
                             data-pgn="{{ game.pgn|e('html_attr') }}"
                             {%- for key in lpvInfoFields %}
                                 {% if key.tag == 'Date' %}
@@ -94,7 +102,7 @@
                                 {% endif %}
                                 data-{{ key.key }}="{{ v|e('html_attr') }}"
                             {%- endfor %}
-                            {% if loop.first %} selected="selected"{% endif %}
+                            {% if index == 0 %} selected="selected"{% endif %}
                         >{{ label|trim }}</option>
                     {% endfor %}
                 </select>

@@ -573,7 +573,8 @@ class ContentLichessPgnviewer extends ContentElement
      * wiksoft/contao-dbchess-bundle) wird als nachgestelltes Kriterium (Tie-Breaker)
      * angehängt - analog zu ContentPgn4web::compile(). Sie hat damit nur bei
      * ansonsten gleichen Sortierwerten Vorrang und überstimmt nicht die
-     * eigentliche Sortierung (z. B. nach Datum).
+     * eigentliche Sortierung (z. B. nach Datum). Erst danach entscheidet die
+     * ID, damit die Reihenfolge eindeutig ist.
      */
     private function buildOrderBy(string $byOrder): string
     {
@@ -587,9 +588,9 @@ class ContentLichessPgnviewer extends ContentElement
             $fields[] = ('round' === $field ? 'CAST(round AS UNSIGNED)' : $field) . ' ' . $byOrder;
         }
 
-        $orderBy = $fields ? implode(', ', $fields) : 'date ASC, id ASC';
+        $orderBy = $fields ? implode(', ', $fields) : 'date ASC';
 
-        return $orderBy . ', gameFeatured DESC';
+        return $orderBy . ', gameFeatured DESC, id ASC';
     }
 
     /**
@@ -722,7 +723,7 @@ class ContentLichessPgnviewer extends ContentElement
 
         $placeholders = implode(',', array_fill(0, \count($sidIds), '?'));
         $result = $database
-            ->prepare("SELECT * FROM tl_dbChess_games WHERE id IN ({$placeholders})")
+            ->prepare("SELECT * FROM tl_dbChess_games WHERE id IN ({$placeholders}) ORDER BY id")
             ->execute(...$sidIds);
 
         $currentId = (int) $currentRow['id'];
@@ -800,7 +801,7 @@ class ContentLichessPgnviewer extends ContentElement
      *
      * @param array<string, mixed> $row
      *
-     * @return list<array{pgn: string, headers: array<string, string>, remark: string, alias: string}>
+     * @return list<array{pgn: string, headers: array<string, string>, remark: string, alias: string, id: int, featured: bool}>
      */
     private function buildGamesFromDbRow(array $row): array
     {
@@ -811,6 +812,9 @@ class ContentLichessPgnviewer extends ContentElement
         foreach ($games as &$game) {
             $game['remark'] = $remark;
             $game['alias'] = $alias;
+            // Für eigene Templates, z. B. um verknüpfte Varianten zu sortieren
+            $game['id'] = (int) ($row['id'] ?? 0);
+            $game['featured'] = !empty($row['gameFeatured']);
         }
         unset($game);
 

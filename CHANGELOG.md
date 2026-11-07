@@ -3,6 +3,34 @@
 Alle nennenswerten Änderungen an `wiksoft/contao-lichess-pgnviewer-bundle`.
 Die Versionsnummern folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.5.0] – 2026-11-07
+
+### Geändert
+
+- Reader-Modul: Im Auswahlfeld der verknüpften Varianten einer Partie steht
+  die hervorgehobene Partie zuerst, danach die übrigen nach ID - wie es die
+  Feldbeschreibung in wiksoft/contao-dbchess-bundle vorsieht („Wird bei
+  verknüpften Partien als erste Partie angezeigt“). Angezeigt und vorausgewählt
+  bleibt die aufgerufene Partie. Bisher stand die aufgerufene Partie oben.
+
+- Das Reader-Modul steht nur noch zur Auswahl, wenn wiksoft/contao-dbchess-bundle
+  installiert ist. Ohne dbChess konnte man es anlegen, es gab aber nichts aus.
+  Vorhandene Reader-Module bleiben nach dem Entfernen von dbChess im Backend
+  sichtbar (Typ „Unbekannte Option“).
+
+### Neu
+
+- Partien aus der dbChess-Datenbank haben im Template zusätzlich `id` und
+  `featured` (Feld „Partie hervorheben“). Das Reader-Template sortiert damit
+  das Auswahlfeld, eigene Templates können sie genauso nutzen. `games[0]`
+  bleibt die angezeigte Partie.
+
+### Behoben
+
+- Quelle „Datenbank – Liste“ ohne gewählte Sortierfelder: Die
+  hervorgehobene Partie hatte keinen Vorrang, weil vor ihr bereits nach ID
+  sortiert wurde. Sortiert wird jetzt nach Datum, hervorgehoben, ID.
+
 ## [1.4.0] – 2026-10-22
 
 ### Neu
@@ -195,6 +223,7 @@ Einzelauswahl), Frontend-Modul „lichessPgnviewer Reader", Partieauswahl,
 verknüpfte Partien, Rundennavigation, Zugliste links oder rechts, feste
 Brettbreite und Farben der Brettfelder, Sprachdateien Deutsch und Englisch.
 
+[1.5.0]: https://github.com/WiKSoft/contao-lichess-pgnviewer-bundle/compare/v1.4.0...v1.5.0
 [1.2.0]: https://github.com/WiKSoft/contao-lichess-pgnviewer-bundle/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/WiKSoft/contao-lichess-pgnviewer-bundle/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/WiKSoft/contao-lichess-pgnviewer-bundle/compare/v1.0.0...v1.0.1

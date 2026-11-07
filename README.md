@@ -52,8 +52,12 @@ Einstellungen.
 
 > **Hinweis:** Der Reader funktioniert nur zusammen mit dbChess
 > (`wiksoft/contao-dbchess-bundle`). Er liest die Partien ausschließlich aus
-> `tl_dbChess_games`. Ist dbChess nicht installiert, gibt das Modul im Frontend
-> nichts aus.
+> `tl_dbChess_games`. Ohne dbChess steht er bei den Modultypen nicht zur
+> Auswahl. Wird dbChess später entfernt, bleiben vorhandene Reader-Module im
+> Backend sichtbar (Typ „Unbekannte Option: lichessPgnviewerReader“) und geben
+> im Frontend nichts aus. Contao schreibt dann bei jedem Aufruf einer Seite mit
+> dem Modul einen Fehler ins Log. Solche Module am besten vor dem Entfernen von
+> dbChess löschen oder aus den Seiten nehmen.
 
 - Funktioniert wie der Nachrichtenleser in Contao: Es zeigt genau eine Partie
   aus der Datenbank, die über den Partie-Alias in der URL bestimmt wird.
@@ -67,9 +71,9 @@ Einstellungen.
 dbChess (`wiksoft/contao-dbchess-bundle`) ist im Viewer nur als optionale
 Ergänzung (`suggest`) eingetragen, nicht als feste Abhängigkeit. Ob dbChess
 installiert ist, prüft der Viewer über `DbChessAvailability`. Nur dann
-erscheinen im Backend die Datenbank-Quellen und die Sammlungsauswahl des
-Readers. Ohne dbChess funktioniert das Inhaltselement weiterhin mit Datei oder
-Textfeld, der Reader dagegen gibt dann nichts aus.
+erscheinen im Backend die Datenbank-Quellen und das Reader-Modul. Ohne dbChess
+funktioniert das Inhaltselement weiterhin mit Datei oder Textfeld, auch mit
+mehreren Partien und Auswahlfeld.
 
 **1. dbChess als Partiequelle für das Inhaltselement**
 

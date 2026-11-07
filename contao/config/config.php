@@ -3,6 +3,7 @@
 use Wiksoft\ContaoLichessPgnviewerBundle\ContentElement\ContentLichessPgnviewer;
 use Wiksoft\ContaoLichessPgnviewerBundle\EventListener\LoadDataContainerListener;
 use Wiksoft\ContaoLichessPgnviewerBundle\Module\ModuleLichessPgnviewerReader;
+use Wiksoft\ContaoLichessPgnviewerBundle\Pgn\DbChessAvailability;
 
 /**
  * -------------------------------------------------------------------------
@@ -14,9 +15,15 @@ $GLOBALS['TL_CTE']['schach']['lichessPgnviewer'] = ContentLichessPgnviewer::clas
 /**
  * -------------------------------------------------------------------------
  * FRONT END MODULES
+ * Der Reader liest nur aus der dbChess-Datenbank und wird deshalb nur mit
+ * wiksoft/contao-dbchess-bundle angeboten. Bestehende Reader-Module bleiben
+ * nach dem Entfernen von dbChess im Backend sichtbar (Typ "Unbekannte
+ * Option"), im Frontend geben sie nichts aus.
  * -------------------------------------------------------------------------
  */
-$GLOBALS['FE_MOD']['schach']['lichessPgnviewerReader'] = ModuleLichessPgnviewerReader::class;
+if (DbChessAvailability::isInstalled()) {
+    $GLOBALS['FE_MOD']['schach']['lichessPgnviewerReader'] = ModuleLichessPgnviewerReader::class;
+}
 
 /**
  * -------------------------------------------------------------------------
